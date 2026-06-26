@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chintamani Gawade | Senior Backend Engineer</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'app-bg': '#050505', // Fixed color name to prevent text-base collision
+                        surface: '#121212',
+                        accent: '#d4ff00', // Acid Yellow
+                        mute: '#8a8a8a'
+                    },
+                    fontSize: {
+                        'vw-huge': 'clamp(4rem, 12vw, 12rem)',
+                        'vw-large': 'clamp(2rem, 6vw, 6rem)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --cursor-x: 50%;
+            --cursor-y: 50%;
+        }
+
+        body {
+            background-color: #050505;
+            color: #f0f0f0;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.035;
+        }
+
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 24px;
+            background-color: #d4ff00;
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(calc(var(--cursor-x) - 10px), calc(var(--cursor-y) - 12px));
+            transition: width 0.2s, height 0.2s, transform 0.05s linear;
+            will-change: transform;
+        }
+        
+        .custom-cursor.active {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+        }
+        
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+        
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        .text-justify-custom {
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-up.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .text-stroke {
+            -webkit-text-stroke: 1px #8a8a8a;
+            color: transparent;
+            transition: all 0.3s ease;
+        }
+        .text-stroke:hover {
+            -webkit-text-stroke: 1px #d4ff00;
+            color: #d4ff00;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4ff00;
+        }
+
+        .terminal-window {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .terminal-header {
+            background: #111;
+            border-bottom: 1px solid #333;
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .custom-cursor { display: none; }
+            body { cursor: auto; }
+        }
+    </style>
+</head>
+<body class="antialiased font-sans selection:bg-accent selection:text-app-bg relative">
+
+    <svg class="noise">
+        <filter id="noiseFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+    </svg>
+
+    <div class="custom-cursor hidden md:block"></div>
+
+    <nav class="fixed w-full top-0 z-50 mix-blend-difference p-6 flex justify-between items-center">
+        <div class="font-mono text-sm tracking-tighter blink interactive">~/cg_root</div>
+        <div class="flex gap-6 font-mono text-xs uppercase tracking-widest text-mute">
+            <a href="#expertise" class="hover:text-accent transition-colors interactive">Expertise</a>
+            <a href="#experience" class="hover:text-accent transition-colors interactive">Experience</a>
+            <a href="#contact" class="hover:text-accent transition-colors interactive">Init_Contact</a>
+        </div>
+    </nav>
+
+    <section class="min-h-screen flex flex-col justify-center px-6 md:px-12 pt-24 relative overflow-hidden" id="hero-section">
+        <canvas id="network-canvas" class="absolute inset-0 w-full h-full z-0 opacity-40 pointer-events-none"></canvas>
+
+        <div class="absolute top-1/4 right-10 md:right-32 font-mono text-xs text-zinc-500 select-none rotate-90 origin-right tracking-widest z-10">
+            [SYS_UPTIME: <span id="uptime-counter" class="text-accent">000d 00h 00m 00s</span>] <br>
+            [STATUS: 99.9% RESILIENCE]
+        </div>
+
+        <div class="max-w-7xl mx-auto w-full z-10 reveal-up">
+            <h1 class="text-vw-huge leading-[0.85] font-bold tracking-tighter uppercase mb-4 relative">
+                <span class="scramble-hover block interactive" data-value="CHINTAMANI">Chintamani</span>
+                <span class="text-stroke scramble-hover block interactive" data-value="GAWADE.">Gawade.</span>
+            </h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mt-12 md:mt-24 pointer-events-none relative z-10">
+                <div class="md:col-span-4 md:col-start-9 pointer-events-auto">
+                    <p class="font-mono text-accent text-sm mb-4">
+                        <span class="blink">></span>&nbsp;ROLE: SENIOR BACKEND ENGINEER
+                    </p>
+                    <p class="text-lg md:text-xl text-mute text-justify-custom leading-relaxed">
+                        Architecting scalable, high-concurrency distributed systems and engineering robust, fault-tolerant ecosystems that solve critical business bottlenecks in the financial sector.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-6 md:px-12 bg-surface border-y border-zinc-900" id="about">
+        <div class="max-w-5xl mx-auto reveal-up">
+            <div class="terminal-window rounded-md overflow-hidden interactive-row">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <div class="ml-4 font-mono text-[10px] text-zinc-400">chintamani@localhost:~</div>
+                </div>
+                <div class="p-6 md:p-10 font-mono text-sm md:text-base leading-relaxed text-zinc-100">
+                    <p class="mb-4"><span class="text-accent">~/system/profile$</span> cat summary.txt</p>
+                    <p class="mb-4 text-zinc-400">
+                        # Loading profile payload...<br>
+                        # Engineering resilience into every layer.
+                    </p>
+                    <p class="mb-6 text-lg">
+                        Senior Backend Engineer with a deep focus on system design. I solve complex scaling and reliability problems in the financial sector. My work centers on engineering high-concurrency distributed systems, resilient microservices, and event-driven architectures with a strict focus on 99.9% availability.
+                    </p>
+                    <p class="mb-2"><span class="text-accent">~/system/profile$</span> ./execute_skills.sh</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 text-xs text-zinc-400">
+                        <div>
+                            <span class="text-white block mb-1">LANGUAGES</span>
+                            Python (Expert)<br>Java (Senior)<br>JavaScript<br>TypeScript
+                        </div>
+                        <div>
+                            <span class="text-white block mb-1">FRAMEWORKS</span>
+                            Spring Boot<br>Django<br>FastAPI<br>Flask, Node.js
+                        </div>
+                        <div>
+                            <span class="text-white block mb-1">INFRA & CLOUD</span>
+                            Docker, K8s<br>OpenShift<br>Ansible, Chef<br>Terraform, Vault
+                        </div>
+                        <div>
+                            <span class="text-white block mb-1">DATA & EVENTS</span>
+                            Apache Kafka<br>Redis (Cache-Aside)<br>PostgreSQL<br>MongoDB
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 px-6 md:px-12" id="experience">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-vw-large leading-none font-bold tracking-tighter mb-20 reveal-up">
+                Professional<br>
+                <span class="text-mute text-stroke interactive">Trajectory.</span>
+            </h2>
+
+            <div class="group relative border-t border-zinc-800 py-12 grid grid-cols-1 md:grid-cols-12 gap-8 reveal-up interactive-row">
+                <div class="md:col-span-3 font-mono text-xs text-zinc-500 uppercase tracking-widest pt-2 flex flex-col justify-between">
+                    <span>Aug 2022 — Present</span>
+                    <span class="hidden md:block mt-auto text-zinc-500 group-hover:text-accent transition-colors">01</span>
+                </div>
+                <div class="md:col-span-9">
+                    <div class="flex flex-col md:flex-row md:items-baseline gap-4 mb-8">
+                        <h3 class="text-4xl md:text-5xl font-bold tracking-tight text-white">Barclays</h3>
+                        <span class="font-mono text-accent text-sm">Software Engineer BA4</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-12">
+                        <div>
+                            <h4 class="text-xl font-bold mb-3 text-white">1. Modernizing Legacy Systems & High Availability</h4>
+                            <p class="text-mute mb-4 text-justify-custom text-sm md:text-base">
+                                <strong class="text-zinc-300">The Challenge:</strong> Legacy CLI tools were bottlenecking the scheduling and management of global Autosys jobs, lacking robust authorization and modern scalability.
+                            </p>
+                            <p class="text-mute mb-4 text-justify-custom text-sm md:text-base">
+                                <strong class="text-accent">System Design & Solution:</strong> Architected a high-availability Spring Boot microservices ecosystem exposing a global REST API. Engineered a custom multi-constraint authorization layer leveraging a <span class="text-white">Redis cache-aside pattern</span> and <span class="text-white">Circuit-Breaker patterns</span> to guarantee fault tolerance and high performance under load.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-bold mb-3 text-white">2. Low-Latency Event Processing & Routing</h4>
+                            <p class="text-mute mb-4 text-justify-custom text-sm md:text-base">
+                                <strong class="text-zinc-300">The Challenge:</strong> Alert deduplication and routing inefficiencies at the source were causing critical delays in enterprise security visibility.
+                            </p>
+                            <p class="text-mute mb-4 text-justify-custom text-sm md:text-base">
+                                <strong class="text-accent">System Design & Solution:</strong> Designed the end-to-end architecture for a low-latency Alert Enrichment & Preprocessing Engine utilizing Python and Nginx. Implemented intelligent, dynamic schema-driven routing to redirect alerts instantly, significantly enhancing security monitoring accuracy.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-bold mb-3 text-white">3. Distributed Automation & Resilience Solutions</h4>
+                            <p class="text-mute mb-4 text-justify-custom text-sm md:text-base">
+                                Solved critical operational risks by replacing manual workflows with resilient, event-driven automated systems.
+                            </p>
+                            <div class="bg-surface p-6 border border-zinc-900 rounded-sm">
+                                <h4 class="font-mono text-xs text-white mb-4 border-b border-zinc-800 pb-2">ARCHITECTURAL IMPACT</h4>
+                                <ul class="font-mono text-sm text-zinc-400 space-y-3">
+                                    <li>> <strong class="text-zinc-200">Secrets Automation:</strong> Built a Python/Hashicorp Vault suite executing automated pod restarts across OpenShift, averting <strong class="text-accent">150,000+ potential annual incidents</strong> related to credential expiry.</li>
+                                    <li>> <strong class="text-zinc-200">Resilient Maintenance:</strong> Engineered UIM APIs that effectively suppressed <strong class="text-accent">20,000+ false alerts</strong> during infra maintenance, saving ~30 eng-hours/month.</li>
+                                    <li>> <strong class="text-zinc-200">Event-Driven Workflows:</strong> Launched a full-stack Angular/Django platform linked to ServiceNow via events, cutting resource onboarding lead times by <strong class="text-accent">90%</strong>.</li>
+                                    <li>> <strong class="text-zinc-200">API Optimization:</strong> Refactored internal dashboard APIs to reduce latency by <strong class="text-accent">45%</strong>.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group relative border-t border-zinc-800 py-12 grid grid-cols-1 md:grid-cols-12 gap-8 reveal-up interactive-row">
+                <div class="md:col-span-3 font-mono text-xs text-zinc-500 uppercase tracking-widest pt-2 flex flex-col justify-between">
+                    <span>Jan 2022 — Jun 2022</span>
+                    <span class="hidden md:block mt-auto text-zinc-500 group-hover:text-accent transition-colors">02</span>
+                </div>
+                <div class="md:col-span-9">
+                    <div class="flex flex-col md:flex-row md:items-baseline gap-4 mb-8">
+                        <h3 class="text-4xl md:text-5xl font-bold tracking-tight text-white">BNP Paribas</h3>
+                        <span class="font-mono text-accent text-sm">DevOps Engineer</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                        <div>
+                            <p class="text-mute mb-4 text-justify-custom text-sm md:text-base">
+                                Orchestrated containerized deployments within Kubernetes and OpenShift environments, driving horizontal scalability to manage a 2x increase in peak transaction volume.
+                            </p>
+                            <p class="text-mute text-justify-custom text-sm md:text-base">
+                                Architected standard Ansible Playbooks for environment setups, eliminating configuration drift across 50+ server instances. Engineered custom Ansible Collections for automated secret management, minimizing manual handling by 80%.
+                            </p>
+                        </div>
+                        <div>
+                            <ul class="font-mono text-xs text-mute space-y-3 mt-1">
+                                <li>> Automated CI/CD pipelines reducing deployment effort by 60%.</li>
+                                <li>> Built robust Jenkins pipelines for Java Spring apps, optimizing recovery time by 25%.</li>
+                                <li>> Integrated SonarQube & DAST for proactive vulnerability mitigation.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group relative border-y border-zinc-800 py-12 grid grid-cols-1 md:grid-cols-12 gap-8 reveal-up interactive-row">
+                <div class="md:col-span-3 font-mono text-xs text-zinc-500 uppercase tracking-widest pt-2 flex flex-col justify-between">
+                    <span>Jun 2019 — Dec 2021</span>
+                    <span class="hidden md:block mt-auto text-zinc-500 group-hover:text-accent transition-colors">03</span>
+                </div>
+                <div class="md:col-span-9">
+                    <div class="flex flex-col md:flex-row md:items-baseline gap-4 mb-8">
+                        <h3 class="text-4xl md:text-5xl font-bold tracking-tight text-white">Capgemini</h3>
+                        <span class="font-mono text-accent text-sm">Senior Analyst / SWE</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                        <div>
+                            <p class="text-mute text-justify-custom text-sm md:text-base">
+                                Spearheaded the development of scalable RESTful APIs leveraging Django and Flask. Championed the adoption of a microservices architecture, which successfully enhanced system modularity and reduced maintenance downtime by ~30%.
+                            </p>
+                        </div>
+                        <div>
+                            <ul class="font-mono text-xs text-mute space-y-3 mt-1">
+                                <li>> Engineered seamless backend-to-frontend integrations.</li>
+                                <li>> Built real-time monitoring dashboards in React & Angular, reducing incident detection time by 40%.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-6 md:px-12 bg-surface" id="education">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row gap-12 justify-between items-start reveal-up">
+            <h2 class="text-3xl md:text-5xl font-bold tracking-tighter w-full md:w-1/3">
+                Academic<br>Base.
+            </h2>
+            <div class="w-full md:w-2/3 grid gap-8">
+                <div class="border-l border-accent pl-6">
+                    <h3 class="text-xl font-bold mb-1 text-white">Master of Computer Applications (MCA)</h3>
+                    <p class="font-mono text-sm text-mute mb-2">Veermata Jijabai Technical Institute (VJTI) — Mumbai, India | 2022</p>
+                    <p class="font-mono text-xs text-accent">CGPA: 8.4</p>
+                </div>
+                <div class="border-l border-zinc-700 pl-6">
+                    <h3 class="text-xl font-bold mb-1 text-white">B.Sc. in Information Technology</h3>
+                    <p class="font-mono text-sm text-mute mb-2">University of Mumbai — Mumbai, India | 2019</p>
+                    <p class="font-mono text-xs text-zinc-500">CGPA: 8.78</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-32 px-6 md:px-12 relative overflow-hidden" id="contact">
+        <div class="absolute -right-20 -bottom-20 text-[20vw] font-bold text-zinc-800 opacity-30 select-none pointer-events-none leading-none">
+            EOF.
+        </div>
+
+        <div class="max-w-6xl mx-auto relative z-10 text-center md:text-left reveal-up">
+            <p class="font-mono text-accent text-sm mb-8">> INITIATE_CONNECTION</p>
+            <a href="mailto:gawdechintamani@gmail.com" class="text-vw-large font-bold tracking-tighter hover:text-accent transition-colors inline-block mb-12 interactive text-stroke" style="-webkit-text-stroke-color: #fff; color: transparent;">
+                gawdechintamani<br>@gmail.com
+            </a>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center border-t border-zinc-800 pt-8 mt-12 gap-6">
+                <div class="font-mono text-xs text-mute flex gap-6">
+                    <a href="https://linkedin.com/in/chintamani-g-705bb9176" target="_blank" class="hover:text-white transition-colors interactive">> LINKEDIN</a>
+                    <span class="text-zinc-600">|</span>
+                    <a href="tel:+919987383647" class="hover:text-white transition-colors interactive">> +91 99873 83647</a>
+                </div>
+                <div class="font-mono text-xs text-zinc-500">
+                    MUMBAI, INDIA [ SYSTEM ONLINE ]
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* --- 1. Custom Cursor --- */
+        const cursor = document.querySelector('.custom-cursor');
+        const interactives = document.querySelectorAll('.interactive, a, button, .interactive-row');
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            document.documentElement.style.setProperty('--cursor-x', `${mouseX}px`);
+            document.documentElement.style.setProperty('--cursor-y', `${mouseY}px`);
+        });
+
+        interactives.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+        });
+
+
+        /* --- 2. Live Uptime Counter --- */
+        let uptimeSeconds = 835214; // Start at an arbitrary high number
+        setInterval(() => {
+            uptimeSeconds++;
+            const d = Math.floor(uptimeSeconds / (3600*24)).toString().padStart(3, '0');
+            const h = Math.floor(uptimeSeconds % (3600*24) / 3600).toString().padStart(2, '0');
+            const m = Math.floor(uptimeSeconds % 3600 / 60).toString().padStart(2, '0');
+            const s = Math.floor(uptimeSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('uptime-counter').innerText = `${d}d ${h}h ${m}m ${s}s`;
+        }, 1000);
+
+
+        /* --- 3. Hacker Scramble Text Effect --- */
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+        document.querySelectorAll('.scramble-hover').forEach(el => {
+            el.addEventListener('mouseenter', event => {
+                let iterations = 0;
+                const target = event.target;
+                const originalText = target.dataset.value;
+                clearInterval(target.interval);
+                
+                target.interval = setInterval(() => {
+                    target.innerText = originalText.split("")
+                        .map((letter, index) => {
+                            if(index < iterations) {
+                                return originalText[index];
+                            }
+                            return letters[Math.floor(Math.random() * letters.length)]
+                        })
+                        .join("");
+                    
+                    if(iterations >= originalText.length){ 
+                        clearInterval(target.interval);
+                    }
+                    iterations += 1 / 3;
+                }, 30);
+            });
+        });
+
+
+        /* --- 4. Interactive Node Network (Canvas) --- */
+        const canvas = document.getElementById('network-canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        function resizeCanvas() {
+            const heroSection = document.getElementById('hero-section');
+            canvas.width = heroSection.clientWidth;
+            canvas.height = heroSection.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x; this.y = y;
+                this.directionX = directionX; this.directionY = directionY;
+                this.size = size; this.color = color;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+
+                // Mouse interaction / Repulsion
+                let dx = mouseX - this.x;
+                let dy = mouseY - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 150) {
+                    this.x -= dx / 50;
+                    this.y -= dy / 50;
+                }
+
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function initCanvas() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.width * canvas.height) / 12000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 2) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * 0.5) - 0.25;
+                let directionY = (Math.random() * 0.5) - 0.25;
+                let color = 'rgba(212, 255, 0, 0.4)'; // Acid yellow with opacity
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function animateCanvas() {
+            requestAnimationFrame(animateCanvas);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            connectParticles();
+        }
+
+        function connectParticles() {
+            let opacityValue = 1;
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + 
+                                   ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                    if (distance < (canvas.width / 10) * (canvas.height / 10)) {
+                        opacityValue = 1 - (distance / 15000);
+                        ctx.strokeStyle = `rgba(212, 255, 0, ${opacityValue * 0.15})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        initCanvas();
+        animateCanvas();
+
+
+        /* --- 5. Scroll Reveal --- */
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-up').forEach(el => {
+            observer.observe(el);
+        });
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('section').classList.add('is-visible');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
