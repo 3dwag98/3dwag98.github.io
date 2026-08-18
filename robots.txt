@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://3dwag98.github.io/sitemap.xml

@@ -1,0 +1,44 @@
+{
+  "$comment": "Index of every entry. Regenerate with: node tools/build-index.mjs",
+  "posts": [
+    {
+      "slug": "designing-for-failure",
+      "title": "Designing for failure — cache-aside, breakers and the authorization hot path",
+      "date": "2026-08-02",
+      "summary": "What it actually takes to put a cache and a circuit breaker in front of an authorization check without turning a slow dependency into an outage.",
+      "tags": [
+        "distributed-systems",
+        "resilience",
+        "redis",
+        "spring-boot"
+      ],
+      "format": "md",
+      "readingTime": "3 min read"
+    },
+    {
+      "slug": "hello-world",
+      "title": "Why this log exists",
+      "date": "2026-07-12",
+      "summary": "A short note on writing things down, and the one line taped above my desk.",
+      "tags": [
+        "meta",
+        "engineering"
+      ],
+      "format": "md",
+      "readingTime": "1 min read"
+    },
+    {
+      "slug": "publishing-a-log",
+      "title": "Publishing a log — the authoring workflow",
+      "date": "2026-07-10",
+      "summary": "How entries are written, registered and rendered. Written in HTML to show the second format.",
+      "tags": [
+        "meta",
+        "workflow"
+      ],
+      "format": "html",
+      "readingTime": "1 min read",
+      "draft": true
+    }
+  ]
+}

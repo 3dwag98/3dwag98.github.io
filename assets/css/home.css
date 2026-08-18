@@ -1,0 +1,609 @@
+/* ============================================================================
+   home.css — scrollytelling scenes for the portfolio.
+   Layout only; every scrubbed value is driven from assets/js/home.js.
+   ========================================================================= */
+
+/* ---------- Scene 00 — hero --------------------------------------------- */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 8rem 5rem;
+  overflow: hidden;
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.hero__inner { position: relative; z-index: 2; }
+
+.hero__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.1rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.hero__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  color: var(--dim);
+}
+
+.hero__pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(212, 255, 0, 0.7);
+  animation: pulse 2.4s infinite;
+  flex: none;
+}
+
+@keyframes pulse {
+  70%  { box-shadow: 0 0 0 9px rgba(212, 255, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 255, 0, 0); }
+}
+
+.hero__name {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  line-height: 0.84;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+}
+
+.hero__name span { display: block; }
+
+.hero__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: clamp(2.5rem, 7vw, 5rem);
+}
+
+@media (min-width: 900px) {
+  .hero__grid { grid-template-columns: repeat(12, 1fr); }
+  .hero__role { grid-column: 1 / span 4; }
+  .hero__blurb { grid-column: 7 / span 6; }
+}
+
+.hero__role {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  align-self: end;
+}
+
+.hero__role small {
+  display: block;
+  color: var(--faint);
+  letter-spacing: 0.14em;
+  margin-top: 0.6rem;
+}
+
+.hero__blurb { color: var(--dim); font-size: var(--fs-lg); line-height: 1.6; }
+
+.hero__scroll {
+  position: absolute;
+  left: var(--pad-x);
+  bottom: 2rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.hero__scroll i {
+  display: block;
+  width: 1px;
+  height: 42px;
+  background: linear-gradient(180deg, var(--accent), transparent);
+  animation: drop 1.9s var(--ease-out) infinite;
+}
+
+@keyframes drop {
+  0%   { transform: scaleY(0); transform-origin: 0 0; }
+  45%  { transform: scaleY(1); transform-origin: 0 0; }
+  55%  { transform: scaleY(1); transform-origin: 0 100%; }
+  100% { transform: scaleY(0); transform-origin: 0 100%; }
+}
+
+/* ---------- Scene 01 — profile ------------------------------------------ */
+
+.profile {
+  background: var(--surface);
+  border-block: 1px solid var(--line);
+  padding-block: clamp(4.5rem, 12vh, 8rem);
+}
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.stack-grid h4 {
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 0.65rem;
+}
+
+.stack-grid ul { list-style: none; font-size: var(--fs-xs); color: var(--mute); line-height: 2; }
+
+/* ---------- Scene 02 — the creed (pinned) ------------------------------- */
+
+.creed {
+  position: relative;
+  background: var(--bg);
+  --creed-tint: var(--accent);
+}
+
+.creed__pin {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 6rem var(--pad-x) 4rem;
+}
+
+.creed__stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--shell);
+  text-align: center;
+}
+
+.creed__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: clamp(1.5rem, 5vh, 3rem);
+}
+
+.creed__line {
+  font-size: clamp(2.1rem, 9.2vw, 8.5rem);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.creed__line .ch { display: inline-block; will-change: transform, opacity; }
+
+.creed__line--living { color: var(--text); }
+.creed__line--living .ch--key { color: var(--accent); }
+
+.creed__line--dying { color: var(--faint); }
+
+.creed__line--dying .ch--key {
+  -webkit-text-stroke: 1px var(--decay);
+  color: transparent;
+}
+
+.creed__or {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.9rem, 2.6vw, 2rem);
+  font-weight: 500;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  color: var(--mute);
+  margin-block: clamp(0.9rem, 2.6vh, 1.8rem);
+}
+
+/* the EKG: alive on the left, flat on the right */
+.creed__ekg {
+  width: min(100%, 900px);
+  margin: clamp(1.6rem, 5vh, 3rem) auto 0;
+  height: 90px;
+  overflow: visible;
+}
+
+.creed__ekg path {
+  fill: none;
+  stroke: var(--creed-tint);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--creed-tint) 45%, transparent));
+}
+
+.creed__resolve {
+  margin-top: clamp(1.5rem, 5vh, 3rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.creed__attrib {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.creed__gloss {
+  font-size: var(--fs-lg);
+  color: var(--dim);
+  max-width: 58ch;
+  text-wrap: balance;
+}
+
+.creed__gloss b { color: var(--text); font-weight: 500; }
+
+/* radial wash that warms/cools with the scrubbed timeline */
+.creed__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 55% at 50% 50%,
+              color-mix(in srgb, var(--creed-tint) 13%, transparent), transparent 70%);
+  opacity: 0;
+}
+
+/* ---------- Scene 03 — stack (pinned horizontal) ------------------------ */
+
+.stack { position: relative; background: var(--surface); border-block: 1px solid var(--line); }
+
+.stack__head { padding: clamp(4rem, 10vh, 7rem) 0 2.5rem; }
+
+.stack__viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.stack__viewport::-webkit-scrollbar { display: none; }
+
+/* GSAP owns the horizontal offset once the section is pinned. */
+.stack__viewport.is-pinned { overflow: hidden; scroll-snap-type: none; }
+
+.stack__track {
+  display: flex;
+  gap: clamp(1rem, 2vw, 1.75rem);
+  padding: 0 var(--pad-x) clamp(4rem, 10vh, 7rem);
+  will-change: transform;
+}
+
+.stack__card {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  width: min(88vw, 360px);
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #0a0a0a;
+  border: 1px solid var(--line);
+  padding: 1.75rem;
+  transition: border-color 0.35s ease, transform 0.35s var(--ease-out);
+}
+
+.stack__card:hover { border-color: var(--line-strong); transform: translateY(-4px); }
+
+.stack__idx {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+.stack__card h3 {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.stack__card p { color: var(--mute); font-size: var(--fs-sm); }
+
+.stack__card ul {
+  list-style: none;
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.stack__card li {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--dim);
+  border: 1px solid var(--line);
+  padding: 0.22rem 0.55rem;
+}
+
+.stack__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-top: 1.5rem;
+}
+
+/* ---------- Scene 04 — trajectory --------------------------------------- */
+
+.traj { padding-block: clamp(4.5rem, 12vh, 8rem); }
+
+.job {
+  position: relative;
+  border-top: 1px solid var(--line);
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+}
+
+.job:last-of-type { border-bottom: 1px solid var(--line); }
+
+/* accent hairline that draws itself across the divider on entry */
+.job__rule {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+@media (min-width: 940px) {
+  .job { grid-template-columns: 4fr 8fr; gap: 3rem; }
+  .job__side { position: sticky; top: 22vh; align-self: start; }
+}
+
+.job__side { display: flex; flex-direction: column; gap: 0.9rem; }
+
+.job__no {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+.job--now .job__no { color: var(--accent); }
+
+.job__co {
+  font-size: clamp(1.9rem, 3.6vw, 3.1rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+
+.job__role {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.job__when {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.job__now {
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.job__body { display: flex; flex-direction: column; gap: 2.25rem; }
+
+.job__block h4 {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.85rem;
+}
+
+.job__block p { color: var(--mute); font-size: var(--fs-md); margin-bottom: 0.9rem; }
+.job__block p:last-child { margin-bottom: 0; }
+.job__block strong { color: var(--dim); font-weight: 500; }
+.job__block .sol { color: var(--accent); font-weight: 500; }
+.job__block .hi { color: var(--text); }
+
+.panel {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  padding: 1.5rem;
+}
+
+.panel h5 {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.7rem;
+  margin-bottom: 1.1rem;
+}
+
+.panel ul { display: flex; flex-direction: column; gap: 0.85rem; }
+
+.panel li {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--mute);
+  padding-left: 1.15rem;
+  position: relative;
+}
+
+.panel li::before { content: '>'; position: absolute; left: 0; color: var(--accent); }
+.panel li strong { color: var(--dim); font-weight: 500; }
+.panel li b { color: var(--accent); font-weight: 500; }
+
+.bullets { display: flex; flex-direction: column; gap: 0.8rem; }
+
+.bullets li {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  line-height: 1.7;
+  color: var(--mute);
+  padding-left: 1.15rem;
+  position: relative;
+}
+
+.bullets li::before { content: '>'; position: absolute; left: 0; color: var(--faint); }
+
+.split { display: grid; grid-template-columns: 1fr; gap: 1.75rem; }
+
+@media (min-width: 700px) {
+  .split { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+}
+
+/* ---------- Scene 05 — impact counters ---------------------------------- */
+
+.impact {
+  background: var(--surface);
+  border-block: 1px solid var(--line);
+  padding-block: clamp(4rem, 10vh, 6.5rem);
+}
+
+/* Six metrics, so the column count must divide 6 exactly — auto-fit would
+   leave empty cells showing through the 1px-gap grid lines. */
+.impact__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 560px) { .impact__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .impact__grid { grid-template-columns: repeat(3, 1fr); } }
+
+.metric {
+  background: var(--surface);
+  padding: 1.9rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: background 0.35s ease;
+}
+
+.metric:hover { background: #0e0e0e; }
+
+.metric__n {
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric__l {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  line-height: 1.7;
+}
+
+/* ---------- Scene 06 — academic base ------------------------------------ */
+
+.base { padding-block: clamp(4.5rem, 12vh, 8rem); }
+
+.base__grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+
+@media (min-width: 900px) {
+  .base__grid { grid-template-columns: 1fr 2fr; gap: 4rem; }
+}
+
+.degree { border-left: 1px solid var(--line-strong); padding-left: 1.5rem; }
+.degree + .degree { margin-top: 2rem; }
+.degree--top { border-left-color: var(--accent); }
+.degree h3 { font-size: var(--fs-lg); font-weight: 700; color: var(--text); margin-bottom: 0.35rem; }
+.degree p { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--mute); }
+.degree .cgpa { color: var(--accent); margin-top: 0.4rem; letter-spacing: 0.12em; }
+
+/* ---------- Scene 07 — logs teaser -------------------------------------- */
+
+.logs {
+  background: var(--surface);
+  border-block: 1px solid var(--line);
+  padding-block: clamp(4.5rem, 12vh, 8rem);
+}
+
+.logs__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.logs__list { display: flex; flex-direction: column; }
+
+.logs__empty {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--mute);
+  border-top: 1px solid var(--line);
+  padding-block: 2rem;
+}
