@@ -3,104 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Logs | Chintamani Gawade</title>
+<title>Logs — Chintamani Gawade</title>
 
 <meta name="description" content="Field notes on distributed systems, resilience patterns, event-driven architecture and the day-to-day of running backend platforms in production.">
-<meta name="theme-color" content="#050505">
+<meta name="theme-color" content="#EFEAE1">
 <link rel="canonical" href="https://3dwag98.github.io/blog/">
-
 <meta property="og:type" content="website">
-<meta property="og:title" content="Logs | Chintamani Gawade">
+<meta property="og:title" content="Logs — Chintamani Gawade">
 <meta property="og:description" content="Field notes on distributed systems, resilience and production engineering.">
 <meta property="og:url" content="https://3dwag98.github.io/blog/">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23050505'/><text y='74' x='50' font-size='72' font-family='monospace' font-weight='bold' fill='%23d4ff00' text-anchor='middle'>c</text></svg>">
-<link rel="alternate" type="application/rss+xml" title="cg_root — logs" href="/feed.xml">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23EFEAE1'/><circle cx='50' cy='50' r='26' fill='%23E4441A'/></svg>">
+<link rel="alternate" type="application/rss+xml" title="Logs — Chintamani Gawade" href="/feed.xml">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="../assets/css/site.css">
+<link rel="preload" href="../assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/blog.css">
 
-<script>document.documentElement.classList.add('is-ready');</script>
+<script>document.documentElement.classList.add('js');</script>
 </head>
 
 <body>
 
-<svg class="noise" aria-hidden="true">
-  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/></filter>
-  <rect width="100%" height="100%" filter="url(#noise)"/>
-</svg>
+<div class="curtain" aria-hidden="true">
+  <i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i>
+</div>
 
-<div class="cursor" aria-hidden="true"></div>
-<div class="progress" aria-hidden="true"></div>
+<div class="cur" aria-hidden="true"><span class="cur__t"></span></div>
+<div class="cur-dot" aria-hidden="true"></div>
+<div class="prog" aria-hidden="true"></div>
 
 <nav class="nav">
-  <a class="nav__brand interactive" href="../">~/cg_root<i>_</i></a>
+  <a class="nav__id" href="../">
+    <span class="nav__mark">Chintamani Gawade</span>
+    <span class="label">© 26</span>
+  </a>
   <div class="nav__links">
-    <a href="../#creed" class="is-hidden-sm">Creed</a>
-    <a href="../#stack">Stack</a>
-    <a href="../#trajectory">Work</a>
+    <a href="../#creed" class="nav__sm">Creed</a>
+    <a href="../#work">Work</a>
+    <a href="../#stack" class="nav__sm">Stack</a>
     <a href="./" aria-current="page">Logs</a>
     <a href="../#contact">Contact</a>
   </div>
 </nav>
 
 <main>
-  <section class="log-hero">
-    <div class="shell">
-      <p class="eyebrow" data-anim="fade">~/cg_root/logs &mdash; write-ups</p>
+  <section class="arch-hero">
+    <div class="wrap">
+      <p class="label" data-r>Logs — write-ups</p>
+      <h1 class="arch-hero__title display" data-lines data-lines-now data-skew>Field notes<br>from prod</h1>
 
-      <h1 class="log-hero__title" data-anim="rise">
-        Field notes<br><span class="stroke">from prod.</span>
-      </h1>
-
-      <div class="log-hero__meta">
-        <p class="lede" data-anim="rise-sm">
+      <div class="arch-hero__row">
+        <p class="lead" data-r data-delay="0.15">
           Notes on distributed systems, resilience patterns and the unglamorous work of keeping
           platforms alive &mdash; written the way I would explain them in a design review.
         </p>
-        <p class="mono" data-anim="fade"><b data-log-count class="mono--accent">00</b> entries</p>
+        <p class="label" data-r data-delay="0.2"><b data-log-count>00</b> entries &middot; updated as they land</p>
       </div>
     </div>
   </section>
 
-  <section class="shell">
+  <section class="wrap">
     <div class="filters">
       <div class="filters__tags" data-log-tags></div>
       <label class="search">
         <span>/</span>
-        <input type="search" placeholder="grep entries" aria-label="Search entries" data-log-search>
+        <input type="search" placeholder="Search entries" aria-label="Search entries" data-log-search>
       </label>
     </div>
   </section>
 
-  <section class="shell log-list">
-    <div data-log-list>
-      <p class="log-status">// reading index&hellip;</p>
-    </div>
+  <section class="wrap arch-list">
+    <div data-log-list><p class="logs__empty">Reading the index&hellip;</p></div>
   </section>
 </main>
 
 <footer class="foot">
-  <div class="shell">
-    <p class="mono" style="letter-spacing:0.2em"><span class="mono--accent">&gt;</span> get busy living.</p>
-    <div class="foot__meta">
-      <div class="foot__links">
-        <a href="../">&gt; Portfolio</a>
-        <a href="mailto:gawdechintamani@gmail.com">&gt; Email</a>
-        <a href="https://linkedin.com/in/chintamani-g-705bb9176" target="_blank" rel="noopener">&gt; LinkedIn</a>
-        <a href="https://github.com/3dwag98" target="_blank" rel="noopener">&gt; GitHub</a>
-      </div>
-      <div>Mumbai, India [ system online ]</div>
+  <div class="wrap">
+    <a class="foot__mail display" href="mailto:gawdechintamani@gmail.com" data-cur="mail" data-magnet="0.12" data-lines>Let's talk</a>
+    <div class="foot__stamp">
+      <b>Get busy living.</b>
+      <span class="label"><a href="../">← Back to the portfolio</a></span>
     </div>
   </div>
 </footer>
 
 <script src="../assets/vendor/gsap.min.js"></script>
 <script src="../assets/vendor/ScrollTrigger.min.js"></script>
+<script src="../assets/vendor/SplitText.min.js"></script>
 <script src="../assets/vendor/lenis.min.js"></script>
 <script src="../assets/js/core.js"></script>
 <script src="../assets/js/posts.js"></script>

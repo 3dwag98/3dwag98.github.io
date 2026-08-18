@@ -1,7 +1,6 @@
 /* ============================================================================
-   blog.js — the logs index: render, search, tag filter.
-   Reads blog/posts.json through CGPosts and keeps state in the query string
-   so a filtered view is linkable.
+   blog.js — the archive: render, filter by tag, search.
+   Filter state lives in the query string so a filtered view is linkable.
    ========================================================================= */
 
 (function () {
@@ -11,17 +10,13 @@
   var list = document.querySelector('[data-log-list]');
   if (!list || !window.CGPosts) return;
 
-  var statusEl = document.querySelector('[data-log-status]');
+  var esc = window.CGPosts.esc;
   var tagsEl = document.querySelector('[data-log-tags]');
   var input = document.querySelector('[data-log-search]');
   var countEl = document.querySelector('[data-log-count]');
 
   var params = new URLSearchParams(window.location.search);
-  var state = {
-    all: [],
-    q: params.get('q') || '',
-    tag: params.get('tag') || ''
-  };
+  var state = { all: [], q: params.get('q') || '', tag: params.get('tag') || '' };
 
   function syncURL() {
     var p = new URLSearchParams();
@@ -34,58 +29,45 @@
   function matches(post) {
     if (state.tag && post.tags.indexOf(state.tag) === -1) return false;
     if (!state.q) return true;
-
-    var needle = state.q.toLowerCase();
     return (post.title + ' ' + post.summary + ' ' + post.tags.join(' '))
-      .toLowerCase()
-      .indexOf(needle) !== -1;
+      .toLowerCase().indexOf(state.q.toLowerCase()) !== -1;
   }
 
   function renderTags() {
     if (!tagsEl) return;
 
     var seen = {};
-    state.all.forEach(function (p) {
-      p.tags.forEach(function (t) { seen[t] = (seen[t] || 0) + 1; });
-    });
+    state.all.forEach(function (p) { p.tags.forEach(function (t) { seen[t] = (seen[t] || 0) + 1; }); });
 
     var tags = Object.keys(seen).sort(function (a, b) { return seen[b] - seen[a] || a.localeCompare(b); });
 
     tagsEl.innerHTML =
-      '<button class="tag' + (state.tag ? '' : ' is-on') + '" data-tag="">All</button>' +
+      '<button class="chip' + (state.tag ? '' : ' is-on') + '" data-tag="">Everything</button>' +
       tags.map(function (t) {
-        return '<button class="tag' + (state.tag === t ? ' is-on' : '') + '" data-tag="' +
-               window.CGPosts.esc(t) + '">' + window.CGPosts.esc(t) + ' <span style="opacity:.5;margin-left:.4em">' + seen[t] + '</span></button>';
+        return '<button class="chip' + (state.tag === t ? ' is-on' : '') + '" data-tag="' + esc(t) + '">' +
+               esc(t) + '<i>' + seen[t] + '</i></button>';
       }).join('');
   }
 
   function render() {
-    var shown = state.all.filter(matches);
-
     if (CG.clearReveals) CG.clearReveals(list);
 
-    if (!shown.length) {
-      list.innerHTML = '<p class="log-status">// no entries match <b>' +
-        window.CGPosts.esc(state.q || state.tag) + '</b> &mdash; try clearing the filter.</p>';
-    } else {
-      list.innerHTML = shown.map(window.CGPosts.rowHTML).join('');
-      if (CG.reveal) CG.reveal(list);
-    }
+    var shown = state.all.filter(matches);
 
+    list.innerHTML = shown.length
+      ? shown.map(window.CGPosts.rowHTML).join('')
+      : '<p class="logs__empty">Nothing matches <b>' + esc(state.q || state.tag) + '</b>. Clear the filter to see everything.</p>';
+
+    if (shown.length && CG.reveal) CG.reveal(list);
     if (countEl) countEl.textContent = String(shown.length).padStart(2, '0');
+
     renderTags();
     if (window.ScrollTrigger) window.ScrollTrigger.refresh();
   }
 
-  /* ---------- events ------------------------------------------------------ */
-
   if (input) {
     input.value = state.q;
-    input.addEventListener('input', function () {
-      state.q = input.value.trim();
-      syncURL();
-      render();
-    });
+    input.addEventListener('input', function () { state.q = input.value.trim(); syncURL(); render(); });
   }
 
   if (tagsEl) {
@@ -98,24 +80,17 @@
     });
   }
 
-  /* ---------- load -------------------------------------------------------- */
-
   window.CGPosts.load('')
     .then(function (posts) {
       state.all = posts;
-
       if (!posts.length) {
-        list.innerHTML = '<p class="log-status">// the archive is empty. First entry pending.</p>';
-        if (statusEl) statusEl.textContent = '00 entries';
+        list.innerHTML = '<p class="logs__empty">The archive is empty. First entry pending.</p>';
         return;
       }
-
       render();
     })
     .catch(function (err) {
-      list.innerHTML = '<p class="log-status">// could not read <b>posts.json</b> &mdash; ' +
-        window.CGPosts.esc(err.message) +
-        '. If you opened this file directly, serve the folder over HTTP instead ' +
-        '(<code>python3 -m http.server</code>).</p>';
+      list.innerHTML = '<p class="logs__empty">Could not read <b>posts.json</b> — ' + esc(err.message) +
+        '. If you opened this file directly, serve the folder over HTTP instead.</p>';
     });
 })();
