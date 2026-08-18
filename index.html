@@ -3,456 +3,492 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chintamani Gawade | Senior Backend Engineer</title>
+<title>Chintamani Gawade — Backend & Distributed Systems</title>
 
-<meta name="description" content="Senior backend engineer building high-concurrency distributed systems, resilient microservices and event-driven architectures for the financial sector. SDE 2 at JPMorgan Chase &amp; Co.">
+<meta name="description" content="Backend engineer building high-concurrency distributed systems, resilient microservices and event-driven architecture for the financial sector. SDE 2 at JPMorgan Chase &amp; Co.">
 <meta name="author" content="Chintamani Gawade">
-<meta name="theme-color" content="#050505">
+<meta name="theme-color" content="#EFEAE1">
 <link rel="canonical" href="https://3dwag98.github.io/">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Chintamani Gawade | Senior Backend Engineer">
-<meta property="og:description" content="High-concurrency distributed systems, resilient microservices and event-driven architectures for the financial sector.">
+<meta property="og:title" content="Chintamani Gawade — Backend & Distributed Systems">
+<meta property="og:description" content="High-concurrency distributed systems, resilient microservices and event-driven architecture for the financial sector.">
 <meta property="og:url" content="https://3dwag98.github.io/">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23050505'/><text y='74' x='50' font-size='72' font-family='monospace' font-weight='bold' fill='%23d4ff00' text-anchor='middle'>c</text></svg>">
-<link rel="alternate" type="application/rss+xml" title="cg_root — logs" href="/feed.xml">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23EFEAE1'/><circle cx='50' cy='50' r='26' fill='%23E4441A'/></svg>">
+<link rel="alternate" type="application/rss+xml" title="Logs — Chintamani Gawade" href="/feed.xml">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="assets/css/site.css">
+<link rel="preload" href="assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-tight-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/home.css">
 
-<script>
-  /* Applied before first paint: only hide animated elements when JS is live,
-     so a no-JS visitor still gets the full page. */
-  document.documentElement.classList.add('is-ready', 'is-booting');
-  /* Failsafe: core.js clears this the moment the boot overlay is gone.
-     If the runtime never loads at all, release the page anyway. */
-  setTimeout(function () { document.documentElement.classList.remove('is-booting'); }, 4000);
-</script>
+<script>document.documentElement.classList.add('js', 'is-loading');
+setTimeout(function () { document.documentElement.classList.remove('is-loading'); }, 5000);</script>
+<style>html.is-loading { overflow: hidden; }</style>
 </head>
 
 <body>
 
-<div class="boot" role="status" aria-live="polite">
-  <div>BOOTING&nbsp;&nbsp;CG_ROOT</div>
-  <div class="boot__bar"><div class="boot__fill"></div></div>
-  <div class="boot__pct">000%</div>
+<div class="loader">
+  <div class="loader__n">000</div>
+  <div class="loader__bar"><i></i></div>
 </div>
 
-<svg class="noise" aria-hidden="true">
-  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/></filter>
-  <rect width="100%" height="100%" filter="url(#noise)"/>
-</svg>
+<div class="curtain" aria-hidden="true">
+  <i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i>
+</div>
 
-<div class="cursor" aria-hidden="true"></div>
-<div class="progress" aria-hidden="true"></div>
-<nav class="rail" aria-label="Chapters"></nav>
+<div class="cur" aria-hidden="true"><span class="cur__t"></span></div>
+<div class="cur-dot" aria-hidden="true"></div>
+<div class="prog" aria-hidden="true"></div>
 
 <nav class="nav">
-  <a class="nav__brand interactive" href="#top">~/cg_root<i>_</i></a>
+  <a class="nav__id" href="#index">
+    <span class="nav__mark">Chintamani Gawade</span>
+    <span class="label">© 26</span>
+  </a>
   <div class="nav__links">
-    <a href="#creed" class="is-hidden-sm">Creed</a>
-    <a href="#stack">Stack</a>
-    <a href="#trajectory">Work</a>
+    <a href="#creed" class="nav__sm">Creed</a>
+    <a href="#work">Work</a>
+    <a href="#stack" class="nav__sm">Stack</a>
     <a href="blog/">Logs</a>
     <a href="#contact">Contact</a>
   </div>
 </nav>
 
-<main id="top">
+<main>
 
-  <!-- ══ 00 ═══════════════════════════════════════════════ hero ══════════ -->
-  <section class="hero chapter" id="hero" data-chapter="00 / Init">
-    <canvas class="hero__canvas" id="node-field" aria-hidden="true"></canvas>
-
-    <div class="shell hero__inner">
-      <div class="hero__status" data-anim="fade">
-        <span class="hero__chip"><i class="hero__pulse"></i> System online</span>
-        <span>Uptime <b class="mono--accent" id="uptime" data-since="2019-06-01T00:00:00Z">0000d 00h 00m 00s</b></span>
-        <span>Availability 99.9%</span>
-      </div>
-
-      <h1 class="hero__name">
-        <span class="interactive" data-scramble>Chintamani</span>
-        <span class="stroke interactive" data-scramble>Gawade.</span>
-      </h1>
-
-      <div class="hero__grid">
-        <p class="hero__role" data-anim="rise-sm" data-delay="0.15">
-          <span class="blink">&gt;</span> Role: Senior Backend Engineer
-          <small>SDE 2 &mdash; JPMorgan Chase &amp; Co.</small>
-        </p>
-        <p class="hero__blurb" data-anim="rise-sm" data-delay="0.25">
-          Architecting scalable, high-concurrency distributed systems and engineering robust,
-          fault-tolerant ecosystems that solve critical business bottlenecks in the financial sector.
-        </p>
-      </div>
+  <!-- ═══ hero ═══════════════════════════════════════════════════════════ -->
+  <section class="hero" id="index">
+    <div class="hero__top">
+      <p class="label" data-r>Backend &amp; distributed systems<br>Mumbai, India</p>
+      <p class="hero__say" data-r data-delay="0.12">
+        I build the parts of a bank that are not allowed to fall over &mdash;
+        <em>high-concurrency</em> services, event-driven pipelines and the
+        failure paths nobody wants to think about until 3&nbsp;a.m.
+      </p>
     </div>
 
-    <div class="hero__scroll" aria-hidden="true"><i></i> Scroll to run</div>
-  </section>
+    <div class="wrap">
+      <h1 class="hero__name display" data-lines data-lines-now data-skew>Chintamani<br>Gawade</h1>
 
-  <!-- ══ 01 ═══════════════════════════════════════════ profile ══════════ -->
-  <section class="profile chapter" id="profile" data-chapter="01 / Profile">
-    <div class="shell">
-      <div class="term" data-anim="rise">
-        <div class="term__bar">
-          <i class="term__dot term__dot--r"></i><i class="term__dot term__dot--y"></i><i class="term__dot term__dot--g"></i>
-          <span class="term__title">chintamani@localhost:~</span>
-        </div>
-        <div class="term__body">
-          <p><span class="term__cmd">~/system/profile$</span> cat summary.txt</p>
-          <p class="term__comment"># Loading profile payload&hellip;<br># Engineering resilience into every layer.</p>
-          <p style="color:var(--text);font-size:var(--fs-lg);line-height:1.7;margin-block:1.25rem;font-family:var(--font-sans)">
-            Senior Backend Engineer with a deep focus on system design. I solve complex scaling and
-            reliability problems in the financial sector. My work centers on engineering
-            high-concurrency distributed systems, resilient microservices, and event-driven
-            architectures with a strict focus on 99.9% availability.
-          </p>
-          <p><span class="term__cmd">~/system/profile$</span> ./execute_skills.sh</p>
-
-          <div class="stack-grid">
-            <div>
-              <h4>Languages</h4>
-              <ul><li>Python (Expert)</li><li>Java (Senior)</li><li>JavaScript</li><li>TypeScript</li></ul>
-            </div>
-            <div>
-              <h4>Frameworks</h4>
-              <ul><li>Spring Boot</li><li>Django</li><li>FastAPI</li><li>Flask, Node.js</li></ul>
-            </div>
-            <div>
-              <h4>Infra &amp; Cloud</h4>
-              <ul><li>Docker, K8s</li><li>OpenShift</li><li>Ansible, Chef</li><li>Terraform, Vault</li></ul>
-            </div>
-            <div>
-              <h4>Data &amp; Events</h4>
-              <ul><li>Apache Kafka</li><li>Redis (cache-aside)</li><li>PostgreSQL</li><li>MongoDB</li></ul>
-            </div>
+      <div class="hero__foot">
+        <div class="hero__meta">
+          <div>
+            <span class="label">Now</span>
+            <b class="live">SDE 2 · JPMorgan Chase &amp; Co.</b>
+          </div>
+          <div>
+            <span class="label">Since</span>
+            <b>2019 · seven years shipping</b>
+          </div>
+          <div>
+            <span class="label">Focus</span>
+            <b>Scale · resilience · latency</b>
           </div>
         </div>
+
+        <p class="label hero__scroll">
+          <svg viewBox="0 0 12 20" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 1v17M1 13l5 5 5-5"/></svg>
+          Scroll
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- ══ 02 ══════════════════════════════════════════════ creed ══════════ -->
-  <section class="creed chapter" id="creed" data-chapter="02 / Creed">
+  <!-- ═══ ticker ═════════════════════════════════════════════════════════ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__row" data-marquee="30">
+      <span>Distributed systems <i>&#9679;</i> Event-driven <i>&#9679;</i> Resilience <i>&#9679;</i> Spring Boot <i>&#9679;</i> Apache Kafka <i>&#9679;</i> Kubernetes <i>&#9679;</i> Low latency <i>&#9679;</i></span>
+      <span>Distributed systems <i>&#9679;</i> Event-driven <i>&#9679;</i> Resilience <i>&#9679;</i> Spring Boot <i>&#9679;</i> Apache Kafka <i>&#9679;</i> Kubernetes <i>&#9679;</i> Low latency <i>&#9679;</i></span>
+    </div>
+  </div>
+
+  <!-- ═══ statement ══════════════════════════════════════════════════════ -->
+  <section class="statement" id="profile">
+    <div class="wrap statement__grid">
+      <aside class="statement__aside">
+        <p class="label" data-r>01 — Profile</p>
+        <ul data-r data-delay="0.1">
+          <li>Role <span>Senior backend engineer</span></li>
+          <li>Sector <span>Investment banking</span></li>
+          <li>Availability <span>99.9% target</span></li>
+          <li>Based <span>Mumbai, IN</span></li>
+        </ul>
+      </aside>
+
+      <div class="statement__body">
+        <p class="statement__big" data-words>
+          I solve scaling and reliability problems in the financial sector. The work is
+          high-concurrency distributed systems, resilient microservices and event-driven
+          architecture &mdash; designed so that the interesting failures are
+          <em>boring</em> by the time they reach production.
+        </p>
+
+        <p class="body-copy statement__note" data-r>
+          Seven years across Capgemini, BNP Paribas, Barclays and now JPMorgan Chase have taught me
+          that most outages are not clever. They are an expired credential, a queue nobody watched,
+          a retry storm with no backoff. So I spend my time on the unglamorous half of system
+          design: what happens when the dependency is slow, who gets told, and how the thing
+          recovers without a human.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ creed ══════════════════════════════════════════════════════════ -->
+  <section class="creed" id="creed">
     <div class="creed__pin">
-      <div class="creed__wash" aria-hidden="true"></div>
+      <div class="creed__mark">
+        <span class="label">02 — Operating principle</span>
+        <span class="label">The Shawshank Redemption</span>
+      </div>
 
-      <div class="creed__stage">
-        <p class="creed__kicker">// operating principle &mdash; loaded at boot</p>
+      <blockquote class="creed__stage">
+        <span class="creed__line creed__line--a">Get busy living</span>
+        <span class="creed__or">or</span>
+        <span class="creed__line creed__line--b">Get busy dying</span>
 
-        <blockquote>
-          <p class="creed__line creed__line--living">Get busy <span class="key">living</span></p>
-          <span class="creed__or">or</span>
-          <p class="creed__line creed__line--dying">Get busy <span class="key">dying</span></p>
-        </blockquote>
-
-        <svg class="creed__ekg" viewBox="0 0 900 90" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-          <path id="ekg-live"></path>
-          <path id="ekg-flat"></path>
+        <svg class="creed__beat" viewBox="0 0 1400 100" preserveAspectRatio="none" aria-hidden="true">
+          <path id="beat-live"></path>
+          <path id="beat-flat"></path>
         </svg>
 
         <div class="creed__resolve">
-          <p class="creed__attrib">Andy Dufresne &mdash; The Shawshank Redemption</p>
-          <p class="creed__gloss">
+          <p>
             Entropy is the default state of every system I have ever owned. Certificates expire,
-            queues back up, dashboards rot. <b>Engineering is the refusal.</b> Every design doc,
-            every circuit breaker, every 3&nbsp;a.m. page answered is a vote for the first line.
+            queues back up, dashboards quietly stop reporting. <b>Engineering is the refusal.</b>
           </p>
+          <p class="label creed__cite">Every design doc is a vote for the first line</p>
         </div>
-      </div>
+      </blockquote>
     </div>
   </section>
 
-  <!-- ══ 03 ══════════════════════════════════════════════ stack ══════════ -->
-  <section class="stack chapter" id="stack" data-chapter="03 / Stack">
-    <div class="shell stack__head">
-      <p class="eyebrow" data-anim="fade">03 &mdash; Capability rail</p>
-      <h2 class="h-section" data-anim="rise">The toolkit,<br><span class="stroke">by layer.</span></h2>
-      <p class="stack__hint" data-anim="fade"><span class="blink">&gt;</span> Scroll &mdash; the rail moves sideways</p>
+  <!-- ═══ work ═══════════════════════════════════════════════════════════ -->
+  <section class="work" id="work">
+    <div class="wrap work__head">
+      <p class="label" data-r>03 — Trajectory</p>
+      <h2 class="display" style="font-size:var(--d2)" data-lines>Where the<br>hours went</h2>
     </div>
 
-    <div class="stack__viewport">
-      <div class="stack__track">
-        <article class="stack__card">
-          <p class="stack__idx">01 / Languages</p>
-          <h3>Speak<br>the runtime</h3>
-          <p>Python for velocity and data plumbing, Java for the transactional core, TypeScript where the browser has to agree with the backend.</p>
-          <ul><li>Python</li><li>Java</li><li>TypeScript</li><li>JavaScript</li><li>SQL</li><li>Bash</li></ul>
-        </article>
+    <!-- 01 · JPMorgan Chase & Co. -->
+    <article class="role">
+      <div class="wrap">
+        <header class="role__bar">
+          <span class="role__no">01</span>
+          <h3 class="role__co display">JPMorgan Chase &amp; Co.</h3>
+          <span class="role__when">Jul 2026 — Present</span>
+          <span class="role__now">Current</span>
+        </header>
 
-        <article class="stack__card">
-          <p class="stack__idx">02 / Frameworks</p>
-          <h3>Ship<br>the service</h3>
-          <p>Spring Boot for regulated, high-throughput services; Django and FastAPI when the shortest path to a correct API matters.</p>
-          <ul><li>Spring Boot</li><li>Django</li><li>FastAPI</li><li>Flask</li><li>Node.js</li><li>Angular</li><li>React</li></ul>
-        </article>
+        <p class="role__title">SDE 2 &mdash; <em>core trading platforms, Asset Management</em></p>
 
-        <article class="stack__card">
-          <p class="stack__idx">03 / Infra &amp; Cloud</p>
-          <h3>Run<br>it safely</h3>
-          <p>Containers on OpenShift and Kubernetes, configuration as code, and secrets that rotate themselves instead of paging a human.</p>
-          <ul><li>Docker</li><li>Kubernetes</li><li>OpenShift</li><li>Ansible</li><li>Chef</li><li>Terraform</li><li>HashiCorp Vault</li></ul>
-        </article>
-
-        <article class="stack__card">
-          <p class="stack__idx">04 / Data &amp; Events</p>
-          <h3>Move<br>the state</h3>
-          <p>Kafka as the spine for event-driven workflows, Redis as the pressure valve, relational stores where correctness beats convenience.</p>
-          <ul><li>Apache Kafka</li><li>Redis</li><li>PostgreSQL</li><li>MongoDB</li><li>Oracle</li></ul>
-        </article>
-
-        <article class="stack__card">
-          <p class="stack__idx">05 / Patterns</p>
-          <h3>Design<br>for failure</h3>
-          <p>The parts that keep a platform up at 3&nbsp;a.m.: bulkheads, breakers, idempotent consumers and a cache strategy that has an opinion.</p>
-          <ul><li>Event-driven</li><li>Circuit breaker</li><li>Cache-aside</li><li>Idempotency</li><li>Backpressure</li><li>Bulkheads</li></ul>
-        </article>
-
-        <article class="stack__card">
-          <p class="stack__idx">06 / Practice</p>
-          <h3>Keep<br>it honest</h3>
-          <p>Pipelines that gate on quality, scans that run before review, and observability wired in before the first release &mdash; not after the first incident.</p>
-          <ul><li>Jenkins CI/CD</li><li>SonarQube</li><li>DAST</li><li>Observability</li><li>Design docs</li><li>Runbooks</li></ul>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ 04 ═════════════════════════════════════════ trajectory ══════════ -->
-  <section class="traj chapter" id="trajectory" data-chapter="04 / Trajectory">
-    <div class="shell">
-      <p class="eyebrow" data-anim="fade">04 &mdash; Professional trajectory</p>
-      <h2 class="h-section" style="margin-bottom:clamp(2.5rem,7vw,4.5rem)" data-anim="rise">
-        Seven years,<br><span class="stroke">one direction.</span>
-      </h2>
-
-      <!-- ─── JPMorgan Chase & Co. ─── -->
-      <article class="job job--now">
-        <i class="job__rule" aria-hidden="true"></i>
-        <div class="job__side">
-          <p class="job__no">01</p>
-          <h3 class="job__co">JPMorgan<br>Chase &amp; Co.</h3>
-          <p class="job__role">SDE 2</p>
-          <p class="job__when">Jul 2026 &mdash; Present</p>
-          <span class="job__now"><i class="hero__pulse"></i> Current</span>
-        </div>
-        <div class="job__body">
-          <div class="job__block" data-anim="rise-sm">
-            <h4>Core trading platforms &mdash; Asset Management</h4>
+        <div class="role__cols">
+          <div class="role__blk">
+            <h4>The remit</h4>
             <p>
               Building and modernizing core trading platforms for Asset Management, focusing on
               scalable, resilient, and high-performance technology solutions.
             </p>
           </div>
-        </div>
-      </article>
-
-      <!-- ─── Barclays ─── -->
-      <article class="job">
-        <i class="job__rule" aria-hidden="true"></i>
-        <div class="job__side">
-          <p class="job__no">02</p>
-          <h3 class="job__co">Barclays</h3>
-          <p class="job__role">Software Engineer BA4</p>
-          <p class="job__when">Aug 2022 &mdash; Jul 2026</p>
-        </div>
-        <div class="job__body">
-          <div class="job__block" data-anim="rise-sm">
-            <h4>1. Modernizing legacy systems &amp; high availability</h4>
-            <p><strong>The challenge:</strong> Legacy CLI tools were bottlenecking the scheduling and
-              management of global Autosys jobs, lacking robust authorization and modern scalability.</p>
-            <p><span class="sol">System design &amp; solution:</span> Architected a high-availability Spring Boot
-              microservices ecosystem exposing a global REST API. Engineered a custom multi-constraint
-              authorization layer leveraging a <span class="hi">Redis cache-aside pattern</span> and
-              <span class="hi">circuit-breaker patterns</span> to guarantee fault tolerance and high
-              performance under load.</p>
-          </div>
-
-          <div class="job__block" data-anim="rise-sm">
-            <h4>2. Low-latency event processing &amp; routing</h4>
-            <p><strong>The challenge:</strong> Alert deduplication and routing inefficiencies at the source
-              were causing critical delays in enterprise security visibility.</p>
-            <p><span class="sol">System design &amp; solution:</span> Designed the end-to-end architecture for a
-              low-latency alert enrichment and preprocessing engine using Python and Nginx. Implemented
-              intelligent, dynamic schema-driven routing to redirect alerts instantly, significantly
-              enhancing security monitoring accuracy.</p>
-          </div>
-
-          <div class="job__block" data-anim="rise-sm">
-            <h4>3. Distributed automation &amp; resilience solutions</h4>
-            <p>Solved critical operational risks by replacing manual workflows with resilient,
-              event-driven automated systems.</p>
-            <div class="panel">
-              <h5>Architectural impact</h5>
-              <ul>
-                <li><strong>Secrets automation:</strong> Built a Python / HashiCorp Vault suite executing automated pod restarts across OpenShift, averting <b>150,000+ potential annual incidents</b> related to credential expiry.</li>
-                <li><strong>Resilient maintenance:</strong> Engineered UIM APIs that suppressed <b>20,000+ false alerts</b> during infra maintenance, saving ~30 eng-hours/month.</li>
-                <li><strong>Event-driven workflows:</strong> Launched a full-stack Angular/Django platform linked to ServiceNow via events, cutting resource onboarding lead times by <b>90%</b>.</li>
-                <li><strong>API optimization:</strong> Refactored internal dashboard APIs to reduce latency by <b>45%</b>.</li>
-              </ul>
-            </div>
+          <div class="role__blk">
+            <h4>Why it matters</h4>
+            <p>
+              Trading platforms fail in public. The brief is the one I have spent seven years
+              preparing for: keep throughput high and the failure modes boring, while the system
+              underneath is replaced piece by piece.
+            </p>
           </div>
         </div>
-      </article>
+      </div>
+    </article>
 
-      <!-- ─── BNP Paribas ─── -->
-      <article class="job">
-        <i class="job__rule" aria-hidden="true"></i>
-        <div class="job__side">
-          <p class="job__no">03</p>
-          <h3 class="job__co">BNP Paribas</h3>
-          <p class="job__role">DevOps Engineer</p>
-          <p class="job__when">Jan 2022 &mdash; Jun 2022</p>
-        </div>
-        <div class="job__body">
-          <div class="split" data-anim="rise-sm">
-            <div class="job__block">
-              <p>Orchestrated containerized deployments within Kubernetes and OpenShift environments,
-                driving horizontal scalability to manage a 2x increase in peak transaction volume.</p>
-              <p>Architected standard Ansible playbooks for environment setups, eliminating configuration
-                drift across 50+ server instances. Engineered custom Ansible collections for automated
-                secret management, minimizing manual handling by 80%.</p>
-            </div>
-            <ul class="bullets">
-              <li>Automated CI/CD pipelines reducing deployment effort by 60%.</li>
-              <li>Built robust Jenkins pipelines for Java Spring apps, optimizing recovery time by 25%.</li>
-              <li>Integrated SonarQube &amp; DAST for proactive vulnerability mitigation.</li>
+    <!-- 02 · Barclays -->
+    <article class="role">
+      <div class="wrap">
+        <header class="role__bar">
+          <span class="role__no">02</span>
+          <h3 class="role__co display">Barclays</h3>
+          <span class="role__when">Aug 2022 — Jul 2026</span>
+        </header>
+
+        <p class="role__title">Software Engineer BA4 &mdash; <em>platform modernization &amp; resilience</em></p>
+
+        <div class="role__cols role__cols--3">
+          <div class="role__blk">
+            <h4>Legacy → high availability</h4>
+            <p>
+              <strong>Problem:</strong> legacy CLI tools bottlenecked scheduling and management of
+              global Autosys jobs, with no robust authorization and no room to scale.
+            </p>
+            <p>
+              <span class="hl">Built:</span> a high-availability Spring Boot microservices ecosystem
+              behind a global REST API, with a custom multi-constraint authorization layer over a
+              <strong>Redis cache-aside</strong> pattern and <strong>circuit breakers</strong> for
+              fault tolerance under load.
+            </p>
+          </div>
+
+          <div class="role__blk">
+            <h4>Low-latency event routing</h4>
+            <p>
+              <strong>Problem:</strong> alert deduplication and routing inefficiencies at the source
+              were delaying enterprise security visibility.
+            </p>
+            <p>
+              <span class="hl">Built:</span> an end-to-end alert enrichment and preprocessing engine
+              in Python and Nginx, with dynamic schema-driven routing that redirects alerts instantly
+              and measurably sharpened monitoring accuracy.
+            </p>
+          </div>
+
+          <div class="role__blk">
+            <h4>Automation that held</h4>
+            <ul class="role__wins">
+              <li><b>150k+</b><span><strong>Secrets automation.</strong> Python + HashiCorp Vault suite driving automated pod restarts across OpenShift, averting potential annual incidents from credential expiry.</span></li>
+              <li><b>20k+</b><span><strong>Resilient maintenance.</strong> UIM APIs suppressing false alerts during infra maintenance — about 30 engineer-hours back per month.</span></li>
+              <li><b>90%</b><span><strong>Event-driven workflows.</strong> Angular/Django platform wired to ServiceNow via events, cutting resource onboarding lead time.</span></li>
+              <li><b>45%</b><span><strong>API optimization.</strong> Latency removed from internal dashboard APIs.</span></li>
             </ul>
           </div>
         </div>
-      </article>
+      </div>
+    </article>
 
-      <!-- ─── Capgemini ─── -->
-      <article class="job">
-        <i class="job__rule" aria-hidden="true"></i>
-        <div class="job__side">
-          <p class="job__no">04</p>
-          <h3 class="job__co">Capgemini</h3>
-          <p class="job__role">Senior Analyst / SWE</p>
-          <p class="job__when">Jun 2019 &mdash; Dec 2021</p>
-        </div>
-        <div class="job__body">
-          <div class="split" data-anim="rise-sm">
-            <div class="job__block">
-              <p>Spearheaded the development of scalable RESTful APIs leveraging Django and Flask.
-                Championed the adoption of a microservices architecture, which enhanced system
-                modularity and reduced maintenance downtime by ~30%.</p>
-            </div>
-            <ul class="bullets">
-              <li>Engineered seamless backend-to-frontend integrations.</li>
-              <li>Built real-time monitoring dashboards in React &amp; Angular, reducing incident detection time by 40%.</li>
+    <!-- 03 · BNP Paribas -->
+    <article class="role">
+      <div class="wrap">
+        <header class="role__bar">
+          <span class="role__no">03</span>
+          <h3 class="role__co display">BNP Paribas</h3>
+          <span class="role__when">Jan 2022 — Jun 2022</span>
+        </header>
+
+        <p class="role__title">DevOps Engineer &mdash; <em>containers, pipelines, configuration as code</em></p>
+
+        <div class="role__cols">
+          <div class="role__blk">
+            <h4>The work</h4>
+            <p>
+              Orchestrated containerized deployments across Kubernetes and OpenShift, driving
+              horizontal scalability to absorb a 2× increase in peak transaction volume.
+            </p>
+            <p>
+              Standardized environment setup with Ansible playbooks, eliminating configuration drift
+              across 50+ server instances, and wrote custom Ansible collections for automated secret
+              management that cut manual handling by 80%.
+            </p>
+          </div>
+          <div class="role__blk">
+            <h4>Shipped</h4>
+            <ul class="role__wins">
+              <li><b>60%</b><span>Deployment effort removed through CI/CD automation.</span></li>
+              <li><b>25%</b><span>Faster recovery from robust Jenkins pipelines for Java Spring apps.</span></li>
+              <li><b>SAST</b><span>SonarQube and DAST integrated for proactive vulnerability mitigation.</span></li>
             </ul>
           </div>
         </div>
-      </article>
-    </div>
+      </div>
+    </article>
+
+    <!-- 04 · Capgemini -->
+    <article class="role">
+      <div class="wrap">
+        <header class="role__bar">
+          <span class="role__no">04</span>
+          <h3 class="role__co display">Capgemini</h3>
+          <span class="role__when">Jun 2019 — Dec 2021</span>
+        </header>
+
+        <p class="role__title">Senior Analyst / Software Engineer &mdash; <em>where the API habits formed</em></p>
+
+        <div class="role__cols">
+          <div class="role__blk">
+            <h4>The work</h4>
+            <p>
+              Spearheaded scalable RESTful APIs in Django and Flask, and championed the move to a
+              microservices architecture that improved modularity and cut maintenance downtime by
+              roughly 30%.
+            </p>
+          </div>
+          <div class="role__blk">
+            <h4>Shipped</h4>
+            <ul class="role__wins">
+              <li><b>40%</b><span>Faster incident detection from real-time monitoring dashboards in React and Angular.</span></li>
+              <li><b>E2E</b><span>Backend-to-frontend integrations that stopped being a handoff problem.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>
   </section>
 
-  <!-- ══ 05 ═════════════════════════════════════════════ impact ══════════ -->
-  <section class="impact chapter" id="impact" data-chapter="05 / Impact">
-    <div class="shell">
-      <p class="eyebrow" data-anim="fade">05 &mdash; Measured output</p>
-      <h2 class="h-section" data-anim="rise">Numbers that<br><span class="stroke">survived review.</span></h2>
+  <!-- ═══ figures ════════════════════════════════════════════════════════ -->
+  <section class="figures" id="figures">
+    <div class="figures__pin">
+      <div class="figures__head">
+        <p class="label">04 — What it added up to</p>
+        <p class="label">Drag or scroll &rarr;</p>
+      </div>
 
-      <div class="impact__grid">
-        <div class="metric" data-anim="fade">
-          <span class="metric__n" data-count="150000" data-suffix="+">0</span>
-          <span class="metric__l">Potential annual incidents averted<br>via automated secret rotation</span>
+      <div class="figures__track">
+        <div class="fig">
+          <p class="fig__n" data-count="150000">0<sup>+</sup></p>
+          <p class="fig__l">Potential annual incidents averted by automating credential rotation across OpenShift.</p>
         </div>
-        <div class="metric" data-anim="fade">
-          <span class="metric__n" data-count="20000" data-suffix="+">0</span>
-          <span class="metric__l">False alerts suppressed<br>during infra maintenance</span>
+        <div class="fig">
+          <p class="fig__n" data-count="20000">0<sup>+</sup></p>
+          <p class="fig__l">False alerts suppressed during infrastructure maintenance windows.</p>
         </div>
-        <div class="metric" data-anim="fade">
-          <span class="metric__n" data-count="90" data-suffix="%">0</span>
-          <span class="metric__l">Cut in resource<br>onboarding lead time</span>
+        <div class="fig">
+          <p class="fig__n" data-count="90">0<sup>%</sup></p>
+          <p class="fig__l">Cut in resource onboarding lead time after moving the workflow onto events.</p>
         </div>
-        <div class="metric" data-anim="fade">
-          <span class="metric__n" data-count="45" data-suffix="%">0</span>
-          <span class="metric__l">Latency removed from<br>internal dashboard APIs</span>
+        <div class="fig">
+          <p class="fig__n" data-count="45">0<sup>%</sup></p>
+          <p class="fig__l">Latency removed from internal dashboard APIs by refactoring the read path.</p>
         </div>
-        <div class="metric" data-anim="fade">
-          <span class="metric__n" data-count="60" data-suffix="%">0</span>
-          <span class="metric__l">Deployment effort reduced<br>through CI/CD automation</span>
+        <div class="fig">
+          <p class="fig__n" data-count="60">0<sup>%</sup></p>
+          <p class="fig__l">Deployment effort removed through CI/CD automation at BNP Paribas.</p>
         </div>
-        <div class="metric" data-anim="fade">
-          <span class="metric__n" data-count="99.9" data-decimals="1" data-suffix="%">0</span>
-          <span class="metric__l">Availability target held<br>across owned services</span>
+        <div class="fig">
+          <p class="fig__n" data-count="99.9" data-decimals="1">0<sup>%</sup></p>
+          <p class="fig__l">Availability target held across the services I have owned.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══ 06 ═══════════════════════════════════════════════ base ══════════ -->
-  <section class="base chapter" id="base" data-chapter="06 / Base">
-    <div class="shell base__grid">
-      <div>
-        <p class="eyebrow" data-anim="fade">06 &mdash; Academic base</p>
-        <h2 class="h-section" data-anim="rise">Where the<br><span class="stroke">fundamentals</span><br>came from.</h2>
-      </div>
-      <div data-anim="rise-sm">
-        <div class="degree degree--top">
-          <h3>Master of Computer Applications (MCA)</h3>
-          <p>Veermata Jijabai Technical Institute (VJTI) &mdash; Mumbai, India | 2022</p>
-          <p class="cgpa">CGPA 8.4</p>
-        </div>
-        <div class="degree">
-          <h3>B.Sc. in Information Technology</h3>
-          <p>University of Mumbai &mdash; Mumbai, India | 2019</p>
-          <p class="cgpa" style="color:var(--mute)">CGPA 8.78</p>
-        </div>
+  <!-- ═══ foundation ═════════════════════════════════════════════════════ -->
+  <section class="statement" id="base">
+    <div class="wrap statement__grid">
+      <aside class="statement__aside">
+        <p class="label" data-r>05 — Foundation</p>
+      </aside>
+      <div class="statement__body">
+        <h2 class="display" style="font-size:var(--d3);margin-bottom:2rem" data-lines>Before all<br>of that</h2>
+        <ul class="role__wins" data-r>
+          <li>
+            <b>2022</b>
+            <span><strong>Master of Computer Applications (MCA)</strong><br>
+            Veermata Jijabai Technical Institute (VJTI), Mumbai &mdash; CGPA 8.4</span>
+          </li>
+          <li>
+            <b>2019</b>
+            <span><strong>B.Sc. Information Technology</strong><br>
+            University of Mumbai &mdash; CGPA 8.78</span>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- ══ 07 ═══════════════════════════════════════════════ logs ══════════ -->
-  <section class="logs chapter" id="logs" data-chapter="07 / Logs">
-    <div class="shell">
+  <!-- ═══ capability ═════════════════════════════════════════════════════ -->
+  <section class="cap" id="stack">
+    <div class="wrap">
+      <p class="label" data-r>06 — Stack</p>
+      <h2 class="display" style="font-size:var(--d2);margin-bottom:clamp(2rem,5vw,3.5rem)" data-lines>What I<br>reach for</h2>
+
+      <div class="cap__row" data-r>
+        <span class="cap__no">01</span>
+        <h3 class="cap__name">Languages</h3>
+        <ul class="cap__items"><li>Python</li><li>Java</li><li>TypeScript</li><li>JavaScript</li><li>SQL</li><li>Bash</li></ul>
+      </div>
+
+      <div class="cap__row" data-r>
+        <span class="cap__no">02</span>
+        <h3 class="cap__name">Frameworks</h3>
+        <ul class="cap__items"><li>Spring Boot</li><li>Django</li><li>FastAPI</li><li>Flask</li><li>Node.js</li><li>Angular</li><li>React</li></ul>
+      </div>
+
+      <div class="cap__row" data-r>
+        <span class="cap__no">03</span>
+        <h3 class="cap__name">Infra &amp; cloud</h3>
+        <ul class="cap__items"><li>Docker</li><li>Kubernetes</li><li>OpenShift</li><li>Ansible</li><li>Chef</li><li>Terraform</li><li>HashiCorp Vault</li></ul>
+      </div>
+
+      <div class="cap__row" data-r>
+        <span class="cap__no">04</span>
+        <h3 class="cap__name">Data &amp; events</h3>
+        <ul class="cap__items"><li>Apache Kafka</li><li>Redis</li><li>PostgreSQL</li><li>MongoDB</li><li>Oracle</li></ul>
+      </div>
+
+      <div class="cap__row" data-r>
+        <span class="cap__no">05</span>
+        <h3 class="cap__name">Patterns</h3>
+        <ul class="cap__items"><li>Event-driven</li><li>Circuit breaker</li><li>Cache-aside</li><li>Idempotency</li><li>Backpressure</li><li>Bulkheads</li></ul>
+      </div>
+
+      <div class="cap__row" data-r>
+        <span class="cap__no">06</span>
+        <h3 class="cap__name">Practice</h3>
+        <ul class="cap__items"><li>Jenkins CI/CD</li><li>SonarQube</li><li>DAST</li><li>Observability</li><li>Design docs</li><li>Runbooks</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ logs ═══════════════════════════════════════════════════════════ -->
+  <section class="logs" id="logs">
+    <div class="wrap">
       <div class="logs__head">
         <div>
-          <p class="eyebrow" data-anim="fade">07 &mdash; Write-ups</p>
-          <h2 class="h-section" data-anim="rise">Field notes<br><span class="stroke">from prod.</span></h2>
+          <p class="label" data-r>07 — Writing</p>
+          <h2 class="display" style="font-size:var(--d2)" data-lines>Field notes<br>from prod</h2>
         </div>
-        <a class="btn" href="blog/" data-anim="fade">All logs <span class="btn__arrow">&rarr;</span></a>
+        <a class="btn" href="blog/" data-magnet="0.25">Read the archive <i>&rarr;</i></a>
       </div>
 
-      <div class="logs__list" data-logs="3">
-        <p class="logs__empty">// loading index&hellip;</p>
-      </div>
+      <div data-logs="3"><p class="logs__empty">Loading the index&hellip;</p></div>
     </div>
   </section>
 </main>
 
-<!-- ══ 08 ══════════════════════════════════════════════════ eof ══════════ -->
-<footer class="foot chapter" id="contact" data-chapter="08 / EOF">
-  <div class="foot__ghost" aria-hidden="true">EOF.</div>
+<!-- ═══ contact ══════════════════════════════════════════════════════════ -->
+<footer class="foot" id="contact">
+  <div class="wrap">
+    <p class="label" data-r>08 — Say something</p>
 
-  <div class="shell" style="position:relative;z-index:2">
-    <p class="eyebrow" data-anim="fade">&gt; initiate_connection</p>
-
-    <a class="foot__mail" href="mailto:gawdechintamani@gmail.com" data-anim="rise">
+    <a class="foot__mail display" href="mailto:gawdechintamani@gmail.com" data-cur="mail" data-magnet="0.12" data-lines>
       gawdechintamani<br>@gmail.com
     </a>
 
-    <p class="mono" style="margin-top:2rem;letter-spacing:0.2em" data-anim="fade">
-      <span class="mono--accent">&gt;</span> get busy living.
-    </p>
-
-    <div class="foot__meta">
-      <div class="foot__links">
-        <a href="https://linkedin.com/in/chintamani-g-705bb9176" target="_blank" rel="noopener">&gt; LinkedIn</a>
-        <a href="https://github.com/3dwag98" target="_blank" rel="noopener">&gt; GitHub</a>
-        <a href="blog/">&gt; Logs</a>
-        <a href="tel:+919987383647">&gt; +91 99873 83647</a>
+    <div class="foot__grid">
+      <div class="foot__col">
+        <h4 class="label">Elsewhere</h4>
+        <ul>
+          <li><a href="https://linkedin.com/in/chintamani-g-705bb9176" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://github.com/3dwag98" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="/feed.xml">RSS</a></li>
+        </ul>
       </div>
-      <div>Mumbai, India [ system online ]</div>
+      <div class="foot__col">
+        <h4 class="label">Direct</h4>
+        <ul>
+          <li><a href="tel:+919987383647">+91 99873 83647</a></li>
+          <li><a href="mailto:gawdechintamani@gmail.com">Email</a></li>
+        </ul>
+      </div>
+      <div class="foot__col">
+        <h4 class="label">Here</h4>
+        <ul>
+          <li><a href="#work">Work</a></li>
+          <li><a href="#stack">Stack</a></li>
+          <li><a href="blog/">Logs</a></li>
+        </ul>
+      </div>
+      <div class="foot__col">
+        <h4 class="label">Where</h4>
+        <ul><li>Mumbai, India</li><li>IST · UTC+5:30</li></ul>
+      </div>
+    </div>
+
+    <div class="foot__stamp">
+      <b>Get busy living.</b>
+      <span class="label">© 2026 Chintamani Gawade</span>
     </div>
   </div>
 </footer>
@@ -467,16 +503,14 @@
   "url": "https://3dwag98.github.io/",
   "email": "mailto:gawdechintamani@gmail.com",
   "address": { "@type": "PostalAddress", "addressLocality": "Mumbai", "addressCountry": "IN" },
-  "sameAs": [
-    "https://linkedin.com/in/chintamani-g-705bb9176",
-    "https://github.com/3dwag98"
-  ],
+  "sameAs": ["https://linkedin.com/in/chintamani-g-705bb9176", "https://github.com/3dwag98"],
   "knowsAbout": ["Distributed systems", "Spring Boot", "Apache Kafka", "Kubernetes", "Python", "Java"]
 }
 </script>
 
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/SplitText.min.js"></script>
 <script src="assets/vendor/lenis.min.js"></script>
 <script src="assets/js/core.js"></script>
 <script src="assets/js/posts.js"></script>

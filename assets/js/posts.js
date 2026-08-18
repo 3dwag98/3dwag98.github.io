@@ -1,18 +1,15 @@
 /* ============================================================================
-   posts.js — one place that knows how blog/posts.json is shaped.
-
-   Used by the home page teaser, the logs index and the article reader, so the
-   manifest contract only ever has to change here.
+   posts.js — the one place that knows the shape of blog/posts.json.
 
    Manifest: { "posts": [ { slug, title, date, summary, tags, format, file,
-                            readingTime, draft, cover } ] }
-   Only slug + title + date are required; everything else has a sane default.
+                            readingTime, draft } ] }
+   Only slug + title + date are required.
    ========================================================================= */
 
 (function () {
   'use strict';
 
-  var MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -23,7 +20,7 @@
   function dateLabel(iso) {
     var d = new Date(String(iso) + (String(iso).length === 10 ? 'T00:00:00Z' : ''));
     if (isNaN(d.getTime())) return String(iso || '');
-    return String(d.getUTCDate()).padStart(2, '0') + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+    return MONTHS[d.getUTCMonth()] + ' ' + String(d.getUTCDate()).padStart(2, '0') + ', ' + d.getUTCFullYear();
   }
 
   function readingTime(text) {
@@ -34,7 +31,6 @@
   function normalize(raw, base) {
     var slug = raw.slug || '';
     var format = (raw.format || (raw.file && /\.html?$/i.test(raw.file) ? 'html' : 'md')).toLowerCase();
-    var file = raw.file || ('posts/' + slug + '.' + (format === 'html' ? 'html' : 'md'));
 
     return {
       slug: slug,
@@ -44,58 +40,45 @@
       summary: raw.summary || raw.description || '',
       tags: Array.isArray(raw.tags) ? raw.tags : (raw.tags ? String(raw.tags).split(/\s*,\s*/) : []),
       format: format,
-      file: base + file,
+      file: base + (raw.file || ('posts/' + slug + '.' + (format === 'html' ? 'html' : 'md'))),
       readingTime: raw.readingTime || '',
-      cover: raw.cover || '',
       draft: !!raw.draft,
       url: base + 'post.html?p=' + encodeURIComponent(slug)
     };
   }
 
-  /**
-   * Fetch + normalize the manifest.
-   * @param {string} base  path prefix to blog/ from the current page ('' or 'blog/')
-   */
+  /** @param {string} base path prefix to blog/ ('' on the blog, 'blog/' at home) */
   function load(base) {
     var prefix = base == null ? '' : base;
-    var showDrafts = /[?&]drafts=1/.test(window.location.search);
+    var drafts = /[?&]drafts=1/.test(window.location.search);
 
     return fetch(prefix + 'posts.json', { cache: 'no-cache' })
       .then(function (r) {
-        if (!r.ok) throw new Error('posts.json -> HTTP ' + r.status);
+        if (!r.ok) throw new Error('posts.json → HTTP ' + r.status);
         return r.json();
       })
       .then(function (data) {
-        var list = Array.isArray(data) ? data : (data.posts || []);
-        return list
+        return (Array.isArray(data) ? data : (data.posts || []))
           .map(function (p) { return normalize(p, prefix); })
-          .filter(function (p) { return p.slug && (showDrafts || !p.draft); })
+          .filter(function (p) { return p.slug && (drafts || !p.draft); })
           .sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
       });
   }
 
-  function rowHTML(post) {
-    var tags = post.tags.slice(0, 3).map(function (t) {
-      return '<span class="tag">' + esc(t) + '</span>';
-    }).join('');
-
+  function rowHTML(post, i) {
     return '' +
-      '<a class="post-row" href="' + esc(post.url) + '" data-anim="rise-sm">' +
-        '<div class="post-row__date">' + esc(post.dateLabel) + '</div>' +
-        '<div>' +
-          '<h3 class="post-row__title">' + esc(post.title) + '</h3>' +
-          (post.summary ? '<p class="post-row__sum">' + esc(post.summary) + '</p>' : '') +
-          (tags ? '<div class="post-row__tags">' + tags + '</div>' : '') +
-        '</div>' +
-        '<div class="post-row__read">' + esc(post.readingTime || 'read') + '</div>' +
+      '<a class="entry" href="' + esc(post.url) + '" data-cur="read" data-r>' +
+        '<span class="entry__no">' + String((i || 0) + 1).padStart(2, '0') + '</span>' +
+        '<span class="entry__main">' +
+          '<span class="entry__title">' + esc(post.title) + '</span>' +
+          (post.summary ? '<span class="entry__sum">' + esc(post.summary) + '</span>' : '') +
+        '</span>' +
+        '<span class="entry__meta">' +
+          '<span>' + esc(post.dateLabel) + '</span>' +
+          '<span>' + esc(post.readingTime || 'read') + '</span>' +
+        '</span>' +
       '</a>';
   }
 
-  window.CGPosts = {
-    load: load,
-    rowHTML: rowHTML,
-    dateLabel: dateLabel,
-    readingTime: readingTime,
-    esc: esc
-  };
+  window.CGPosts = { load: load, rowHTML: rowHTML, dateLabel: dateLabel, readingTime: readingTime, esc: esc };
 })();
