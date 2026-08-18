@@ -1,0 +1,82 @@
+<!--
+  An HTML-format entry. Same pipeline as Markdown, minus the conversion step:
+  the file is fetched, sanitized and dropped into .prose, so every prose style
+  (headings, code, tables, callouts) applies exactly as it does to Markdown.
+
+  Write a fragment, not a full document — no <html>, <head> or <body>.
+-->
+
+<p>
+  This entry is written in raw HTML rather than Markdown, which is the escape hatch for
+  posts that need markup Markdown cannot express &mdash; a custom diagram, an inline SVG, a
+  table with merged cells. Everything else on this site treats it identically.
+</p>
+
+<p>It is also flagged <code>"draft": true</code> in the manifest, so it stays out of the public
+  index and is only reachable with <code>?drafts=1</code>. That is the workflow for anything
+  half-written.</p>
+
+<h2>Adding an entry</h2>
+
+<ol>
+  <li>Drop a file in <code>blog/posts/</code> &mdash; <code>my-entry.md</code> or
+      <code>my-entry.html</code>.</li>
+  <li>Register it in <code>blog/posts.json</code>, or run
+      <code>node tools/build-index.mjs</code> to regenerate the manifest from the files
+      themselves.</li>
+  <li>Commit. GitHub Pages serves it; there is no build step.</li>
+</ol>
+
+<h3>Markdown front matter</h3>
+
+<p>Markdown entries can carry their own metadata, which wins over the manifest when both
+   define the same field:</p>
+
+<pre><code class="language-yaml">---
+title: Designing for failure
+date: 2026-08-02
+tags: [distributed-systems, resilience]
+summary: One sentence that shows up on the index.
+---</code></pre>
+
+<h3>Manifest fields</h3>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Required</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>slug</code></td><td>yes</td><td>URL key: <code>post.html?p=&lt;slug&gt;</code></td></tr>
+    <tr><td><code>title</code></td><td>yes</td><td>Shown on the index and as the page title</td></tr>
+    <tr><td><code>date</code></td><td>yes</td><td><code>YYYY-MM-DD</code>; sorts the archive</td></tr>
+    <tr><td><code>summary</code></td><td>no</td><td>One line under the title on the index</td></tr>
+    <tr><td><code>tags</code></td><td>no</td><td>Drives the filter chips</td></tr>
+    <tr><td><code>format</code></td><td>no</td><td><code>md</code> (default) or <code>html</code></td></tr>
+    <tr><td><code>file</code></td><td>no</td><td>Defaults to <code>posts/&lt;slug&gt;.&lt;format&gt;</code></td></tr>
+    <tr><td><code>draft</code></td><td>no</td><td><code>true</code> hides it from the index</td></tr>
+  </tbody>
+</table>
+
+<h2>What the reader adds for free</h2>
+
+<ul>
+  <li>Headings become anchored and feed the table of contents on the right, which tracks
+      scroll position.</li>
+  <li>Code blocks get a language label, a copy button and syntax highlighting &mdash; tag the
+      fence with a language for the colours.</li>
+  <li>External links open in a new tab; images are lazy-loaded.</li>
+  <li>Reading time is computed from the actual word count.</li>
+</ul>
+
+<blockquote>
+  <p>Everything is sanitized before it hits the DOM, so a paste from somewhere else cannot
+     smuggle a script into the page.</p>
+</blockquote>
+
+<h2>Local preview</h2>
+
+<p>The site reads <code>posts.json</code> over <code>fetch</code>, which browsers block on
+   <code>file://</code>. Serve the folder instead:</p>
+
+<pre><code class="language-bash">python3 -m http.server 8000
+# then open http://localhost:8000/blog/</code></pre>
