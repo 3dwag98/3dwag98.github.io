@@ -148,35 +148,73 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     <div class="quote__pin">
       <div class="quote__mark">
         <span class="lbl">II &mdash; Operating principle</span>
-        <span class="lbl">Abelson &amp; Sussman &middot; SICP, 1985</span>
+        <span class="lbl">John Gall &middot; Systemantics, 1975</span>
       </div>
 
       <blockquote class="quote__stage">
-        <span class="quote__line quote__line--a">For people to read</span>
-        <span class="quote__pivot">and only incidentally</span>
-        <span class="quote__line quote__line--b">for machines to execute</span>
+        <span class="quote__line quote__line--a">A complex system that works</span>
+        <span class="quote__pivot">is invariably found to have evolved from</span>
+        <span class="quote__line quote__line--b">a simple system that worked</span>
 
         <svg class="quote__signal" viewBox="0 0 1400 100" preserveAspectRatio="none" aria-hidden="true">
-          <path id="sig-human"></path>
-          <path id="sig-machine"></path>
+          <path id="sig-complex"></path>
+          <path id="sig-simple"></path>
         </svg>
 
         <div class="quote__resolve">
           <p>
-            &ldquo;Programs must be written for people to read, and only incidentally for machines
-            to execute.&rdquo; <b>Forty years on, it is still the whole brief</b> &mdash; the
-            compiler will forgive almost anything, and the next engineer will forgive nothing.
+            Every platform I have worked on that holds up today started as something small that
+            already worked. <b>Scale is earned, not designed in one sitting</b> &mdash; the systems
+            that tried to arrive complete are the ones still being rewritten.
           </p>
-          <p class="lbl quote__cite">Structure and Interpretation of Computer Programs</p>
+          <p class="lbl quote__cite">Gall&rsquo;s law &mdash; the reason I ship the small version first</p>
         </div>
       </blockquote>
+    </div>
+  </section>
+
+  <!-- ═══ life ═══════════════════════════════════════════════════════════ -->
+  <section class="life" id="life" data-life-root>
+    <div class="wrap life__grid">
+      <div class="life__copy">
+        <p class="lbl" data-r>III &mdash; Four rules</p>
+        <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem" data-r>Draw on it. <em>Watch what happens.</em></h2>
+        <p class="copy" data-r data-delay="0.06">
+          Conway&rsquo;s Game of Life: a cell with two or three neighbours lives, three neighbours
+          bring a dead one back, everything else dies. That is the entire specification, and it is
+          enough to build gliders, oscillators and guns that run forever.
+        </p>
+        <p class="copy" data-r data-delay="0.1">
+          It is the quote above, running. Drag across the board to seed cells, or drop a pattern in
+          and leave it alone.
+        </p>
+
+        <div class="life__controls" data-r data-delay="0.14">
+          <button class="life__btn" type="button" data-life="toggle" aria-pressed="true">Pause</button>
+          <button class="life__btn" type="button" data-life="step">Step</button>
+          <button class="life__btn" type="button" data-life="glider">Glider</button>
+          <button class="life__btn" type="button" data-life="pulsar">Pulsar</button>
+          <button class="life__btn" type="button" data-life="gun">Gun</button>
+          <button class="life__btn" type="button" data-life="clear">Clear</button>
+        </div>
+
+        <p class="lbl life__hint" data-r data-delay="0.18">The field wraps &mdash; a glider leaving the right edge arrives at the left</p>
+      </div>
+
+      <div class="life__board" data-r data-delay="0.08">
+        <canvas aria-label="Conway's Game of Life. Drag to draw living cells, or use the pattern buttons."></canvas>
+        <p class="lbl life__hud">
+          <span>Gen <b data-life-gen>0000</b></span>
+          <span>Alive <b data-life-live>000</b></span>
+        </p>
+      </div>
     </div>
   </section>
 
   <!-- ═══ practice ═══════════════════════════════════════════════════════ -->
   <section class="work" id="work">
     <div class="wrap work__head">
-      <p class="lbl" data-r>III &mdash; Practice</p>
+      <p class="lbl" data-r>IV &mdash; Practice</p>
       <h2 class="dsp" style="font-size:var(--t-hero)" data-lines>Built, shipped,<br><em>still running</em></h2>
     </div>
 
@@ -367,7 +405,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     <div class="guide__pin">
       <div class="guide__head">
         <div>
-          <p class="lbl">IV &mdash; A field guide to scale</p>
+          <p class="lbl">V &mdash; A field guide to scale</p>
           <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem">Six things that shape<br>what I build</h2>
         </div>
         <p class="lbl">Keep scrolling</p>
@@ -446,7 +484,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
   <!-- ═══ instruments ════════════════════════════════════════════════════ -->
   <section class="inst" id="stack">
     <div class="wrap">
-      <p class="lbl" data-r>V &mdash; Instruments</p>
+      <p class="lbl" data-r>VI &mdash; Instruments</p>
       <h2 class="dsp" style="font-size:var(--t-hero);margin-bottom:clamp(2rem,5vw,3.5rem)" data-lines>What I<br><em>reach for</em></h2>
 
       <div class="inst__row" data-r>
@@ -492,7 +530,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     <div class="wrap">
       <div class="logs__head">
         <div>
-          <p class="lbl" data-r>VI &mdash; Writing</p>
+          <p class="lbl" data-r>VII &mdash; Writing</p>
           <h2 class="dsp" style="font-size:var(--t-hero)" data-lines>Notes on<br><em>building things</em></h2>
         </div>
         <a class="btn" href="blog/" data-magnet="0.25">Read the archive <i>&rarr;</i></a>
@@ -506,7 +544,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
 <!-- ═══ contact ══════════════════════════════════════════════════════════ -->
 <footer class="foot" id="contact">
   <div class="wrap">
-    <p class="lbl" data-r>VII &mdash; Correspondence</p>
+    <p class="lbl" data-r>VIII &mdash; Correspondence</p>
 
     <a class="foot__mail" href="mailto:gawdechintamani@gmail.com" data-cur="write" data-magnet="0.1" data-lines>
       gawdechintamani<br><span class="it">@gmail.com</span>
@@ -524,8 +562,8 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
       <div class="foot__col">
         <h4 class="lbl">Direct</h4>
         <ul>
-          <li><a href="tel:+919987383647">+91 99873 83647</a></li>
           <li><a href="mailto:gawdechintamani@gmail.com">Email</a></li>
+          <li><a href="https://linkedin.com/in/chintamani-g-705bb9176" target="_blank" rel="noopener">Message on LinkedIn</a></li>
         </ul>
       </div>
       <div class="foot__col">
@@ -573,6 +611,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
 <script src="assets/vendor/lenis.min.js"></script>
 <script src="assets/js/gl.js"></script>
 <script src="assets/js/core.js"></script>
+<script src="assets/js/life.js"></script>
 <script src="assets/js/posts.js"></script>
 <script src="assets/js/home.js"></script>
 </body>

@@ -342,7 +342,9 @@ html.js .loader {
 
 .entry {
   position: relative;
-  display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 1.4rem; align-items: baseline;
+  /* One column on a phone. With three children in a two-column grid the meta
+     wrapped under the number and its width crushed the title. */
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.55rem; align-items: baseline;
   padding: clamp(1.2rem, 2.8vw, 2.1rem) 0;
   border-top: 1px solid var(--line);
   isolation: isolate; overflow: hidden;
@@ -372,22 +374,23 @@ html.js .loader {
   font-family: var(--serif);
   font-variation-settings: 'opsz' 48;
   font-weight: 600;
-  font-size: clamp(1.25rem, 2.5vw, 2rem);
-  line-height: 1.1;
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  line-height: 1.12;
   letter-spacing: -0.022em;
   text-wrap: balance;
+  overflow-wrap: break-word;   /* "authorization" must never run off a phone */
 }
 
 .entry__sum { display: block; margin-top: 0.6rem; max-width: 62ch; font-size: var(--t-sm); line-height: 1.5; color: var(--ink-2); transition: color 0.4s ease; }
 
 .entry__meta {
-  display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem;
+  display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin-top: 0.15rem;
   font-family: var(--mono); font-size: var(--t-lbl);
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute);
   white-space: nowrap; transition: color 0.4s ease; font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 860px) { .entry__meta { flex-direction: column; align-items: flex-end; text-align: right; } }
+@media (min-width: 860px) { .entry__meta { flex-direction: column; align-items: flex-end; text-align: right; margin-top: 0; } }
 
 .chip {
   display: inline-flex; align-items: center; gap: 0.4rem;
