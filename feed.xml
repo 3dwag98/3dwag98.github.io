@@ -29,14 +29,14 @@
       <category>spring-boot</category>
     </item>
     <item>
-      <title>The system design research worth reading, and why</title>
-      <link>https://3dwag98.github.io/blog/post.html?p=system-design-reading-list</link>
-      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=system-design-reading-list</guid>
+      <title>Four papers that explain caching</title>
+      <link>https://3dwag98.github.io/blog/post.html?p=caching-papers</link>
+      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=caching-papers</guid>
       <pubDate>Sun, 12 Jul 2026 09:00:00 GMT</pubDate>
-      <description>A short guide to the papers and references that actually changed how production systems get built — what each one contributed, and where to read it.</description>
+      <description>What ARC, TinyLFU, Facebook's memcache paper and S3-FIFO actually say — the mechanisms drawn out, and why each one exists.</description>
+      <category>caching</category>
       <category>system-design</category>
       <category>distributed-systems</category>
-      <category>reading</category>
     </item>
   </channel>
 </rss>
