@@ -117,63 +117,19 @@
 
     if (lenis) lenis.stop();
 
-    var word = loader.querySelector('[data-loader-word]');
+    var lines = loader.querySelectorAll('.loader__ln i');
     var pct = loader.querySelector('[data-loader-pct]');
+    var tag = loader.querySelector('[data-loader-tag]');
     var bar = loader.querySelector('.loader__bar i');
-    var rings = loader.querySelectorAll('.loader__ring');
+    var stage = loader.querySelector('.loader__stage');
     var count = { v: 0 };
 
-    /* The wordmark decodes: each slot cycles glyphs until its turn passes, then
-       locks to the real character. Slots are built once so the line never
-       reflows while the glyphs churn. */
-    var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#*<>=+';
-    var slots = [];
+    /* What the bar is nominally waiting on, so the label is not decoration. */
+    var STAGES = [[0, 'fonts'], [34, 'plates'], [62, 'scenes'], [88, 'ready']];
+    var stageAt = -1;
 
-    if (word) {
-      var text = word.textContent;
-      word.textContent = '';
-      for (var i = 0; i < text.length; i++) {
-        var span = document.createElement('i');
-        var ch = text.charAt(i);
-        if (ch === ' ') {
-          span.className = 'is-gap is-set';
-          span.textContent = '\u00A0';
-        } else {
-          span.className = 'is-loose';
-          span.textContent = GLYPHS.charAt((Math.random() * GLYPHS.length) | 0);
-        }
-        word.appendChild(span);
-        slots.push({ el: span, ch: ch, gap: ch === ' ', locked: ch === ' ' });
-      }
-    }
-
-    /** Locks every slot whose turn has come and rerolls the rest. */
-    function decode(progress) {
-      var n = slots.length;
-      for (var i = 0; i < n; i++) {
-        var sl = slots[i];
-        if (sl.gap) continue;
-        var due = 0.12 + (i / n) * 0.74;
-        if (progress >= due) {
-          if (!sl.locked) {
-            sl.locked = true;
-            sl.el.textContent = sl.ch;
-            sl.el.className = 'is-set';
-          }
-        } else if (!sl.locked) {
-          sl.el.textContent = GLYPHS.charAt((Math.random() * GLYPHS.length) | 0);
-        }
-      }
-    }
-
-    // two rings leaving the node, offset so the pulse never stops
-    if (rings.length) {
-      gsap.to(rings, {
-        scale: 2.6, opacity: 0, duration: 1.15, ease: 'power2.out',
-        transformOrigin: '50% 50%', repeat: -1, stagger: 0.42,
-        startAt: { scale: 0.55, opacity: 0.85 }
-      });
-    }
+    // the two names swing up out of their masks, tipped back in z
+    gsap.set(lines, { yPercent: 116, rotateX: -62, transformOrigin: '50% 100% -40px' });
 
     gsap.timeline({
       onComplete: function () {
@@ -183,18 +139,29 @@
         done();
       }
     })
+      .to(lines, {
+        yPercent: 0, rotateX: 0,
+        duration: 1.15, ease: 'expo.out', stagger: 0.1
+      }, 0)
       .to(count, {
         v: 100,
-        duration: 1.35,
+        duration: 1.5,
         ease: 'power1.inOut',
         onUpdate: function () {
           var v = Math.round(count.v);
           if (pct) pct.textContent = String(v).padStart(3, '0');
           if (bar) bar.style.transform = 'scaleX(' + (v / 100) + ')';
-          decode(count.v / 100);
-        },
-        onComplete: function () { decode(1); }
-      })
+
+          for (var i = STAGES.length - 1; i >= 0; i--) {
+            if (v >= STAGES[i][0]) {
+              if (i !== stageAt && tag) { stageAt = i; tag.textContent = STAGES[i][1]; }
+              break;
+            }
+          }
+        }
+      }, 0)
+      // the whole plate pushes toward the viewer as it hands off
+      .to(stage, { scale: 1.09, opacity: 0, duration: 0.5, ease: 'power2.in' }, 1.28)
       .set(p, { scaleY: 1, transformOrigin: '50% 100%' })
       .to(loader, { autoAlpha: 0, duration: 0.25 })
       .set(p, { transformOrigin: '50% 0%' })

@@ -24,7 +24,7 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        bucket.js      # the rate-limiter game
 │   │        favicon.js     # the animated tab mark
 │   ├── fonts/              # self-hosted woff2 — no external font request
-│   ├── plates/             # generated line-work, six plates
+│   ├── plates/             # generated line-work, twelve plates
 │   └── vendor/             # GSAP, ScrollTrigger, SplitText, Lenis, marked,
 │                           #   DOMPurify, Prism — fallback copies for when
 │                           #   the CDN cannot be reached
@@ -108,7 +108,7 @@ still image is not motion, and the alternative was a blank ground.
 | Quote | `#quote` | **pinned**: the page inverts to the opposite theme, the two halves of Gall's law slide past each other, and one node accretes into the system it became |
 | Game | `#limit` | "Hold the line" — tune a token bucket so traffic is shed rather than an outage |
 | Practice | `#work` | role cards stack — each sticks while the next slides over it, with a full plate alongside, alternating sides |
-| Field guide | `#guide` | **pinned** crossfade through the six plates above 900px; a plain vertical list below it |
+| Design review | `#guide` | **pinned** crossfade through six questions above 900px; a plain vertical list below it |
 | Instruments | `#stack` | capability rows with a vermilion fill sweep on hover |
 | Blogs | `#blogs` | latest entries, pulled live from `blog/posts.json` |
 | Contact | `#contact` | magnetic email, colophon, closing stamp |
@@ -262,10 +262,14 @@ page cannot scroll.
 
 ## Plates
 
-One set, in `assets/plates/`, drawn on the dark ground and used by both themes — on the light
-page they read as prints rather than as part of the background. Regenerate with
-`node tools/plates.mjs`; the generators take a palette, so a different ground is a one-line
-change.
+One set of twelve in `assets/plates/`, drawn on the dark ground and used by both themes — on the
+light page they read as prints rather than as part of the background. Twelve because there are
+twelve slots (masthead, strip, four roles, six questions) and a plate appearing twice reads as a
+mistake. Regenerate with `node tools/plates.mjs`; the generators take a palette, so a different
+ground is a one-line change. Set `CHROME_PATH` if Playwright has not downloaded its own browser.
+
+A generator that comes out faint is worth catching on a contact sheet rather than in the page —
+several needed their alpha and density raised once the ground changed colour.
 
 ## Accessibility and fallbacks
 

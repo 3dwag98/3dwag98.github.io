@@ -74,7 +74,7 @@
 
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    var C = { paper: '#14120F', paper2: '#1C1915', ink: '#F2EDE3', accent: '#FF5A2B', mute: '#8A8377' };
+    var C = { paper: '#0F1214', paper2: '#171B1E', ink: '#E9EDEF', accent: '#F2B33D', mute: '#7C878C' };
 
     var si = 0;                 // scenario index
     var W = 0, H = 0;           // css pixels

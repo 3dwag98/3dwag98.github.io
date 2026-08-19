@@ -25,14 +25,14 @@
      declared here so the flip can be interpolated rather than switched. */
   var PALETTES = {
     dark: {
-      '--paper': '#14120F', '--paper-2': '#1C1915', '--ink': '#F2EDE3',
-      '--ink-2': '#C9C2B4', '--mute': '#8A8377', '--line': 'rgba(242,237,227,0.16)',
-      '--accent': '#FF5A2B', '--on-accent': '#17140F'
+      '--paper': '#0F1214', '--paper-2': '#171B1E', '--ink': '#E9EDEF',
+      '--ink-2': '#BAC3C7', '--mute': '#7C878C', '--line': 'rgba(233,237,239,0.15)',
+      '--accent': '#F2B33D', '--on-accent': '#0F1214'
     },
     light: {
-      '--paper': '#EFEAE1', '--paper-2': '#E6E0D3', '--ink': '#14120F',
-      '--ink-2': '#3E3A32', '--mute': '#7C7568', '--line': 'rgba(20,18,15,0.15)',
-      '--accent': '#E4441A', '--on-accent': '#FBF7F0'
+      '--paper': '#F1EFEA', '--paper-2': '#E5E2DA', '--ink': '#0F1214',
+      '--ink-2': '#3B4247', '--mute': '#666E72', '--line': 'rgba(15,18,20,0.15)',
+      '--accent': '#7F570A', '--on-accent': '#FAF8F3'
     }
   };
 
@@ -68,9 +68,9 @@
     var read = function () {
       var t = window.CGTheme;
       return {
-        paper: t ? t.token('--paper', '#14120F') : '#14120F',
-        ink: t ? t.token('--ink', '#F2EDE3') : '#F2EDE3',
-        accent: t ? t.token('--accent', '#FF5A2B') : '#FF5A2B'
+        paper: t ? t.token('--paper', '#0F1214') : '#0F1214',
+        ink: t ? t.token('--ink', '#E9EDEF') : '#E9EDEF',
+        accent: t ? t.token('--accent', '#F2B33D') : '#F2B33D'
       };
     };
 
@@ -229,13 +229,13 @@
 
       var grid = COLS.map(function (col, ci) {
         var pts = [];
-        // fan out toward the left, but stay inside the 240-unit box
-        var spread = Math.min(104, 10 + (col.n - 1) * 15.5);
+        // fan out toward the left, but stay inside the 340-unit box
+        var spread = Math.min(150, 14 + (col.n - 1) * 22);
         for (var i = 0; i < col.n; i++) {
           var t = col.n === 1 ? 0.5 : i / (col.n - 1);
           pts.push({
             x: col.x + (ci === 0 ? 0 : (rnd() - 0.5) * 46),
-            y: 120 + (t - 0.5) * spread * 2 + (rnd() - 0.5) * 14
+            y: 170 + (t - 0.5) * spread * 2 + (rnd() - 0.5) * 20
           });
         }
         return pts;
@@ -263,7 +263,7 @@
           var c2 = document.createElementNS(ns, 'circle');
           c2.setAttribute('cx', p.x.toFixed(1));
           c2.setAttribute('cy', p.y.toFixed(1));
-          c2.setAttribute('r', (3.4 + ci * 0.4).toFixed(2));
+          c2.setAttribute('r', (5.4 + ci * 0.75).toFixed(2));
           nodes.appendChild(c2);
           dots.push(c2);
         });
@@ -327,7 +327,7 @@
       .to(b, { opacity: 1, duration: 0.1 }, 0.72)
       .to(seed, { opacity: 1, scale: 1.5, duration: 0.1 }, 0.72)
       .to(a, { opacity: 0.28, duration: 0.1 }, 0.72)
-      .to([edges, nodes], { opacity: 0.55, duration: 0.1 }, 0.72)
+      .to([edges, nodes], { opacity: 0.7, duration: 0.1 }, 0.72)
       .to(resolve, { opacity: 1, y: 0, duration: 0.12, ease: 'expo.out' }, 0.82)
       .to({}, { duration: 0.1 });
   }
@@ -341,7 +341,11 @@
     gsap.matchMedia().add('(min-width: 1024px)', function () {
       var tweens = roles.slice(0, -1).map(function (role, i) {
         return gsap.to(role, {
+          // pushed back in z with a touch of tilt, so the card behind actually
+          // recedes instead of just getting smaller
           scale: 0.94,
+          z: -180,
+          rotateX: 5,
           opacity: 0.22,
           ease: 'none',
           scrollTrigger: {
@@ -356,7 +360,7 @@
 
       return function () {
         tweens.forEach(function (t) { t.scrollTrigger && t.scrollTrigger.kill(); t.kill(); });
-        gsap.set(roles, { clearProps: 'scale,opacity' });
+        gsap.set(roles, { clearProps: 'scale,opacity,rotateX,z' });
       };
     });
   }

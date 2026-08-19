@@ -35,8 +35,8 @@
 
   /** One frame. `p` runs 0 → 1 and wraps; the ring rides it outward. */
   function draw(p) {
-    var paper = token('--paper', '#14120F');
-    var accent = token('--accent', '#FF5A2B');
+    var paper = token('--paper', '#0F1214');
+    var accent = token('--accent', '#F2B33D');
     var mid = S / 2;
 
     cx.clearRect(0, 0, S, S);
