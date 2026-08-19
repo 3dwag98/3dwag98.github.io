@@ -19,7 +19,9 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        posts.js       # the posts.json contract (shared)
 │   │        blog.js        # archive: search + tag filter
 │   │        post.js        # reader: Markdown/HTML → prose
+│   │        gl.js          # the masthead's WebGL surface
 │   ├── fonts/              # self-hosted woff2 — no external font request
+│   ├── plates/             # generated line-work, six plates
 │   └── vendor/             # GSAP, ScrollTrigger, SplitText, Lenis, marked,
 │                           #   DOMPurify, Prism — pinned copies, no CDN
 ├── blog/
@@ -27,7 +29,9 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   ├── post.html           # the reader (?p=<slug>)
 │   ├── posts.json          # the index of entries
 │   └── posts/              # the entries themselves (.md or .html)
-└── tools/build-index.mjs   # regenerates posts.json + feed.xml + sitemap.xml
+└── tools/  build-index.mjs # regenerates posts.json + feed.xml + sitemap.xml
+         plates.mjs      # re-renders assets/plates from plates.html
+         plates.html     # the generators themselves
 ```
 
 ## Running it locally
@@ -42,27 +46,51 @@ python3 -m http.server 8000
 
 ## Design
 
-Warm bone paper, near-black ink, a single vermilion signal. Display type is
-**Bricolage Grotesque**, running text is **Inter Tight**, emphasis is **Instrument Serif**
-italic, and small labels plus code are **IBM Plex Mono**. All four are self-hosted from
-`assets/fonts/`, so the page makes no third-party request at all.
+Warm bone paper, near-black ink, a single vermilion signal — and typography doing most of the
+structural work.
+
+**Bodoni Moda** carries every display size with its optical-size axis driven explicitly:
+`opsz 96` at poster scale for hairline serifs, stepping down to `opsz 14` where the same
+typeface has to be read. **Geist** sets running text, **Geist Mono** sets every label, and
+Bodoni italic carries emphasis. All are self-hosted from `assets/fonts/`, so the page makes no
+third-party request at all. Use `.dsp`, `.dsp--md`, `.dsp--sm`, `.serif-read`, `.lead`, `.copy`
+and `.lbl` rather than setting font sizes by hand — the optical sizing is baked into them.
 
 Every colour is a CSS custom property, because the creed passage inverts the whole page by
 interpolating those six variables as you scroll into it and back out. Change `--accent` in
 `assets/css/base.css` and the entire site follows.
 
+### Imagery
+
+There is no stock photography here and no photographs of anything. The six plates in
+`assets/plates/` are generated line-work — flow fields, compression bands, fault lines,
+interference rings, chord diagrams, dissolving grids — each drawn to name a way distributed
+systems come apart, which is what the field-guide section is about.
+
+They are produced by `tools/plates.html` + `tools/plates.mjs`, which render to a canvas in
+headless Chromium and export JPEG. Re-render or reseed them with:
+
+```bash
+node tools/plates.mjs
+```
+
+The masthead's moving surface is `assets/js/gl.js`: a single full-screen quad with a
+domain-warped fbm fragment shader, written by hand. A 3D library was considered and rejected —
+this needs no scene graph, and hand-rolled WebGL is about 6 KB where three.js would be roughly
+740 KB for identical pixels. It fades in only once its first frame is drawn, pauses when the
+masthead scrolls away, and is removed entirely under reduced motion or when WebGL is missing.
+
 | Scene | Section | What drives it |
 | --- | --- | --- |
-| Hero | `#index` | masked line entrance, then the two halves pull apart on scroll |
-| Ticker | — | marquee whose speed and direction follow scroll velocity |
-| Profile | `#profile` | the paragraph lights word by word as it passes |
+| Masthead | `#top` | WebGL surface behind a masked Bodoni entrance; the two halves pull apart on scroll |
+| Band | — | marquee whose speed and direction follow scroll velocity |
+| Position | `#about` | the paragraph lights word by word as it passes |
 | Creed | `#creed` | **pinned**: the page inverts to night, the two halves of "get busy living / or / get busy dying" slide past each other and the pulse flatlines |
-| Work | `#work` | role cards stack — each sticks while the next slides over it |
-| Figures | `#figures` | **pinned** horizontal run of numbers that count up |
-| Foundation | `#base` | education |
-| Stack | `#stack` | capability rows with a vermilion fill sweep on hover |
+| Practice | `#work` | role cards stack — each sticks while the next slides over it, with a plate crop alongside |
+| Field guide | `#field` | **pinned** horizontal gallery of the six plates |
+| Instruments | `#stack` | capability rows with a vermilion fill sweep on hover |
 | Logs | `#logs` | latest entries, pulled live from `blog/posts.json` |
-| Contact | `#contact` | magnetic email, closing stamp |
+| Contact | `#contact` | magnetic email, colophon, closing stamp |
 
 Reusable hooks, usable on any element:
 
@@ -75,6 +103,8 @@ Reusable hooks, usable on any element:
 | `data-marquee="30"` | seamless marquee; the number is seconds per cycle |
 | `data-magnet="0.3"` | leans toward the pointer |
 | `data-cur="read"` | the label the cursor picks up on hover |
+| `data-parallax` on a `.plate` | drifts the image inside its own frame while the frame travels |
+| `data-dark` on a section | flips the fixed nav to light while it is on screen |
 
 ### A note on pinned sections
 
@@ -83,6 +113,11 @@ stale layout. The two pins set `refreshPriority` (20 for the creed, 10 for the f
 refresh first and every other trigger measures the final page. The one exception is the creed's
 theme trigger, which must run at the *default* priority so it sees the pin spacing — its comment
 says so. If you add another pin, give it a positive `refreshPriority`.
+
+Two more things that only bite when JavaScript is off: `.plate--reveal` (which clips images to
+nothing until they are revealed) and the loader overlay are both scoped under `html.js`, so a
+visitor without the runtime sees the images and the page rather than a blank clip and a
+permanent overlay. Keep new JS-dependent hiding under that class.
 
 ## Writing a post
 
@@ -152,4 +187,5 @@ DOMPurify before it touches the DOM.
   scrolling documents (post bodies need JS, since they are fetched).
 - The custom cursor only appears for fine pointers; touch devices keep the native one.
 - Libraries are vendored at pinned versions: GSAP 3.15, Lenis 1.3, marked 18, DOMPurify 3.4,
-  Prism 1.30.
+  Prism 1.30. The portfolio's first load is roughly 340 KB of script, style and fonts; the six
+  plates are lazy-loaded below the fold.

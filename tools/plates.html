@@ -1,0 +1,203 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#333}canvas{display:block}</style></head>
+<body><canvas id="c"></canvas>
+<script>
+/* Generative plates. Ink line-work on bone, one vermilion signal per plate. */
+const PAPER = '#EFEAE1', INK = '#14120F', ACC = '#E4441A';
+
+/* ---- value noise ------------------------------------------------------ */
+function mulberry(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function makeNoise(rnd){
+  const p=new Uint8Array(512),perm=[...Array(256).keys()];
+  for(let i=255;i>0;i--){const j=Math.floor(rnd()*(i+1));[perm[i],perm[j]]=[perm[j],perm[i]];}
+  for(let i=0;i<512;i++)p[i]=perm[i&255];
+  const f=t=>t*t*t*(t*(t*6-15)+10);
+  const g=(h,x,y)=>{const u=h&1?x:y,v=h&2?y:x;return(h&4?-u:u)+(h&8?-v:v)*0.5};
+  return (x,y)=>{
+    const X=Math.floor(x)&255,Y=Math.floor(y)&255;
+    x-=Math.floor(x);y-=Math.floor(y);
+    const u=f(x),v=f(y);
+    const A=p[X]+Y,B=p[X+1]+Y;
+    const lerp=(a,b,t)=>a+(b-a)*t;
+    return lerp(lerp(g(p[A],x,y),g(p[B],x-1,y),u),lerp(g(p[A+1],x,y-1),g(p[B+1],x-1,y-1),u),v);
+  };
+}
+
+function base(ctx,w,h){ ctx.fillStyle=PAPER; ctx.fillRect(0,0,w,h); }
+
+/* Fine tooth so the flat colour never looks like a screenshot. */
+function tooth(ctx,w,h,rnd,amount){
+  const img=ctx.getImageData(0,0,w,h),d=img.data;
+  for(let i=0;i<d.length;i+=4){
+    const n=(rnd()-0.5)*amount;
+    d[i]+=n; d[i+1]+=n; d[i+2]+=n;
+  }
+  ctx.putImageData(img,0,0);
+}
+
+/* ---- 1. FLOW: curl-ish streamlines ------------------------------------ */
+function flow(ctx,w,h,rnd){
+  const n=makeNoise(rnd);
+  base(ctx,w,h);
+  const S=0.0016;
+  for(let i=0;i<2400;i++){
+    let x=rnd()*w, y=rnd()*h;
+    const accent=rnd()<0.055;
+    ctx.beginPath(); ctx.moveTo(x,y);
+    ctx.strokeStyle=accent?ACC:INK;
+    ctx.globalAlpha=accent?0.5:0.055+rnd()*0.16;
+    ctx.lineWidth=accent?1.5:0.6+rnd()*0.7;
+    const steps=90+rnd()*160;
+    for(let s=0;s<steps;s++){
+      const a=n(x*S,y*S)*Math.PI*2.6 + n(x*S*0.4+40,y*S*0.4)*1.6;
+      x+=Math.cos(a)*3.1; y+=Math.sin(a)*3.1;
+      if(x<-40||x>w+40||y<-40||y>h+40)break;
+      ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ---- 2. BACKPRESSURE: lines bunching toward the wall ------------------ */
+function backpressure(ctx,w,h,rnd){
+  const n=makeNoise(rnd);
+  base(ctx,w,h);
+  const N=190;
+  for(let i=0;i<N;i++){
+    const t=i/(N-1);
+    const eased=Math.pow(t,2.35);                 // compression toward the base
+    const y=h*0.06+eased*h*0.9;
+    const amp=(1-t)*h*0.055+3;
+    const accent=Math.abs(t-0.78)<0.006;
+    ctx.beginPath();
+    ctx.strokeStyle=accent?ACC:INK;
+    ctx.globalAlpha=accent?0.95:0.16+t*0.5;
+    ctx.lineWidth=accent?2.4:0.7+t*1.5;
+    for(let x=-10;x<=w+10;x+=4){
+      const yy=y+Math.sin(x*0.006+i*0.35)*amp*0.5+n(x*0.0022,i*0.09)*amp;
+      x===-10?ctx.moveTo(x,yy):ctx.lineTo(x,yy);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ---- 3. PARTITION: a field split by a fault --------------------------- */
+function partition(ctx,w,h,rnd){
+  const n=makeNoise(rnd);
+  base(ctx,w,h);
+  const fault=y=>w*0.5+n(y*0.0016,7.3)*w*0.22+Math.sin(y*0.004)*w*0.03;
+  const step=24;
+  for(let y=step;y<h;y+=step){
+    const fx=fault(y);
+    for(let x=step;x<w;x+=step){
+      const left=x<fx;
+      const d=Math.abs(x-fx)/(w*0.5);
+      const drift=left?-1:1;
+      const a=(left?-0.35:0.35)+n(x*0.004,y*0.004)*0.9;
+      const len=step*(0.42+(1-d)*0.5);
+      const cx=x+drift*(1-d)*13, cy=y+n(x*0.003+9,y*0.003)*8;
+      ctx.beginPath();
+      ctx.strokeStyle=INK;
+      ctx.globalAlpha=0.2+(1-d)*0.55;
+      ctx.lineWidth=0.9;
+      ctx.moveTo(cx-Math.cos(a)*len,cy-Math.sin(a)*len);
+      ctx.lineTo(cx+Math.cos(a)*len,cy+Math.sin(a)*len);
+      ctx.stroke();
+    }
+  }
+  ctx.beginPath(); ctx.strokeStyle=ACC; ctx.globalAlpha=0.92; ctx.lineWidth=2.6;
+  for(let y=-10;y<=h+10;y+=6){ const x=fault(y); y===-10?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+  ctx.stroke();
+  ctx.globalAlpha=1;
+}
+
+/* ---- 4. RETRY STORM: overlapping bursts ------------------------------- */
+function storm(ctx,w,h,rnd){
+  base(ctx,w,h);
+  const src=[[w*0.3,h*0.34],[w*0.68,h*0.52],[w*0.44,h*0.76]];
+  src.forEach(([cx,cy],si)=>{
+    const rings=64+si*14;
+    for(let i=0;i<rings;i++){
+      const r=(i/rings)*Math.max(w,h)*0.78*(1+si*0.08);
+      const accent=i%19===si*5;
+      ctx.beginPath();
+      ctx.strokeStyle=accent?ACC:INK;
+      ctx.globalAlpha=accent?0.6:0.07+(1-i/rings)*0.3;
+      ctx.lineWidth=accent?1.6:0.55+(1-i/rings)*0.9;
+      for(let a=0;a<=Math.PI*2+0.05;a+=0.05){
+        const wob=1+Math.sin(a*6+i*0.11+si)*0.014+Math.sin(a*13-i*0.07)*0.008;
+        const x=cx+Math.cos(a)*r*wob, y=cy+Math.sin(a)*r*wob;
+        a===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+  });
+  ctx.globalAlpha=1;
+}
+
+/* ---- 5. CONSENSUS: chords converging on a quorum ---------------------- */
+function consensus(ctx,w,h,rnd){
+  base(ctx,w,h);
+  const cx=w/2, cy=h/2, R=Math.min(w,h)*0.40, N=132;
+  const pt=i=>{const a=(i/N)*Math.PI*2-Math.PI/2;return[cx+Math.cos(a)*R,cy+Math.sin(a)*R]};
+  for(let i=0;i<N;i++){
+    for(let k=1;k<=5;k++){
+      const j=(i*(k*11+7))%N;
+      const [x1,y1]=pt(i),[x2,y2]=pt(j);
+      const quorum=(j%N)<N*0.16;
+      ctx.beginPath();
+      ctx.strokeStyle=quorum?ACC:INK;
+      ctx.globalAlpha=quorum?0.16:0.045;
+      ctx.lineWidth=quorum?1.1:0.55;
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    }
+  }
+  for(let i=0;i<N;i++){
+    const [x,y]=pt(i), quorum=i<N*0.16;
+    ctx.beginPath(); ctx.globalAlpha=quorum?1:0.55;
+    ctx.fillStyle=quorum?ACC:INK;
+    ctx.arc(x,y,quorum?3.6:1.9,0,Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ---- 6. DECAY: a grid dissolving ------------------------------------- */
+function decay(ctx,w,h,rnd){
+  const n=makeNoise(rnd);
+  base(ctx,w,h);
+  const step=13;
+  for(let y=step;y<h;y+=step){
+    for(let x=step;x<w;x+=step){
+      const t=x/w;                                  // order → entropy
+      const jitter=Math.pow(t,2.1)*step*4.2;
+      const px=x+(rnd()-0.5)*jitter+n(x*0.004,y*0.004)*jitter*0.6;
+      const py=y+(rnd()-0.5)*jitter+n(x*0.004+5,y*0.004)*jitter*0.6;
+      const alive=rnd()>Math.pow(t,1.7)*0.82;
+      if(!alive)continue;
+      const accent=Math.abs(y-h*0.42)<9 && rnd()<0.5;
+      ctx.beginPath();
+      ctx.strokeStyle=accent?ACC:INK;
+      ctx.globalAlpha=accent?0.85:(1-t*0.72)*0.65;
+      ctx.lineWidth=accent?1.8:0.9;
+      ctx.moveTo(px,py); ctx.lineTo(px+step*0.55,py);
+      ctx.stroke();
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+const PLATES = { flow, backpressure, partition, storm, consensus, decay };
+
+window.render = function(name, w, h, seed){
+  const c=document.getElementById('c');
+  c.width=w; c.height=h;
+  const ctx=c.getContext('2d');
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  const rnd=mulberry(seed);
+  PLATES[name](ctx,w,h,rnd);
+  /* no per-image grain: the page already lays a paper tooth over everything,
+     and baking noise in triples the JPEG weight. */
+  return c.toDataURL('image/jpeg',0.78);
+};
+</script></body></html>
