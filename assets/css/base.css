@@ -459,13 +459,62 @@ html.js .loader {
 }
 
 /* ── the typography loader ────────────────────────────────────────────────
-   One canvas, full bleed. Everything else — both scripts, the liquid, the
-   flood — happens on the GPU. */
+   Devanagari at display scale, one cell per syllable group, each with its own
+   displacement filter so the wave can work on them one at a time. */
 
-.tl__gl {
+.tl__defs { position: absolute; width: 0; height: 0; pointer-events: none; }
+
+.tl__stage {
+  --tl-gap: clamp(0.1rem, 0.6vw, 0.6rem);
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline;
+  gap: 0 var(--tl-gap);
+  width: 100%; padding-inline: clamp(0.4rem, 2vw, 2rem);
+  will-change: transform;
+}
+
+/* the second word starts a new line */
+.tl__break { flex-basis: 100%; height: 0; }
+
+.tl__cell { will-change: transform, opacity; }
+
+/* each cell is as wide as its own group needs, so a long one like MANI does
+   not run into its neighbour */
+.tl__cell { --tl-w: 2; }
+
+.tl__svg {
+  display: block;
+  /* Cells are measured from the fonts rather than guessed, and the Latin ones
+     are wide, so the four syllables of the first word only fit one line if
+     the floor stays small. The name still fills the screen: the final swell
+     is computed from what is actually left over, not fixed. */
+  width: calc(var(--tl-w) * clamp(1.5rem, 8vw, 7.4rem));
+  /* Taller than 2.5x the width unit, so width is what governs the glyph scale
+     everywhere — otherwise height quietly caps it below the room available. */
+  height: clamp(4.6rem, 21vw, 22rem);
+  overflow: visible;
+}
+
+/* sizes are viewBox user units, so they scale with the element */
+.tl__dev { font-family: 'Baloo', sans-serif; font-weight: 700; font-size: 112px; fill: var(--ink); }
+.tl__lat { font-family: 'Dela', sans-serif; font-size: 76px; letter-spacing: -0.02em; fill: var(--accent); }
+
+/* The wave is a WebGL layer now, not a gradient: a gradient can only be a
+   band sliding across, which is what made it read as a scan. The shader draws
+   a real fluid — domain-warped noise, an irregular front — and the type sits
+   over it, so the same per-glyph morphs are triggered by something that
+   actually looks like liquid. */
+.tl__wave {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  display: block;
+  pointer-events: none; z-index: 2;
+  mix-blend-mode: screen;
+}
+
+/* and the sheet it becomes, which is what wipes the page in */
+.tl__sheet {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: var(--accent);
+  will-change: transform;
 }
 
 .loader__foot {
