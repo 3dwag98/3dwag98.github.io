@@ -124,9 +124,9 @@
       U[n] = gl.getUniformLocation(prog, n);
     });
 
-    gl.uniform3fv(U.uPaper, hex(o.paper || '#F1EFEA'));
-    gl.uniform3fv(U.uInk, hex(o.ink || '#0F1214'));
-    gl.uniform3fv(U.uAcc, hex(o.accent || '#7F570A'));
+    gl.uniform3fv(U.uPaper, hex(o.paper || '#F4F4EF'));
+    gl.uniform3fv(U.uInk, hex(o.ink || '#0A0B0A'));
+    gl.uniform3fv(U.uAcc, hex(o.accent || '#4A6606'));
     gl.uniform1f(U.uFade, 1);
 
     var scale = o.scale || 0.62;               // render under-res; it is all soft
