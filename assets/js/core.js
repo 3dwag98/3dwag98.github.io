@@ -189,42 +189,77 @@
       ring.remove(); dot.remove(); return;
     }
 
-    document.body.classList.add('cursor-on');
-
     var label = ring.querySelector('.cur__t');
     var rx = gsap.quickTo(ring, 'x', { duration: 0.42, ease: 'power3' });
     var ry = gsap.quickTo(ring, 'y', { duration: 0.42, ease: 'power3' });
     var dx = gsap.quickTo(dot, 'x', { duration: 0.1, ease: 'power2' });
     var dy = gsap.quickTo(dot, 'y', { duration: 0.1, ease: 'power2' });
     var shown = false;
+    var scale = 1;
+
+    /* Everything the ring reacts to, and what it says while it is there. */
+    var TARGETS = '[data-cur], a, button, .plate, canvas';
+
+    function labelFor(t) {
+      var explicit = t.getAttribute('data-cur');
+      if (explicit !== null) return explicit;
+      if (t.matches('a[href^="mailto:"]')) return 'write';
+      if (t.matches('a[target="_blank"]')) return 'open';
+      if (t.matches('canvas')) return 'pick';
+      if (t.matches('.plate')) return 'look';
+      if (t.tagName === 'BUTTON') return 'press';
+      if (t.tagName === 'A') return 'go';
+      return '';
+    }
+
+    function to(s) {
+      scale = s;
+      gsap.to(ring, { scale: s, duration: 0.35, ease: 'expo.out' });
+    }
 
     window.addEventListener('mousemove', function (e) {
       if (!shown) {
         gsap.set([ring, dot], { x: e.clientX, y: e.clientY });
         gsap.to([ring, dot], { opacity: 1, duration: 0.3 });
+        /* Take the native cursor away only once ours is genuinely on screen.
+           If this never runs the page keeps its own cursor, rather than the
+           user being left with no pointer at all. */
+        document.body.classList.add('cursor-on');
         shown = true;
       }
       rx(e.clientX); ry(e.clientY); dx(e.clientX); dy(e.clientY);
     }, { passive: true });
 
     document.addEventListener('mouseover', function (e) {
-      var t = e.target.closest('[data-cur], a, button');
+      var t = e.target.closest(TARGETS);
       if (!t) return;
-      var text = t.getAttribute('data-cur') || '';
-      if (text && label) label.textContent = text;
+
+      var text = labelFor(t);
+      if (label) label.textContent = text;
       ring.classList.add('is-tagged');
-      gsap.to(ring, { scale: text ? 1.55 : 1.25, duration: 0.35, ease: 'expo.out' });
+      ring.classList.toggle('is-worded', !!text);
+      to(text ? 1.62 : 1.28);
       gsap.to(dot, { opacity: 0, duration: 0.2 });
     });
 
     document.addEventListener('mouseout', function (e) {
-      if (!e.target.closest('[data-cur], a, button')) return;
-      ring.classList.remove('is-tagged');
-      gsap.to(ring, { scale: 1, duration: 0.35, ease: 'expo.out' });
+      if (!e.target.closest(TARGETS)) return;
+      ring.classList.remove('is-tagged', 'is-worded');
+      to(1);
       gsap.to(dot, { opacity: 1, duration: 0.2 });
     });
 
+    /* A press should register on the cursor itself, not just the element. */
+    document.addEventListener('mousedown', function () {
+      gsap.to(ring, { scale: scale * 0.82, duration: 0.14, ease: 'power2.out' });
+    });
+
+    document.addEventListener('mouseup', function () {
+      gsap.to(ring, { scale: scale, duration: 0.3, ease: 'expo.out' });
+    });
+
     document.addEventListener('mouseleave', function () { gsap.to([ring, dot], { opacity: 0, duration: 0.2 }); });
+    document.addEventListener('mouseenter', function () { if (shown) gsap.to([ring, dot], { opacity: 1, duration: 0.2 }); });
   }
 
   /* ── magnetic elements ─────────────────────────────────────────────── */

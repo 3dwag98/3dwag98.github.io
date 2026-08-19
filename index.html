@@ -143,8 +143,15 @@
 
         <div class="stmt__note">
           <p class="copy" data-r>
-            Seven years, four banks, most of it on platforms other teams build on. The thread is
-            scale: <strong>designs that keep their shape</strong> as load, teams and scope grow.
+            Seven years, four banks, most of it on platforms other teams build on. Spring Boot and
+            Python services, Kafka through the middle, Postgres and Redis holding state, Kubernetes
+            underneath. The thread is scale: <strong>designs that keep their shape</strong> as load,
+            teams and scope grow.
+          </p>
+          <p class="copy" data-r data-delay="0.08">
+            I like problems that span layers, because that is where the good decisions live. A slow
+            page is sometimes a frontend problem and sometimes a missing index. Being able to follow
+            the thread the whole way is most of the job.
           </p>
         </div>
       </div>
@@ -175,10 +182,10 @@
         <span class="quote__pivot">is invariably found to have evolved from</span>
         <span class="quote__line quote__line--b">a simple system that worked</span>
 
-        <svg class="quote__signal" viewBox="0 0 1400 120" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="quote__signal" viewBox="0 0 1400 240" preserveAspectRatio="none" aria-hidden="true">
           <path id="sig-edges"></path>
           <g id="sig-nodes"></g>
-          <circle id="sig-seed" cx="1355" cy="60" r="5"></circle>
+          <circle id="sig-seed" cx="1352" cy="120" r="8"></circle>
         </svg>
 
         <div class="quote__resolve">
@@ -202,9 +209,13 @@
           Everything is red. <em>Only one of them is guilty.</em>
         </h2>
         <p class="copy" data-r data-delay="0.06">
-          One service here has gone slow. Everything above it on the call path looks slow too
-          &mdash; those are just waiting. The numbers are totals, like a dashboard would show.
-          <strong>Click the one actually spending the time.</strong>
+          One service here has gone slow. Everything above it on the call path looks slow too, not
+          because anything is wrong with them but because they are sitting there waiting &mdash;
+          which is why a dashboard full of red is a symptom, not an answer.
+        </p>
+        <p class="copy" data-r data-delay="0.1">
+          The numbers on the boxes are totals, which is what a dashboard would show you.
+          <strong>Click the service that is actually spending the time.</strong>
         </p>
 
         <div class="game__controls" data-r data-delay="0.14">
@@ -256,6 +267,7 @@
 
           <p class="role__claim" data-lines>Modernizing a platform that <em>cannot stop trading</em>.</p>
           <p class="role__line">Services, data model and the screens the desk works in, replaced piece by piece &mdash; the swap invisible to the people using it.</p>
+          <p class="role__line">Real capability every quarter while the system underneath changes &mdash; a desk should never be able to tell which quarter its screen started talking to a new service.</p>
 
           <ul class="role__tags"><li>Java</li><li>Spring Boot</li><li>Asset Management</li><li>Trading platforms</li></ul>
         </div>
@@ -279,6 +291,7 @@
 
           <p class="role__claim" data-lines>One API replaced the tools that scheduled an <em>entire estate</em>.</p>
           <p class="role__line">Highly available Spring Boot, a Redis cache-aside authorization layer, breakers on the edges &mdash; from a handful of operators to the way everything is scheduled.</p>
+          <p class="role__line">Alongside it, a schema-driven enrichment engine for enterprise alert traffic, and credential rotation, maintenance suppression and onboarding turned from manual rituals into products with APIs.</p>
 
           <ul class="role__tags"><li>Spring Boot</li><li>Redis</li><li>Kafka</li><li>Python</li><li>OpenShift</li><li>Vault</li><li>Angular</li></ul>
         </div>
@@ -302,6 +315,7 @@
 
           <p class="role__claim" data-lines>Deployment stopped being an <em>event</em>.</p>
           <p class="role__line">Kubernetes and OpenShift with room to scale through peak, environments in Ansible, secrets out of human hands.</p>
+          <p class="role__line">Quality and security gates moved into the pipeline ahead of review, so shipping became an ordinary afternoon instead of an event that needed a plan.</p>
 
           <ul class="role__tags"><li>Kubernetes</li><li>OpenShift</li><li>Ansible</li><li>Jenkins</li><li>Terraform</li></ul>
         </div>
@@ -325,6 +339,7 @@
 
           <p class="role__claim" data-lines>Both ends of the wire, usually the <em>same afternoon</em>.</p>
           <p class="role__line">Django and Flask services with the React and Angular front ends that consumed them, written by the same person.</p>
+          <p class="role__line">It taught me to design the API around the thing someone eventually has to look at &mdash; a backend nobody can see is a backend nobody can fix.</p>
 
           <ul class="role__tags"><li>Django</li><li>Flask</li><li>React</li><li>Angular</li><li>REST</li></ul>
         </div>
@@ -351,7 +366,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">i</span>
             <h3 class="guide__name">Flow</h3>
-            <p class="guide__note">Traffic never arrives evenly. The shape it takes is the first thing worth drawing.</p>
+            <p class="guide__note">Traffic never arrives evenly. The shape it takes through a system is the first thing worth drawing, and usually the last thing anyone draws.</p>
           </figcaption>
         </figure>
 
@@ -362,7 +377,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">ii</span>
             <h3 class="guide__name">Backpressure</h3>
-            <p class="guide__note">A growing queue is a system saying it cannot keep up. The answer is upstream.</p>
+            <p class="guide__note">A queue that grows is a system telling you it cannot keep up. The answer is almost always upstream, not another consumer.</p>
           </figcaption>
         </figure>
 
@@ -373,7 +388,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">iii</span>
             <h3 class="guide__name">Partition</h3>
-            <p class="guide__note">The network will split. What matters is which side is allowed to be wrong.</p>
+            <p class="guide__note">The network will split. What matters is what each side believes while it lasts, and which of them is allowed to be wrong.</p>
           </figcaption>
         </figure>
 
@@ -384,7 +399,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">iv</span>
             <h3 class="guide__name">Retry storm</h3>
-            <p class="guide__note">Retries without ceilings turn a slow dependency into an outage. Jitter, budgets, breakers.</p>
+            <p class="guide__note">Retries without ceilings turn a slow dependency into an outage. Jitter, budgets, and a breaker that counts slow calls as failures.</p>
           </figcaption>
         </figure>
 
@@ -395,7 +410,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">v</span>
             <h3 class="guide__name">Consensus</h3>
-            <p class="guide__note">Agreement is expensive. Spend it only where being wrong beats being slow.</p>
+            <p class="guide__note">Agreement is expensive. Spend it only where being wrong is worse than being slow, and be honest about which you are choosing.</p>
           </figcaption>
         </figure>
 
@@ -406,7 +421,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">vi</span>
             <h3 class="guide__name">Decay</h3>
-            <p class="guide__note">Nothing holds its shape unattended. Runbooks and diagrams drift from what they describe.</p>
+            <p class="guide__note">Nothing holds its shape unattended. Certificates, dashboards, runbooks, the diagram on the wall &mdash; all of it drifts from the thing it describes.</p>
           </figcaption>
         </figure>
       </div>
@@ -419,8 +434,9 @@
       <p class="lbl" data-r>VI &mdash; The stack</p>
       <h2 class="dsp" style="font-size:var(--t-hero);margin-bottom:1rem" data-chars>Top of the page<br><em>to the disk</em></h2>
       <p class="copy inst__intro" data-r>
-        Ordered the way a request travels. The interesting problems live at the
-        <em>seams between two layers</em>.
+        Ordered the way a request travels, because that is the order I think in. I have shipped
+        production work at every one of these layers, and the interesting problems almost always
+        live at the <em>seams between two of them</em>.
       </p>
 
       <svg class="hook hook--path" viewBox="0 0 640 58" role="img" aria-label="A request travelling through six layers, from the top of the page down to the disk." data-r>
@@ -591,6 +607,7 @@
 </script>
 
 <script src="assets/js/theme.js"></script>
+<script src="assets/js/favicon.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" integrity="sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js" integrity="sha384-wl5TeDVvOWt30Pbf8aSo2ZrzsOjddu3avOBvHe+p+OhJt9gP6w9YXmDkN5DK2/dF" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js" integrity="sha384-SWJ0lLVRoipvHh59xj0pL7uC7Ih51F+5smaFtrG+2nr+TlDZU5SYJHmxfolbeNTr" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

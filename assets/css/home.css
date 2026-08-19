@@ -145,7 +145,7 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
 }
 
 /* one node on the right, a whole system on the left */
-.quote__signal { width: 100%; height: clamp(52px, 9vh, 104px); margin-top: clamp(1rem, 3vh, 2.2rem); overflow: visible; }
+.quote__signal { width: 100%; height: clamp(112px, 19vh, 224px); margin-top: clamp(1rem, 3vh, 2.2rem); overflow: hidden; }
 
 .quote__resolve { width: min(62ch, 88vw); margin: clamp(1.2rem, 3.5vh, 2.6rem) auto 0; text-align: center; }
 .quote__resolve p { font-size: var(--t-sm); line-height: 1.55; color: var(--ink-2); }
@@ -223,6 +223,8 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
   font-size: var(--t-sm); line-height: 1.6; color: var(--ink-2);
   max-width: 46ch; margin-top: clamp(0.7rem, 1.6vw, 1.1rem);
 }
+
+.role__line + .role__line { margin-top: 0.7rem; }
 
 .role__tags {
   display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem;
@@ -398,10 +400,9 @@ body.cursor-on .game__board canvas { cursor: none !important; }
 
 /* ── quote graphic: a system accreting from one node ───────────────────── */
 
-#sig-edges { fill: none; stroke: var(--mute); stroke-width: 1; stroke-linecap: round; opacity: 0.6; vector-effect: non-scaling-stroke; }
-#sig-nodes circle { fill: var(--ink); opacity: 0.9; }
+#sig-edges { fill: none; stroke: var(--mute); stroke-width: 2.2; stroke-linecap: round; opacity: 0.85; vector-effect: non-scaling-stroke; }
+#sig-nodes circle { fill: var(--ink); opacity: 0.95; }
 #sig-seed { fill: var(--accent); }
-.quote__signal { overflow: hidden; }
 
 /* ── section hooks ─────────────────────────────────────────────────────────
    One visual language for the marks that anchor a section, all of it drawn
