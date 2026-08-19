@@ -21,9 +21,9 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        post.js        # reader: Markdown/HTML → prose
 │   │        gl.js          # the masthead's WebGL surface
 │   │        theme.js       # dark/light toggle + the cg:theme event
-│   │        queue.js       # the backpressure game
+│   │        trace.js       # the find-the-bottleneck game
 │   ├── fonts/              # self-hosted woff2 — no external font request
-│   ├── plates/             # generated line-work — six plates, light and dark
+│   ├── plates/             # generated line-work, six plates
 │   └── vendor/             # GSAP, ScrollTrigger, SplitText, Lenis, marked,
 │                           #   DOMPurify, Prism — pinned copies, no CDN
 ├── blog/
@@ -102,7 +102,7 @@ masthead scrolls away, and is removed entirely under reduced motion or when WebG
 | Position | `#about` | the paragraph lights word by word as it passes |
 | Strip | — | a wide plate carrying the eye into the quote |
 | Quote | `#quote` | **pinned**: the page inverts to the opposite theme, the two halves of Gall's law slide past each other, and one node accretes into the system it became |
-| Game | `#queue` | "Hold the line" — drag to set the worker count against traffic you do not control |
+| Game | `#trace` | "Find the bottleneck" — click the service actually spending the time |
 | Practice | `#work` | role cards stack — each sticks while the next slides over it, with a full plate alongside, alternating sides |
 | Field guide | `#guide` | **pinned** crossfade through the six plates above 900px; a plain vertical list below it |
 | Instruments | `#stack` | capability rows with a vermilion fill sweep on hover |
@@ -196,26 +196,22 @@ DOMPurify before it touches the DOM.
 
 ## The game
 
-`assets/js/queue.js` runs a small backpressure sandbox under the quote. Traffic arrives at a rate
-that breathes and spikes; you set the worker count by dragging across the board, with the arrow
-keys, or with the buttons. Latency is `service + queue / capacity`, drawn against the SLO line;
-past the queue cap requests are shed and the "held" percentage falls. It is Little's law with a
-scoreboard.
+`assets/js/trace.js` runs "Find the bottleneck" under the quote. A fixed service graph is dealt
+a random culprit each round; the culprit's self time jumps, and every ancestor's **total** rises
+with it because they are waiting. The boxes show totals — what a dashboard would show you — and
+the player clicks the service actually spending the time. On reveal the call path lights up and
+every box switches to its self time.
 
-`data-q-root` goes on the **section**, not the board — the buttons live in the copy column beside
+`data-t-root` goes on the **section**, not the board: the buttons live in the copy column beside
 the canvas, and binding the delegated click handler to the board alone silently loses every
-control. It pauses when scrolled out of view or the tab is hidden, starts paused under reduced
-motion, and repaints on `cg:theme`.
+control. Giving up reveals the answer without scoring it. It repaints on `cg:theme`.
 
-## Plates and the theme
+## Plates
 
-Two sets live under `assets/plates/` — the light one at the root, the dark one in `dark/`. The
-markup ships the dark set and `home.js` swaps `src` from `data-plate` when the theme changes, so
-only the set in use is ever fetched. It also swaps **once on boot**: `theme.js` announces the
-initial theme before `home.js` finishes loading, so waiting for the event alone leaves a light
-page showing dark plates.
-
-Regenerate both sets with `node tools/plates.mjs` — the generators take a palette.
+One set, in `assets/plates/`, drawn on the dark ground and used by both themes — on the light
+page they read as prints rather than as part of the background. Regenerate with
+`node tools/plates.mjs`; the generators take a palette, so a different ground is a one-line
+change.
 
 ## Accessibility and fallbacks
 

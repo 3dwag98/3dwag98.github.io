@@ -29,13 +29,14 @@
       <category>spring-boot</category>
     </item>
     <item>
-      <title>Why these notes exist</title>
-      <link>https://3dwag98.github.io/blog/post.html?p=why-these-notes</link>
-      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=why-these-notes</guid>
+      <title>The system design research worth reading, and why</title>
+      <link>https://3dwag98.github.io/blog/post.html?p=system-design-reading-list</link>
+      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=system-design-reading-list</guid>
       <pubDate>Sun, 12 Jul 2026 09:00:00 GMT</pubDate>
-      <description>Writing the thing down is how I find out whether I actually understood it.</description>
-      <category>meta</category>
-      <category>engineering</category>
+      <description>A short guide to the papers and references that actually changed how production systems get built — what each one contributed, and where to read it.</description>
+      <category>system-design</category>
+      <category>distributed-systems</category>
+      <category>reading</category>
     </item>
   </channel>
 </rss>

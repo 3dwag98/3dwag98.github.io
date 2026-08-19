@@ -86,7 +86,7 @@
         </div>
 
         <figure class="plate plate--reveal mast__plate" data-parallax>
-          <img src="assets/plates/dark/flow.jpg" data-plate="flow" alt="Generated plate: streamlines tracing a flow field" width="1100" height="1375" fetchpriority="high" decoding="async">
+          <img src="assets/plates/flow.jpg" alt="Generated plate: streamlines tracing a flow field" width="1100" height="1375" fetchpriority="high" decoding="async">
         </figure>
       </div>
 
@@ -147,7 +147,7 @@
   <!-- ═══ strip ══════════════════════════════════════════════════════════ -->
   <figure class="strip">
     <div class="plate plate--reveal" data-parallax>
-      <img src="assets/plates/dark/backpressure.jpg" data-plate="backpressure" alt="Generated plate: turbulence settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
+      <img src="assets/plates/backpressure.jpg" alt="Generated plate: turbulence settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
     </div>
     <figcaption>
       <span class="lbl">Backpressure &mdash; plate ii</span>
@@ -187,43 +187,39 @@
   </section>
 
   <!-- ═══ game ═══════════════════════════════════════════════════════════ -->
-  <section class="game" id="queue" data-q-root>
+  <section class="game" id="trace" data-t-root>
     <div class="wrap game__grid">
       <div class="game__copy">
-        <p class="lbl" data-r>III &mdash; Hold the line</p>
+        <p class="lbl" data-r>III &mdash; Find the bottleneck</p>
         <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem" data-r>
-          Traffic you don&rsquo;t control. <em>Capacity you do.</em>
+          Everything is red. <em>Only one of them is guilty.</em>
         </h2>
         <p class="copy" data-r data-delay="0.06">
-          Requests arrive at a rate that breathes and occasionally spikes. Each worker clears one
-          every 220&nbsp;ms. Too few and the queue builds until latency crosses the SLO and
-          requests start getting shed; too many and you are paying for idle capacity.
+          One service in this graph has gone slow. Every service above it on the call path looks
+          slow too &mdash; not because anything is wrong with them, but because they are sitting
+          there waiting. That is why a dashboard full of red is a symptom, not an answer.
         </p>
         <p class="copy" data-r data-delay="0.1">
-          Drag across the board to set the worker count, or use the buttons. The whole model is
-          Little&rsquo;s law &mdash; which is the entire reason a queue is the first thing I ask
-          about.
+          The numbers on the boxes are totals, which is what a dashboard would show you.
+          <strong>Click the service that is actually spending the time.</strong>
         </p>
 
         <div class="game__controls" data-r data-delay="0.14">
-          <button class="game__btn" type="button" data-q="toggle" aria-pressed="true">Pause</button>
-          <button class="game__btn" type="button" data-q="drop" aria-label="Remove a worker">&minus; Worker</button>
-          <button class="game__btn" type="button" data-q="add" aria-label="Add a worker">+ Worker</button>
-          <button class="game__btn" type="button" data-q="spike">Send a spike</button>
-          <button class="game__btn" type="button" data-q="reset">Reset</button>
+          <button class="game__btn" type="button" data-t="next">Skip</button>
+          <button class="game__btn" type="button" data-t="reveal">Give up</button>
         </div>
 
-        <p class="lbl game__verdict" data-r data-delay="0.18"><span data-q-verdict>Holding</span></p>
+        <p class="lbl game__verdict" data-r data-delay="0.18">
+          <span data-t-verdict>One service is spending the time. The rest are waiting on it.</span>
+        </p>
       </div>
 
       <div class="game__board" data-r data-delay="0.08">
-        <canvas tabindex="0" aria-label="Queue simulation. Drag left and right, or use arrow keys, to change the worker count."></canvas>
+        <canvas tabindex="0" aria-label="A service call graph. Click the service that is the root cause of the latency."></canvas>
         <div class="game__hud">
-          <span>In <b data-q-rps>00</b>/s</span>
-          <span>Workers <b data-q-workers>03</b></span>
-          <span>Queue <b data-q-depth>00</b></span>
-          <span>p99 <b data-q-latency>220ms</b></span>
-          <span>Held <b data-q-uptime>100%</b></span>
+          <span>Trace <b data-t-round>01</b></span>
+          <span>Found <b data-t-score>0/1</b></span>
+          <span>Streak <b data-t-streak>00</b></span>
         </div>
       </div>
     </div>
@@ -240,7 +236,7 @@
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/dark/consensus.jpg" data-plate="consensus" alt="Generated plate: chords converging on a quorum" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/consensus.jpg" alt="Generated plate: chords converging on a quorum" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -279,7 +275,7 @@
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/dark/partition.jpg" data-plate="partition" alt="Generated plate: a field of marks split by a fault line" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/partition.jpg" alt="Generated plate: a field of marks split by a fault line" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -344,7 +340,7 @@
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/dark/storm.jpg" data-plate="storm" alt="Generated plate: overlapping concentric bursts" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/storm.jpg" alt="Generated plate: overlapping concentric bursts" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -382,7 +378,7 @@
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/dark/decay.jpg" data-plate="decay" alt="Generated plate: an ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/decay.jpg" alt="Generated plate: an ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -432,7 +428,7 @@
       <div class="guide__stack">
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/dark/flow.jpg" data-plate="flow" alt="Streamlines tracing a flow field, one thread picked out" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/flow.jpg" alt="Streamlines tracing a flow field, one thread picked out" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">i</span>
@@ -443,7 +439,7 @@
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/dark/backpressure.jpg" data-plate="backpressure" alt="Turbulent lines settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/backpressure.jpg" alt="Turbulent lines settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">ii</span>
@@ -454,7 +450,7 @@
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/dark/partition.jpg" data-plate="partition" alt="A regular field of marks split by an irregular fault" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/partition.jpg" alt="A regular field of marks split by an irregular fault" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">iii</span>
@@ -465,7 +461,7 @@
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/dark/storm.jpg" data-plate="storm" alt="Overlapping concentric bursts from three sources" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/storm.jpg" alt="Overlapping concentric bursts from three sources" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">iv</span>
@@ -476,7 +472,7 @@
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/dark/consensus.jpg" data-plate="consensus" alt="Chords across a ring of nodes with a quorum picked out" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/consensus.jpg" alt="Chords across a ring of nodes with a quorum picked out" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">v</span>
@@ -487,7 +483,7 @@
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/dark/decay.jpg" data-plate="decay" alt="An ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/decay.jpg" alt="An ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">vi</span>
@@ -653,7 +649,7 @@
 <script src="assets/vendor/lenis.min.js"></script>
 <script src="assets/js/gl.js"></script>
 <script src="assets/js/core.js"></script>
-<script src="assets/js/queue.js"></script>
+<script src="assets/js/trace.js"></script>
 <script src="assets/js/posts.js"></script>
 <script src="assets/js/home.js"></script>
 </body>
