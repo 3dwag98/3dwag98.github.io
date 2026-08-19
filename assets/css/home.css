@@ -424,6 +424,50 @@ body.cursor-on .game__board canvas { cursor: none !important; }
 .game.is-right .game__verdict { color: var(--accent); }
 .game.is-wrong .game__verdict { color: var(--ink-2); }
 
+/* ── the Life tutorial ─────────────────────────────────────────────────────
+   Four before/after diagrams for the rules, and a coach line that follows
+   what the visitor has actually done. Both are drawn from the same tokens as
+   the board, so a theme swap needs no special case. */
+
+.life__rules {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem clamp(0.8rem, 2vw, 1.4rem);
+  margin-top: clamp(1.1rem, 2.4vw, 1.6rem);
+}
+
+/* Four across only while the copy column is full width. Past 900px it shares
+   the row with the board, and four diagrams in half a column are too small to
+   read — two rows of two are bigger there, not smaller. */
+@media (min-width: 620px) and (max-width: 899px) {
+  .life__rules { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.life__rule canvas { display: block; width: 100%; }
+.life__rule .lbl { margin-top: 0.45rem; letter-spacing: 0.06em; line-height: 1.35; }
+.life__rule .lbl b { color: var(--ink); font-weight: 400; }
+
+.life__coach {
+  margin-top: 1rem; min-height: 3.2em;
+  color: var(--ink-2); letter-spacing: 0.05em; line-height: 1.5;
+  text-transform: none; max-width: 46ch;
+}
+
+.life__coach b { color: var(--accent); font-weight: 400; }
+.life__coach[data-done] { color: var(--mute); }
+
+/* the step counter, so three instructions read as three and not as a wall */
+.life__step {
+  display: inline-block; margin-right: 0.5rem; padding: 0.1rem 0.4rem;
+  border: 1px solid var(--accent); border-radius: 100px;
+  color: var(--accent); font-variant-numeric: tabular-nums;
+}
+
+.life__wrapnote { margin-left: auto; }
+
+/* the board is drawn on, so say so */
+.life .game__board canvas { cursor: crosshair; }
+body.cursor-on .life .game__board canvas { cursor: none !important; }
+
 /* ── quote graphic: a system accreting from one node ───────────────────── */
 
 #sig-edges { fill: none; stroke: var(--mute); stroke-width: 2.6; stroke-linecap: round; opacity: 0.95; }

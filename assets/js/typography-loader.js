@@ -21,9 +21,11 @@
       event rather than two states cross-dissolving.
 
    The wave itself is WebGL (liquid-wave.js); the per-glyph tearing stays on
-   feTurbulence + feDisplacementMap, whose scale GSAP animates per group. Reduced motion never reaches here at all — core.js drops the loader
-   before this runs, which gets those visitors to the page faster than any
-   still version would.
+   feTurbulence + feDisplacementMap, whose scale GSAP animates per group.
+
+   Reduced motion never reaches here at all — core.js drops the loader before
+   this runs, which gets those visitors to the page faster than any still
+   version would.
    ========================================================================= */
 
 (function () {
@@ -34,9 +36,9 @@
      rule is to treat visually connected groups as one unit, so they are joined
      here as गा. That also makes the Latin come out right: the split version
      reads GA + WA + WA + DE = GAWAWADE. */
-  /* `w` is the cell's width in relative units, wide enough for whichever of
-     the two scripts needs more room. It is here rather than measured so the
-     spacing stays art-directable — nudge a number, not a layout algorithm. */
+  /* `w` is a starting width in relative units, and only a starting one — fit()
+     replaces it with what the two faces actually measure. It is kept so there
+     is something sane on screen if measurement is impossible. */
   var GROUPS = [
     { dev: 'चिं', lat: 'CH',   w: 2.1 },
     { dev: 'ता',  lat: 'IN',   w: 1.9 },
@@ -120,15 +122,15 @@
   /**
    * Sizes every cell from what its two scripts actually measure.
    *
-   * The widths in GROUPS are a starting guess, and a guess is all they can be:
-   * they were art-directed against a different Latin face, and Dela Gothic is
-   * a good deal wider, so every group overflowed its cell and sat on top of
-   * its neighbour. Measuring instead of guessing fixes that, and keeps fixing
-   * it if either font is ever swapped again.
+   * The widths in GROUPS are a guess, and a guess is all they can be: they were
+   * art-directed against one Latin face, and against a wider one every group
+   * overflowed its cell and sat on top of its neighbour. Measuring instead of
+   * guessing fixed that, and went on fixing it through the next font swap
+   * without a line changing — which is the point.
    *
-   * The cell is sized to whichever script needs more room — always the Latin
-   * here — so the width never changes mid-morph and the row does not reflow
-   * under the wave. Keeping the viewBox and the cell in step also keeps the
+   * The cell is sized to whichever script needs more room — usually the Latin,
+   * though not for every group — so the width never changes mid-morph and the
+   * row does not reflow under the wave. Keeping the viewBox and the cell in step also keeps the
    * scale identical across all seven, which is what stops one syllable
    * rendering fractionally larger than the rest.
    */
@@ -149,20 +151,36 @@
     });
   }
 
-  /** Runs `fn` once the webfonts are in — measuring before that would size
-   *  every cell to the fallback face. The ceiling matters more than the
-   *  promise: a font that never arrives must not strand the loader. */
+  /** Runs `fn` once the two faces this needs are in — measuring before that
+   *  would size every cell to the fallback face.
+   *
+   *  Two faces, not `fonts.ready`: ready waits on everything the document
+   *  asks for, which on a slow machine is seconds after the only two that
+   *  matter here have arrived. And the text has to be passed, because the
+   *  Devanagari face is declared with a unicode-range — `load()` probes with
+   *  a Latin string by default, decides the face is not needed for it, and
+   *  resolves without ever fetching the file.
+   *
+   *  The ceiling matters more than the promise: a font that never arrives
+   *  must not strand the loader. */
   function whenFonts(fn) {
     var done = false;
     function go() { if (done) return; done = true; fn(); }
 
-    if (document.fonts && document.fonts.status === 'loaded') { go(); return; }
-    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
-      document.fonts.ready.then(go, go);
-      window.setTimeout(go, 1200);
-    } else {
-      window.setTimeout(go, 60);
-    }
+    var f = document.fonts;
+    if (!f || !f.load) { window.setTimeout(go, 60); return; }
+
+    var dev = GROUPS.map(function (g) { return g.dev; }).join('');
+    var lat = GROUPS.map(function (g) { return g.lat; }).join('');
+
+    try {
+      Promise.all([
+        f.load('400 116px Rozha', dev),
+        f.load('800 88px Fraunces', lat)
+      ]).then(go, go);
+    } catch (e) { go(); }
+
+    window.setTimeout(go, 1200);
   }
 
   /** One turbulence + displacement pair per group, so each can be driven alone. */
@@ -234,7 +252,7 @@
          again the moment the real fonts arrive costs one reflow in a case that
          should be rare, and is much better than leaving the glyphs overlapping. */
       if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
-        document.fonts.ready.then(function () { fit(cells); });
+        document.fonts.ready.then(function () { fit(cells); }, function () {});
       }
 
       /* Phase 1 — the Devanagari arrives and breathes. */

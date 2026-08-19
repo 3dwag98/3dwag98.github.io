@@ -14,15 +14,10 @@
    ========================================================================= */
 
 @font-face {
-  font-family: 'Baloo';
-  src: url('../fonts/baloo-devanagari.woff2') format('woff2-variations');
-  font-weight: 400 800; font-style: normal; font-display: block;
-  unicode-range: U+0900-097F, U+200C-200D, U+20B9;
-}
-@font-face {
-  font-family: 'Dela';
-  src: url('../fonts/dela-gothic.woff2') format('woff2');
+  font-family: 'Rozha';
+  src: url('../fonts/rozha-devanagari.woff2') format('woff2');
   font-weight: 400; font-style: normal; font-display: block;
+  unicode-range: U+0900-097F, U+200C-200D, U+20B9;
 }
 @font-face {
   font-family: 'Fraunces';
@@ -495,8 +490,11 @@ html.js .loader {
 }
 
 /* sizes are viewBox user units, so they scale with the element */
-.tl__dev { font-family: 'Baloo', sans-serif; font-weight: 700; font-size: 112px; fill: var(--ink); }
-.tl__lat { font-family: 'Dela', sans-serif; font-size: 76px; letter-spacing: -0.02em; fill: var(--accent); }
+.tl__dev { font-family: 'Rozha', serif; font-size: 116px; fill: var(--ink); }
+.tl__lat {
+  font-family: var(--serif); font-variation-settings: 'opsz' 144;
+  font-weight: 800; font-size: 88px; letter-spacing: -0.045em; fill: var(--accent);
+}
 
 /* The wave is a WebGL layer now, not a gradient: a gradient can only be a
    band sliding across, which is what made it read as a scan. The shader draws

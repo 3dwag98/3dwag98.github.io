@@ -133,12 +133,34 @@
       return;
     }
 
-    seq.eventCallback('onComplete', function () {
+    /* One handover, and only one. Removing the loader, unlocking the page and
+       restarting Lenis have to happen together — the failure this guards
+       against is the page being unlocked while Lenis is still stopped, which
+       looks exactly like a frozen scroll. */
+    var handed = false;
+    function hand() {
+      if (handed) return;
+      handed = true;
+      window.clearTimeout(failsafe);
       loader.remove();
       document.documentElement.classList.remove('is-loading');
       if (lenis) { lenis.start(); lenis.scrollTo(0, { immediate: true }); }
       done();
-    });
+    }
+
+    /* The entry cannot outstay its welcome. GSAP is time-based, but a machine
+       slow enough to drop frames past its lag-smoothing threshold stretches
+       the sequence in wall-clock terms, and nobody should be held at a loading
+       screen because their GPU is weak. Cutting to the page is the right
+       answer there, and this is the only timer that decides it — the one in
+       the document head stands down as soon as this runs. */
+    var failsafe = window.setTimeout(hand, 8000);
+    if (window.__cgLoaderWatchdog) {
+      window.clearTimeout(window.__cgLoaderWatchdog);
+      window.__cgLoaderWatchdog = 0;
+    }
+
+    seq.eventCallback('onComplete', hand);
 
     // the curtain panels belong to page transitions; keep them parked
     if (p.length) gsap.set(p, { scaleY: 0, transformOrigin: '50% 0%' });

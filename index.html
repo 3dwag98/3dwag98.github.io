@@ -21,8 +21,7 @@
 <link rel="alternate" type="application/rss+xml" title="Blogs — Chintamani Gawade" href="/feed.xml">
 
 <link rel="preload" href="assets/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/baloo-devanagari.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/dela-gothic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/rozha-devanagari.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/home.css">
@@ -37,7 +36,16 @@
     /* Pinned and stacked scenes need the motion runtime to lay out. Guess here
        so there is no reflow; core.js corrects it if GSAP never arrives. */
     try { if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion'); } catch (e) { d.classList.add('motion'); }
-    setTimeout(function () { d.classList.remove('is-loading'); }, 5000);
+    /* Last resort, for the case where core.js never runs at all: unlock the
+       page and take the cover off, because clearing the lock alone would leave
+       a visitor scrolling behind a screen that still covers everything.
+       core.js cancels this the moment it takes the loader over, so it never
+       races a sequence that is working. */
+    window.__cgLoaderWatchdog = setTimeout(function () {
+      d.classList.remove('is-loading');
+      var l = document.querySelector('.loader');
+      if (l) l.style.display = 'none';
+    }, 8000);
   })();
 </script>
 <style>html.is-loading { overflow: hidden; }</style>
@@ -216,46 +224,60 @@
   </section>
 
   <!-- ═══ game ═══════════════════════════════════════════════════════════ -->
-  <section class="game" id="limit" data-s-root>
+  <section class="game life" id="life" data-life-root>
     <div class="wrap game__grid">
       <div class="game__copy">
-        <p class="lbl" data-r>III &mdash; Try it</p>
+        <p class="lbl" data-r>III &mdash; Four rules</p>
         <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem" data-r>
-          You are <em>the server</em>.
+          Draw on it. <em>Watch what happens.</em>
         </h2>
         <p class="copy" data-r data-delay="0.06">
-          Requests arrive. Click each one before its bar runs out. It speeds up, and it keeps
-          speeding up &mdash; at some point you will not be fast enough, and that is the part
-          worth feeling. <strong>Nothing here needs explaining first.</strong>
+          Conway&rsquo;s Game of Life. Every square looks at its eight neighbours and obeys the
+          same four rules, forever. Nobody wrote the gliders, the oscillators or the gun
+          currently firing &mdash; <strong>they are what the rules do.</strong>
         </p>
 
-        <div class="game__controls" data-r data-delay="0.12">
-          <button class="game__btn" type="button" data-s="start">Start</button>
-        </div>
-
-        <div class="game__helpers" data-s-helpers hidden>
-          <p class="lbl">What actually fixes it</p>
-          <div class="game__controls">
-            <button class="game__btn" type="button" data-s="cache" aria-pressed="false">Add a cache</button>
-            <button class="game__btn" type="button" data-s="replica" aria-pressed="false">Add a second machine</button>
+        <div class="life__rules" data-r data-delay="0.1">
+          <div class="life__rule">
+            <canvas data-life-rule aria-hidden="true"></canvas>
+            <p class="lbl">Three neighbours &rarr; <b>born</b></p>
           </div>
-          <p class="copy game__note">
-            A cache answers the repeats before they reach you. A second machine takes a share of
-            the rest. Same load, same reflexes &mdash; different architecture.
-          </p>
+          <div class="life__rule">
+            <canvas data-life-rule aria-hidden="true"></canvas>
+            <p class="lbl">Two or three &rarr; <b>lives on</b></p>
+          </div>
+          <div class="life__rule">
+            <canvas data-life-rule aria-hidden="true"></canvas>
+            <p class="lbl">Fewer than two &rarr; <b>dies</b></p>
+          </div>
+          <div class="life__rule">
+            <canvas data-life-rule aria-hidden="true"></canvas>
+            <p class="lbl">More than three &rarr; <b>dies</b></p>
+          </div>
+        </div>
+        <p class="game__note">
+          Each pair is one step: the square outlined on the left, and what the rules make of it
+          on the right. That is the entire specification.
+        </p>
+
+        <div class="game__controls" data-r data-delay="0.14">
+          <button class="game__btn" type="button" data-life="toggle" aria-pressed="true">Pause</button>
+          <button class="game__btn" type="button" data-life="step">Step</button>
+          <button class="game__btn" type="button" data-life="glider">Glider</button>
+          <button class="game__btn" type="button" data-life="pulsar">Pulsar</button>
+          <button class="game__btn" type="button" data-life="gun">Gun</button>
+          <button class="game__btn" type="button" data-life="clear">Clear</button>
         </div>
 
-        <p class="lbl game__verdict" data-r data-delay="0.18">
-          <span data-s-verdict>Press start.</span>
-        </p>
+        <p class="lbl life__coach" data-life-coach data-r data-delay="0.18"></p>
       </div>
 
       <div class="game__board" data-r data-delay="0.08">
-        <canvas aria-label="Pending requests, each with a bar counting down until it is dropped."></canvas>
+        <canvas data-life-board aria-label="Conway's Game of Life. Drag to draw living cells, or use the pattern buttons."></canvas>
         <div class="game__hud">
-          <span>Served <b data-s-served>0</b></span>
-          <span>Dropped <b data-s-dropped>0</b></span>
-          <span>Arriving <b data-s-rate>0.0/s</b></span>
+          <span>Gen <b data-life-gen>0000</b></span>
+          <span>Alive <b data-life-live>000</b></span>
+          <span class="life__wrapnote">Edges wrap</span>
         </div>
       </div>
     </div>
@@ -311,7 +333,7 @@
 
           <p class="role__title">Software Engineer BA4 &mdash; platform engineering, <em>end to end</em></p>
 
-          <p class="role__claim" data-lines>One API replaced the tools that scheduled an <em>entire estate</em>.</p>
+          <p class="role__claim" data-lines>API's replaced the tools that scheduled an <em>entire estate</em>.</p>
           <p class="role__line">Highly available Spring Boot, a Redis cache-aside authorization layer, breakers on the edges &mdash; from a handful of operators to the way everything is scheduled.</p>
           <p class="role__line">Alongside it, a schema-driven enrichment engine for enterprise alert traffic, and credential rotation, maintenance suppression and onboarding turned from manual rituals into products with APIs.</p>
 
@@ -651,7 +673,7 @@
 <script src="assets/js/liquid-wave.js"></script>
 <script src="assets/js/typography-loader.js"></script>
 <script src="assets/js/core.js"></script>
-<script src="assets/js/serve.js"></script>
+<script src="assets/js/life.js"></script>
 <script src="assets/js/posts.js"></script>
 <script src="assets/js/home.js"></script>
 </body>
