@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notes — Chintamani Gawade</title>
+<title>Blogs — Chintamani Gawade</title>
 
-<meta name="description" content="Working notes on building software at scale — services, data, interfaces and the decisions between them.">
+<meta name="description" content="Blogs on building software at scale — services, data, interfaces and the decisions between them.">
 <meta name="theme-color" content="#14120F">
 <link rel="canonical" href="https://3dwag98.github.io/blog/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Notes — Chintamani Gawade">
-<meta property="og:description" content="Working notes on building software at scale.">
+<meta property="og:title" content="Blogs — Chintamani Gawade">
+<meta property="og:description" content="Blogs on building software at scale.">
 <meta property="og:url" content="https://3dwag98.github.io/blog/">
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23EFEAE1'/><circle cx='50' cy='50' r='26' fill='%23E4441A'/></svg>">
-<link rel="alternate" type="application/rss+xml" title="Notes — Chintamani Gawade" href="/feed.xml">
+<link rel="alternate" type="application/rss+xml" title="Blogs — Chintamani Gawade" href="/feed.xml">
 
 <link rel="preload" href="../assets/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/css/base.css">
@@ -48,7 +48,7 @@
     <a href="../#quote" class="nav__sm">Principle</a>
     <a href="../#work">Practice</a>
     <a href="../#guide" class="nav__sm">Field guide</a>
-    <a href="./" aria-current="page">Notes</a>
+    <a href="./" aria-current="page">Blogs</a>
     <a href="../#contact">Contact</a>
     <button class="theme-btn" type="button" data-theme-toggle aria-label="Switch to light">
       <svg class="moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M13.5 9.6A6 6 0 1 1 6.4 2.5a4.8 4.8 0 0 0 7.1 7.1Z"/></svg>
@@ -60,12 +60,12 @@
 <main>
   <section class="arch-hero">
     <div class="wrap">
-      <p class="lbl" data-r>Notes — write-ups</p>
-      <h1 class="arch-hero__title dsp" data-lines data-lines-now data-skew>Notes on<br>building things</h1>
+      <p class="lbl" data-r>Blogs — write-ups</p>
+      <h1 class="arch-hero__title dsp" data-lines data-lines-now data-skew>Blogs on<br>building things</h1>
 
       <div class="arch-hero__row">
         <p class="lead" data-r data-delay="0.15">
-          Working notes on building software at scale &mdash; services, data, interfaces and the
+          Blogs on building software at scale &mdash; services, data, interfaces and the
           decisions between them, written the way I would explain them in a design review.
         </p>
         <p class="lbl" data-r data-delay="0.2"><b data-log-count>00</b> entries &middot; updated as they land</p>
@@ -84,7 +84,7 @@
   </section>
 
   <section class="wrap arch-list">
-    <div data-log-list><p class="logs__empty">Reading the index&hellip;</p></div>
+    <div data-log-list><p class="blogs__empty">Reading the index&hellip;</p></div>
   </section>
 </main>
 
@@ -99,10 +99,24 @@
 </footer>
 
 <script src="../assets/js/theme.js"></script>
-<script src="../assets/vendor/gsap.min.js"></script>
-<script src="../assets/vendor/ScrollTrigger.min.js"></script>
-<script src="../assets/vendor/SplitText.min.js"></script>
-<script src="../assets/vendor/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" integrity="sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js" integrity="sha384-wl5TeDVvOWt30Pbf8aSo2ZrzsOjddu3avOBvHe+p+OhJt9gP6w9YXmDkN5DK2/dF" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js" integrity="sha384-SWJ0lLVRoipvHh59xj0pL7uC7Ih51F+5smaFtrG+2nr+TlDZU5SYJHmxfolbeNTr" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js" integrity="sha384-jqpi9VmOdhyLoLURgjCn7EpnG9BbnHW57ibIZoeaIU+erWDH3k8fQQg0xH2ySjnw" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  /* CDN blocked, offline, or a bad hash? Fall back to the copies committed
+     in assets/vendor. document.write preserves the parse order these
+     libraries depend on, and the fallback is same-origin, so Chrome's
+     document.write intervention does not apply to it. */
+  (function () {
+    var need = [["gsap","gsap.min.js"],["ScrollTrigger","ScrollTrigger.min.js"],["SplitText","SplitText.min.js"],["Lenis","lenis.min.js"]];
+    for (var i = 0; i < need.length; i++) {
+      if (!window[need[i][0]]) {
+        document.write('<script src="../assets/vendor/' + need[i][1] + '"><\/script>');
+      }
+    }
+  })();
+</script>
 <script src="../assets/js/core.js"></script>
 <script src="../assets/js/posts.js"></script>
 <script src="../assets/js/blog.js"></script>

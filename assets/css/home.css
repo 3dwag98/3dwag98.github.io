@@ -43,7 +43,7 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
 .mast__say em { font-style: italic; color: var(--accent); }
 
 .mast__name { font-size: clamp(2.8rem, 14vw, 15rem); }
-.mast__name .ln:last-child { margin-left: clamp(0px, 6vw, 7rem); }
+.mast__name .ln__i-mask:last-child { margin-left: clamp(0px, 6vw, 7rem); }
 
 /* Once the plate takes a column, the name has to fit what is left of the
    line — at --t-mega it runs straight under the image. */
@@ -156,6 +156,9 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
 
 .work { padding-block: clamp(4rem, 12vh, 8rem) 0; }
 .work__head { margin-bottom: clamp(2rem, 6vw, 4rem); }
+.work__more { font-family: var(--mono); font-size: var(--t-lbl); letter-spacing: 0.06em; color: var(--mute); margin-top: 1.1rem; }
+.work__more a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+.work__more a:hover { border-bottom-color: var(--accent); }
 
 .role {
   position: relative;
@@ -201,19 +204,39 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
 .role__title { font-family: var(--serif); font-variation-settings: 'opsz' 24; font-weight: 500; font-size: clamp(1.05rem, 1.6vw, 1.4rem); letter-spacing: -0.016em; margin-top: 1.2rem; }
 .role__title em { font-style: italic; color: var(--accent); }
 
-.role__cols { display: grid; grid-template-columns: 1fr; gap: 1.4rem; margin-top: clamp(1.2rem, 2.5vw, 1.9rem); }
-@media (min-width: 1180px) { .role__cols { grid-template-columns: repeat(2, 1fr); gap: clamp(1.6rem, 2.5vw, 2.5rem); } }
-
-.role__blk h4 {
-  font-family: var(--mono); font-size: var(--t-lbl);
-  letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink);
-  padding-bottom: 0.5rem; margin-bottom: 0.7rem; border-bottom: 1px solid var(--line);
+/* One claim, set big, is the whole card's hook — then a single line of
+   substance and the tools underneath. Detail lives in the blog entry. */
+.role__claim {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 72;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.4vw, 3rem);
+  line-height: 1.03;
+  letter-spacing: -0.032em;
+  margin-top: clamp(1.1rem, 2.4vw, 1.8rem);
+  text-wrap: balance;
 }
 
-.role__blk p { font-size: var(--t-sm); line-height: 1.6; color: var(--ink-2); }
-.role__blk p + p { margin-top: 0.65rem; }
-.role__blk strong { color: var(--ink); font-weight: 500; }
-.role__blk em { font-family: var(--serif); font-variation-settings: 'opsz' 12; font-style: italic; font-weight: 500; color: var(--ink); }
+.role__claim em { font-style: italic; color: var(--accent); }
+
+.role__line {
+  font-size: var(--t-sm); line-height: 1.6; color: var(--ink-2);
+  max-width: 46ch; margin-top: clamp(0.7rem, 1.6vw, 1.1rem);
+}
+
+.role__tags {
+  display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem;
+  margin-top: clamp(1rem, 2.2vw, 1.5rem);
+}
+
+.role__tags li {
+  font-family: var(--mono); font-size: var(--t-lbl);
+  letter-spacing: 0.06em; color: var(--mute);
+  border: 1px solid var(--line); border-radius: 100px;
+  padding: 0.2rem 0.62rem;
+}
+
+.role__tags li::before { content: none; }
 
 /* ── 04 · guide (crossfade stack) ──────────────────────────────────────── */
 
@@ -256,7 +279,7 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
 
 .guide__cap { max-width: 40ch; }
 .guide__no { font-family: var(--mono); font-size: var(--t-lbl); color: var(--accent); }
-.guide__name { font-family: var(--serif); font-variation-settings: 'opsz' 96; font-weight: 600; font-size: clamp(1.8rem, 5vw, 4.2rem); line-height: 0.98; letter-spacing: -0.03em; margin-top: 0.5rem; }
+.guide__name { font-family: var(--serif); font-variation-settings: 'opsz' 96; font-weight: 800; font-size: clamp(1.8rem, 5vw, 4.2rem); line-height: 0.96; letter-spacing: -0.038em; margin-top: 0.5rem; }
 .guide__name em { font-style: italic; }
 .guide__note { font-size: var(--t-body); line-height: 1.55; color: var(--ink-2); margin-top: 0.9rem; }
 
@@ -288,7 +311,7 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
 
 .inst__no { font-family: var(--mono); font-size: var(--t-lbl); color: var(--mute); transition: color 0.4s ease; font-variant-numeric: tabular-nums; }
 .inst__head { min-width: 0; }
-.inst__name { font-family: var(--serif); font-variation-settings: 'opsz' 72; font-weight: 600; font-size: clamp(1.45rem, 3.4vw, 2.7rem); line-height: 1; letter-spacing: -0.028em; }
+.inst__name { font-family: var(--serif); font-variation-settings: 'opsz' 72; font-weight: 750; font-size: clamp(1.45rem, 3.4vw, 2.7rem); line-height: 0.98; letter-spacing: -0.034em; }
 .inst__gloss { font-size: var(--t-sm); color: var(--mute); margin-top: 0.4rem; transition: color 0.4s ease; }
 .inst__row:hover .inst__gloss { color: var(--on-accent); }
 .inst__items { display: flex; flex-wrap: wrap; gap: 0.4rem; grid-column: 2; }
@@ -304,11 +327,11 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
   .inst__items { grid-column: auto; justify-content: flex-end; }
 }
 
-/* ── 06 · notes ────────────────────────────────────────────────────────── */
+/* ── 06 · blogs ────────────────────────────────────────────────────────── */
 
-.logs { padding-block: clamp(4rem, 12vh, 8rem); }
-.logs__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: clamp(1.5rem, 4vw, 3rem); }
-.logs__empty { padding-block: 2.5rem; border-top: 1px solid var(--line); color: var(--mute); }
+.blogs { padding-block: clamp(4rem, 12vh, 8rem); }
+.blogs__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: clamp(1.5rem, 4vw, 3rem); }
+.blogs__empty { padding-block: 2.5rem; border-top: 1px solid var(--line); color: var(--mute); }
 
 /* ── 03b · game (the backpressure sandbox under the quote) ─────────────── */
 
@@ -379,3 +402,29 @@ body.cursor-on .game__board canvas { cursor: none !important; }
 #sig-nodes circle { fill: var(--ink); opacity: 0.9; }
 #sig-seed { fill: var(--accent); }
 .quote__signal { overflow: hidden; }
+
+/* ── section hooks ─────────────────────────────────────────────────────────
+   One visual language for the marks that anchor a section, all of it drawn
+   from the theme tokens so dark, light and no-JS need no special cases. */
+
+.hook { display: block; width: 100%; height: auto; overflow: visible; }
+
+.hook__fill { fill: var(--paper-2); stroke: var(--line); stroke-width: 1; }
+.hook__line { fill: none; stroke: var(--line); stroke-width: 1; }
+.hook__rule { fill: none; stroke: var(--mute); stroke-width: 1; }
+.hook__acc  { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+.hook__dot  { fill: var(--mute); }
+.hook__dot--acc { fill: var(--accent); }
+
+.hook__cap { font-family: var(--mono); font-size: 9px; letter-spacing: 0.11em; fill: var(--mute); }
+.hook__cap--acc { fill: var(--accent); }
+
+/* the layer stack sits above the position list, at the width of the column */
+.hook--layers { max-width: 214px; margin-block: 1.4rem 0.4rem; }
+
+/* the request path introduces the rows it describes */
+.hook--path { margin-bottom: clamp(1.4rem, 3vw, 2.2rem); }
+
+.hook--index { margin-block: clamp(1.2rem, 3vw, 2rem) 0; }
+
+.hook--end { margin-block: clamp(1.6rem, 4vw, 2.6rem) clamp(1.2rem, 3vw, 2rem); }

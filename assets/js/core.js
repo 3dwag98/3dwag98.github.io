@@ -71,26 +71,27 @@
 
   /* ── text splitting ────────────────────────────────────────────────── */
 
-  /** Split into lines, each wrapped in an overflow-hidden mask.
-   *  Returns the inner line elements — animate those. */
+  /** Lines, each inside its own clipping mask. SplitText does the masking
+   *  itself — mask:'lines' wraps every line in a .ln__i-mask with overflow
+   *  clipped — so there is no wrapper to build here. Animate the returned
+   *  lines; they slide inside their masks. */
   function splitLines(el) {
     if (!window.SplitText) return [el];
-
-    var s = new window.SplitText(el, { type: 'lines', linesClass: 'ln__i' });
-
-    s.lines.forEach(function (line) {
-      var mask = document.createElement('span');
-      mask.className = 'ln';
-      line.parentNode.insertBefore(mask, line);
-      mask.appendChild(line);
-    });
-
-    return s.lines;
+    return new window.SplitText(el, { type: 'lines', linesClass: 'ln__i', mask: 'lines' }).lines;
   }
 
   function splitWords(el) {
     if (!window.SplitText) return [];
     return new window.SplitText(el, { type: 'words', wordsClass: 'wd' }).words;
+  }
+
+  /** Characters, each in its own mask, for headings that should assemble
+   *  rather than arrive. Splitting to words as well keeps wrapping intact. */
+  function splitChars(el) {
+    if (!window.SplitText) return [];
+    return new window.SplitText(el, {
+      type: 'chars,words', charsClass: 'ch', mask: 'chars'
+    }).chars;
   }
 
   /* ── loader + curtain ──────────────────────────────────────────────── */
@@ -274,6 +275,28 @@
 
   /* ── reveals ───────────────────────────────────────────────────────── */
 
+  /** [data-chars] — the heading assembles letter by letter out of its masks. */
+  function revealChars(scope) {
+    var root = scope || document;
+    var els = Array.prototype.slice.call(root.querySelectorAll('[data-chars]'));
+    if (!els.length || !motion || !window.SplitText) return;
+
+    els.forEach(function (el) {
+      var chars = splitChars(el);
+      if (!chars.length) return;
+
+      gsap.set(chars, { yPercent: 116 });
+      gsap.to(chars, {
+        yPercent: 0,
+        duration: 1.05,
+        ease: 'expo.out',
+        stagger: { each: 0.016, from: 'start' },
+        delay: parseFloat(el.getAttribute('data-delay')) || 0,
+        scrollTrigger: { trigger: el, start: 'top 86%', once: true }
+      });
+    });
+  }
+
   function reveal(scope) {
     var root = scope || document;
     var els = Array.prototype.slice.call(root.querySelectorAll('[data-r]'));
@@ -373,8 +396,10 @@
     scrollTo: scrollTo,
     splitLines: splitLines,
     splitWords: splitWords,
+    splitChars: splitChars,
     reveal: reveal,
     revealLines: revealLines,
+    revealChars: revealChars,
     clearReveals: clearReveals,
     onReady: function (fn) { ready.push(fn); }
   };
@@ -389,6 +414,7 @@
     initProgress();
     initTransitions();
     revealLines(document);
+    revealChars(document);
     reveal(document);
     initVelocity();
 

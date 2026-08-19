@@ -196,7 +196,7 @@
     if (els.toc) els.toc.remove();
     if (els.nav) els.nav.remove();
     if (els.body) els.body.innerHTML = '<p>' + esc(message) + '</p><p><a href="./">Back to the archive &rarr;</a></p>';
-    document.title = 'Not found · Logs';
+    document.title = 'Not found · Blogs';
   }
 
   /* ── go ────────────────────────────────────────────────────────────── */
@@ -225,7 +225,7 @@
           var read = post.readingTime || window.CGPosts.readingTime(parsed.body);
           var summary = meta.summary || post.summary;
 
-          document.title = title + ' · Logs';
+          document.title = title + ' · Blogs';
           var desc = document.querySelector('meta[name="description"]');
           if (desc && summary) desc.setAttribute('content', summary);
 

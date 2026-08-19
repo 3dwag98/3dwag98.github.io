@@ -10,7 +10,7 @@
      work       roles stack — each sticks while the next slides over it
      guide      pinned crossfade through the plates on a wide screen; a plain
                 vertical list below that, so every image is reachable anywhere
-     logs       latest entries from blog/posts.json
+     blogs      latest entries from blog/posts.json
    ========================================================================= */
 
 (function () {
@@ -417,13 +417,36 @@
     });
   }
 
-  /* ── logs ──────────────────────────────────────────────────────────── */
+  /* ── the request path draws itself as the stack scrolls ────────────── */
 
-  function logs() {
-    var list = document.querySelector('[data-logs]');
+  function instPath() {
+    var path = document.getElementById('inst-path');
+    var section = document.getElementById('stack');
+    if (!path || !section || !motion) return;
+
+    var len = path.getTotalLength();
+    gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+
+    gsap.to(path, {
+      strokeDashoffset: 0,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 78%',
+        end: 'top 24%',
+        scrub: 0.6,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+  /* ── blogs ──────────────────────────────────────────────────────────── */
+
+  function blogs() {
+    var list = document.querySelector('[data-blogs]');
     if (!list || !window.CGPosts) return;
 
-    var limit = parseInt(list.getAttribute('data-logs') || '3', 10);
+    var limit = parseInt(list.getAttribute('data-blogs') || '3', 10);
 
     window.CGPosts.load('blog/')
       .then(function (posts) {
@@ -433,7 +456,7 @@
         if (ST) ST.refresh();
       })
       .catch(function () {
-        list.innerHTML = '<p class="logs__empty">The index could not be read here. ' +
+        list.innerHTML = '<p class="blogs__empty">The index could not be read here. ' +
           '<a class="lbl lbl--acc" href="blog/">Open the archive &rarr;</a></p>';
       });
   }
@@ -449,7 +472,8 @@
     work();
     guide();
     navTheme();
-    logs();
+    instPath();
+    blogs();
     if (ST) ST.refresh();
   }
 

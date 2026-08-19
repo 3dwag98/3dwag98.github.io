@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Notes — Chintamani Gawade</title>
+    <title>Blogs — Chintamani Gawade</title>
     <link>https://3dwag98.github.io/blog/</link>
-    <description>Working notes on building software at scale.</description>
+    <description>Blogs on building software at scale.</description>
     <language>en</language>
     <atom:link href="https://3dwag98.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Seven years, four banks — the long version</title>
+      <link>https://3dwag98.github.io/blog/post.html?p=four-banks</link>
+      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=four-banks</guid>
+      <pubDate>Wed, 19 Aug 2026 09:00:00 GMT</pubDate>
+      <description>The portfolio gives each role one line. This is the detail behind those lines — what the systems actually were, and what each one taught me.</description>
+      <category>platform-engineering</category>
+      <category>full-stack</category>
+      <category>spring-boot</category>
+      <category>kubernetes</category>
+    </item>
     <item>
       <title>Where a slow page actually comes from</title>
       <link>https://3dwag98.github.io/blog/post.html?p=tracing-a-slow-page</link>

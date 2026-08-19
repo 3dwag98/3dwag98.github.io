@@ -25,7 +25,8 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   ├── fonts/              # self-hosted woff2 — no external font request
 │   ├── plates/             # generated line-work, six plates
 │   └── vendor/             # GSAP, ScrollTrigger, SplitText, Lenis, marked,
-│                           #   DOMPurify, Prism — pinned copies, no CDN
+│                           #   DOMPurify, Prism — fallback copies for when
+│                           #   the CDN cannot be reached
 ├── blog/
 │   ├── index.html          # the archive
 │   ├── post.html           # the reader (?p=<slug>)
@@ -148,8 +149,8 @@ layout, which is the one a phone already gets.
 
 ## Writing a post
 
-1. Drop a file in `blog/posts/` — `my-note.md` or `my-note.html`. The filename (minus
-   extension) is the slug and the URL: `/blog/post.html?p=my-note`.
+1. Drop a file in `blog/posts/` — `my-entry.md` or `my-entry.html`. The filename (minus
+   extension) is the slug and the URL: `/blog/post.html?p=my-entry`.
 
 2. Markdown entries carry their own metadata in front matter:
 
@@ -205,9 +206,9 @@ The reader adds heading anchors, a table of contents that tracks scroll, code he
 copy button, Prism highlighting, lazy images and prev/next links. Everything is passed through
 DOMPurify before it touches the DOM.
 
-### Diagrams inside a note
+### Diagrams inside an entry
 
-Inline SVG survives the sanitizer, so a note can carry real diagrams. Wrap one in
+Inline SVG survives the sanitizer, so an entry can carry real diagrams. Wrap one in
 `<figure class="diagram">` and style it with the classes in `blog.css` — `d-box`, `d-ghost`,
 `d-accent-box`, `d-rule`, `d-accent-line`, `d-cap`, `d-key` — which read from the theme tokens,
 so a diagram works in both themes without a second copy.
@@ -252,6 +253,12 @@ change.
 - With JavaScript off nothing is hidden — the portfolio and the blog chrome degrade to plain
   scrolling documents (post bodies need JS, since they are fetched).
 - The custom cursor only appears for fine pointers; touch devices keep the native one.
-- Libraries are vendored at pinned versions: GSAP 3.15, Lenis 1.3, marked 18, DOMPurify 3.4,
-  Prism 1.30. The portfolio's first load is roughly 340 KB of script, style and fonts; the six
-  plates are lazy-loaded below the fold.
+- Libraries load from jsdelivr at pinned versions — GSAP 3.15.0, Lenis 1.3.26, marked 18.0.10,
+  DOMPurify 3.4.13, Prism 1.30.0 — each with an `integrity` hash computed from the published npm
+  tarball. A short inline guard after the CDN tags checks for each global and pulls the matching
+  copy from `assets/vendor/` if it is missing, so a blocked CDN, an offline machine or a bad hash
+  degrades to the committed files instead of a broken page. The portfolio's first load is roughly
+  340 KB of script, style and fonts; the six plates are lazy-loaded below the fold.
+
+- Text splitting is GSAP SplitText's own: `mask: 'lines'` and `mask: 'chars'` build the clipping
+  wrappers, so there is no hand-rolled masking to keep in step with the plugin.
