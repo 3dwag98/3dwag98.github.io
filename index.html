@@ -7,7 +7,7 @@
 
 <meta name="description" content="Full stack engineer building engineering solutions at scale — services, data pipelines and the interfaces on top of them, for platforms teams depend on. SDE 2 at JPMorgan Chase &amp; Co.">
 <meta name="author" content="Chintamani Gawade">
-<meta name="theme-color" content="#EFEAE1">
+<meta name="theme-color" content="#14120F">
 <link rel="canonical" href="https://3dwag98.github.io/">
 
 <meta property="og:type" content="website">
@@ -25,8 +25,16 @@
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/home.css">
 
-<script>document.documentElement.classList.add('js', 'is-loading');
-setTimeout(function () { document.documentElement.classList.remove('is-loading'); }, 5000);</script>
+<script>
+  /* Dark is the default. A stored choice is applied here, before first paint,
+     so switching never flashes the other theme. */
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js', 'is-loading');
+    try { if (localStorage.getItem('cg-theme') === 'light') d.setAttribute('data-theme', 'light'); } catch (e) {}
+    setTimeout(function () { d.classList.remove('is-loading'); }, 5000);
+  })();
+</script>
 <style>html.is-loading { overflow: hidden; }</style>
 </head>
 
@@ -53,6 +61,10 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     <a href="#guide" class="nav__sm">Field guide</a>
     <a href="blog/">Notes</a>
     <a href="#contact">Contact</a>
+    <button class="theme-btn" type="button" data-theme-toggle aria-label="Switch to light">
+      <svg class="moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M13.5 9.6A6 6 0 1 1 6.4 2.5a4.8 4.8 0 0 0 7.1 7.1Z"/></svg>
+      <svg class="sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="8" cy="8" r="3.1"/><path d="M8 .8v1.7M8 13.5v1.7M.8 8h1.7M13.5 8h1.7M2.9 2.9l1.2 1.2M11.9 11.9l1.2 1.2M13.1 2.9l-1.2 1.2M4.1 11.9l-1.2 1.2"/></svg>
+    </button>
   </div>
 </nav>
 
@@ -74,7 +86,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
         </div>
 
         <figure class="plate plate--reveal mast__plate" data-parallax>
-          <img src="assets/plates/flow.jpg" alt="Generated plate: streamlines tracing a flow field" width="1100" height="1375" fetchpriority="high" decoding="async">
+          <img src="assets/plates/dark/flow.jpg" data-plate="flow" alt="Generated plate: streamlines tracing a flow field" width="1100" height="1375" fetchpriority="high" decoding="async">
         </figure>
       </div>
 
@@ -135,7 +147,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
   <!-- ═══ strip ══════════════════════════════════════════════════════════ -->
   <figure class="strip">
     <div class="plate plate--reveal" data-parallax>
-      <img src="assets/plates/backpressure.jpg" alt="Generated plate: turbulence settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
+      <img src="assets/plates/dark/backpressure.jpg" data-plate="backpressure" alt="Generated plate: turbulence settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
     </div>
     <figcaption>
       <span class="lbl">Backpressure &mdash; plate ii</span>
@@ -156,9 +168,10 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
         <span class="quote__pivot">is invariably found to have evolved from</span>
         <span class="quote__line quote__line--b">a simple system that worked</span>
 
-        <svg class="quote__signal" viewBox="0 0 1400 100" preserveAspectRatio="none" aria-hidden="true">
-          <path id="sig-complex"></path>
-          <path id="sig-simple"></path>
+        <svg class="quote__signal" viewBox="0 0 1400 120" preserveAspectRatio="none" aria-hidden="true">
+          <path id="sig-edges"></path>
+          <g id="sig-nodes"></g>
+          <circle id="sig-seed" cx="1355" cy="60" r="5"></circle>
         </svg>
 
         <div class="quote__resolve">
@@ -173,40 +186,45 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     </div>
   </section>
 
-  <!-- ═══ life ═══════════════════════════════════════════════════════════ -->
-  <section class="life" id="life" data-life-root>
-    <div class="wrap life__grid">
-      <div class="life__copy">
-        <p class="lbl" data-r>III &mdash; Four rules</p>
-        <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem" data-r>Draw on it. <em>Watch what happens.</em></h2>
+  <!-- ═══ game ═══════════════════════════════════════════════════════════ -->
+  <section class="game" id="queue" data-q-root>
+    <div class="wrap game__grid">
+      <div class="game__copy">
+        <p class="lbl" data-r>III &mdash; Hold the line</p>
+        <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem" data-r>
+          Traffic you don&rsquo;t control. <em>Capacity you do.</em>
+        </h2>
         <p class="copy" data-r data-delay="0.06">
-          Conway&rsquo;s Game of Life: a cell with two or three neighbours lives, three neighbours
-          bring a dead one back, everything else dies. That is the entire specification, and it is
-          enough to build gliders, oscillators and guns that run forever.
+          Requests arrive at a rate that breathes and occasionally spikes. Each worker clears one
+          every 220&nbsp;ms. Too few and the queue builds until latency crosses the SLO and
+          requests start getting shed; too many and you are paying for idle capacity.
         </p>
         <p class="copy" data-r data-delay="0.1">
-          It is the quote above, running. Drag across the board to seed cells, or drop a pattern in
-          and leave it alone.
+          Drag across the board to set the worker count, or use the buttons. The whole model is
+          Little&rsquo;s law &mdash; which is the entire reason a queue is the first thing I ask
+          about.
         </p>
 
-        <div class="life__controls" data-r data-delay="0.14">
-          <button class="life__btn" type="button" data-life="toggle" aria-pressed="true">Pause</button>
-          <button class="life__btn" type="button" data-life="step">Step</button>
-          <button class="life__btn" type="button" data-life="glider">Glider</button>
-          <button class="life__btn" type="button" data-life="pulsar">Pulsar</button>
-          <button class="life__btn" type="button" data-life="gun">Gun</button>
-          <button class="life__btn" type="button" data-life="clear">Clear</button>
+        <div class="game__controls" data-r data-delay="0.14">
+          <button class="game__btn" type="button" data-q="toggle" aria-pressed="true">Pause</button>
+          <button class="game__btn" type="button" data-q="drop" aria-label="Remove a worker">&minus; Worker</button>
+          <button class="game__btn" type="button" data-q="add" aria-label="Add a worker">+ Worker</button>
+          <button class="game__btn" type="button" data-q="spike">Send a spike</button>
+          <button class="game__btn" type="button" data-q="reset">Reset</button>
         </div>
 
-        <p class="lbl life__hint" data-r data-delay="0.18">The field wraps &mdash; a glider leaving the right edge arrives at the left</p>
+        <p class="lbl game__verdict" data-r data-delay="0.18"><span data-q-verdict>Holding</span></p>
       </div>
 
-      <div class="life__board" data-r data-delay="0.08">
-        <canvas aria-label="Conway's Game of Life. Drag to draw living cells, or use the pattern buttons."></canvas>
-        <p class="lbl life__hud">
-          <span>Gen <b data-life-gen>0000</b></span>
-          <span>Alive <b data-life-live>000</b></span>
-        </p>
+      <div class="game__board" data-r data-delay="0.08">
+        <canvas tabindex="0" aria-label="Queue simulation. Drag left and right, or use arrow keys, to change the worker count."></canvas>
+        <div class="game__hud">
+          <span>In <b data-q-rps>00</b>/s</span>
+          <span>Workers <b data-q-workers>03</b></span>
+          <span>Queue <b data-q-depth>00</b></span>
+          <span>p99 <b data-q-latency>220ms</b></span>
+          <span>Held <b data-q-uptime>100%</b></span>
+        </div>
       </div>
     </div>
   </section>
@@ -222,7 +240,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/consensus.jpg" alt="Generated plate: chords converging on a quorum" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/dark/consensus.jpg" data-plate="consensus" alt="Generated plate: chords converging on a quorum" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -261,7 +279,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/partition.jpg" alt="Generated plate: a field of marks split by a fault line" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/dark/partition.jpg" data-plate="partition" alt="Generated plate: a field of marks split by a fault line" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -326,7 +344,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/storm.jpg" alt="Generated plate: overlapping concentric bursts" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/dark/storm.jpg" data-plate="storm" alt="Generated plate: overlapping concentric bursts" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -364,7 +382,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/decay.jpg" alt="Generated plate: an ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/dark/decay.jpg" data-plate="decay" alt="Generated plate: an ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -414,7 +432,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
       <div class="guide__stack">
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/flow.jpg" alt="Streamlines tracing a flow field, one thread picked out" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/dark/flow.jpg" data-plate="flow" alt="Streamlines tracing a flow field, one thread picked out" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">i</span>
@@ -425,7 +443,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/backpressure.jpg" alt="Turbulent lines settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/dark/backpressure.jpg" data-plate="backpressure" alt="Turbulent lines settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">ii</span>
@@ -436,7 +454,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/partition.jpg" alt="A regular field of marks split by an irregular fault" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/dark/partition.jpg" data-plate="partition" alt="A regular field of marks split by an irregular fault" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">iii</span>
@@ -447,7 +465,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/storm.jpg" alt="Overlapping concentric bursts from three sources" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/dark/storm.jpg" data-plate="storm" alt="Overlapping concentric bursts from three sources" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">iv</span>
@@ -458,7 +476,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/consensus.jpg" alt="Chords across a ring of nodes with a quorum picked out" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/dark/consensus.jpg" data-plate="consensus" alt="Chords across a ring of nodes with a quorum picked out" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">v</span>
@@ -469,7 +487,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/decay.jpg" alt="An ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/dark/decay.jpg" data-plate="decay" alt="An ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">vi</span>
@@ -484,43 +502,66 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
   <!-- ═══ instruments ════════════════════════════════════════════════════ -->
   <section class="inst" id="stack">
     <div class="wrap">
-      <p class="lbl" data-r>VI &mdash; Instruments</p>
-      <h2 class="dsp" style="font-size:var(--t-hero);margin-bottom:clamp(2rem,5vw,3.5rem)" data-lines>What I<br><em>reach for</em></h2>
+      <p class="lbl" data-r>VI &mdash; The stack</p>
+      <h2 class="dsp" style="font-size:var(--t-hero);margin-bottom:1rem" data-lines>Top of the page<br><em>to the disk</em></h2>
+      <p class="copy inst__intro" data-r>
+        Ordered the way a request travels, because that is the order I think in. I have shipped
+        production work at every one of these layers, and the interesting problems have almost
+        always been at the seams between two of them.
+      </p>
 
       <div class="inst__row" data-r>
         <span class="inst__no">01</span>
-        <h3 class="inst__name">Languages</h3>
-        <ul class="inst__items"><li>Python</li><li>Java</li><li>TypeScript</li><li>JavaScript</li><li>SQL</li><li>Bash</li></ul>
+        <div class="inst__head">
+          <h3 class="inst__name">Interface</h3>
+          <p class="inst__gloss">What a person actually touches</p>
+        </div>
+        <ul class="inst__items"><li>React</li><li>Angular</li><li>TypeScript</li><li>JavaScript</li><li>HTML &amp; CSS</li></ul>
       </div>
 
       <div class="inst__row" data-r>
         <span class="inst__no">02</span>
-        <h3 class="inst__name">Frameworks</h3>
-        <ul class="inst__items"><li>Spring Boot</li><li>Django</li><li>FastAPI</li><li>Flask</li><li>Node.js</li><li>Angular</li><li>React</li></ul>
+        <div class="inst__head">
+          <h3 class="inst__name">Services</h3>
+          <p class="inst__gloss">Where the rules live</p>
+        </div>
+        <ul class="inst__items"><li>Java</li><li>Spring Boot</li><li>Python</li><li>Django</li><li>FastAPI</li><li>Flask</li><li>Node.js</li></ul>
       </div>
 
       <div class="inst__row" data-r>
         <span class="inst__no">03</span>
-        <h3 class="inst__name">Platform</h3>
-        <ul class="inst__items"><li>Docker</li><li>Kubernetes</li><li>OpenShift</li><li>Ansible</li><li>Chef</li><li>Terraform</li><li>HashiCorp Vault</li></ul>
+        <div class="inst__head">
+          <h3 class="inst__name">Data</h3>
+          <p class="inst__gloss">The part that outlives the code</p>
+        </div>
+        <ul class="inst__items"><li>PostgreSQL</li><li>Oracle</li><li>MongoDB</li><li>Redis</li><li>SQL</li></ul>
       </div>
 
       <div class="inst__row" data-r>
         <span class="inst__no">04</span>
-        <h3 class="inst__name">Data &amp; events</h3>
-        <ul class="inst__items"><li>Apache Kafka</li><li>Redis</li><li>PostgreSQL</li><li>MongoDB</li><li>Oracle</li></ul>
+        <div class="inst__head">
+          <h3 class="inst__name">Streams</h3>
+          <p class="inst__gloss">How the pieces tell each other things</p>
+        </div>
+        <ul class="inst__items"><li>Apache Kafka</li><li>Event-driven</li><li>Schema-driven routing</li><li>Idempotent consumers</li></ul>
       </div>
 
       <div class="inst__row" data-r>
         <span class="inst__no">05</span>
-        <h3 class="inst__name">Patterns</h3>
-        <ul class="inst__items"><li>Event-driven</li><li>Circuit breaker</li><li>Cache-aside</li><li>Idempotency</li><li>Backpressure</li><li>Bulkheads</li></ul>
+        <div class="inst__head">
+          <h3 class="inst__name">Platform</h3>
+          <p class="inst__gloss">Getting it there, repeatedly</p>
+        </div>
+        <ul class="inst__items"><li>Docker</li><li>Kubernetes</li><li>OpenShift</li><li>Terraform</li><li>Ansible</li><li>HashiCorp Vault</li><li>Jenkins</li></ul>
       </div>
 
       <div class="inst__row" data-r>
         <span class="inst__no">06</span>
-        <h3 class="inst__name">Practice</h3>
-        <ul class="inst__items"><li>Jenkins CI/CD</li><li>SonarQube</li><li>DAST</li><li>Observability</li><li>Design docs</li><li>Runbooks</li></ul>
+        <div class="inst__head">
+          <h3 class="inst__name">Judgement</h3>
+          <p class="inst__gloss">What I reach for before the code</p>
+        </div>
+        <ul class="inst__items"><li>Design docs</li><li>Circuit breaker</li><li>Cache-aside</li><li>Backpressure</li><li>Bulkheads</li><li>Observability</li><li>Runbooks</li></ul>
       </div>
     </div>
   </section>
@@ -584,7 +625,7 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
     </div>
 
     <div class="foot__stamp">
-      <b>Written for people to read.</b>
+      <b>Start with something that works.</b>
       <span class="lbl">© 2026 Chintamani Gawade — Mumbai, IST</span>
     </div>
   </div>
@@ -605,13 +646,14 @@ setTimeout(function () { document.documentElement.classList.remove('is-loading')
 }
 </script>
 
+<script src="assets/js/theme.js"></script>
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/ScrollTrigger.min.js"></script>
 <script src="assets/vendor/SplitText.min.js"></script>
 <script src="assets/vendor/lenis.min.js"></script>
 <script src="assets/js/gl.js"></script>
 <script src="assets/js/core.js"></script>
-<script src="assets/js/life.js"></script>
+<script src="assets/js/queue.js"></script>
 <script src="assets/js/posts.js"></script>
 <script src="assets/js/home.js"></script>
 </body>
