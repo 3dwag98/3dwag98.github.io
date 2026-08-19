@@ -113,25 +113,6 @@
 
   /* ── images ────────────────────────────────────────────────────────── */
 
-  /** Two plate sets exist; only the one in use is ever fetched. */
-  function plateTheme() {
-    function swap(theme) {
-      var dir = theme === 'light' ? '' : 'dark/';
-      document.querySelectorAll('img[data-plate]').forEach(function (img) {
-        var want = 'assets/plates/' + dir + img.getAttribute('data-plate') + '.jpg';
-        var rel = img.getAttribute('src');
-        // blog pages would need ../ — the plates only appear on the home page
-        if (rel !== want) img.setAttribute('src', want);
-      });
-    }
-
-    window.addEventListener('cg:theme', function (e) { swap(e.detail.theme); });
-
-    // theme.js announces once at startup, which is before this module boots —
-    // so set the right set now rather than waiting for a toggle.
-    swap(window.CGTheme ? window.CGTheme.current() : 'dark');
-  }
-
   function plates() {
     var frames = Array.prototype.slice.call(document.querySelectorAll('.plate'));
     if (!frames.length) return;
@@ -447,7 +428,6 @@
 
   function boot() {
     surface();
-    plateTheme();
     plates();
     masthead();
     statement();

@@ -30,16 +30,17 @@
       "readingTime": "4 min read"
     },
     {
-      "slug": "why-these-notes",
-      "title": "Why these notes exist",
+      "slug": "system-design-reading-list",
+      "title": "The system design research worth reading, and why",
       "date": "2026-07-12",
-      "summary": "Writing the thing down is how I find out whether I actually understood it.",
+      "summary": "A short guide to the papers and references that actually changed how production systems get built — what each one contributed, and where to read it.",
       "tags": [
-        "meta",
-        "engineering"
+        "system-design",
+        "distributed-systems",
+        "reading"
       ],
       "format": "md",
-      "readingTime": "2 min read"
+      "readingTime": "4 min read"
     },
     {
       "slug": "publishing-a-note",
