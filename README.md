@@ -22,6 +22,7 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        gl.js          # the masthead's WebGL surface
 │   │        theme.js       # dark/light toggle + the cg:theme event
 │   │        serve.js       # the you-are-the-server game
+│   │        typography-loader.js  # चिंतामणी गावडे → CHINTAMANI GAWADE
 │   │        favicon.js     # the animated tab mark
 │   ├── fonts/              # self-hosted woff2 — no external font request
 │   ├── plates/             # generated line-work, twelve plates
@@ -249,10 +250,36 @@ with Start disabled.
 
 ## The loader
 
-A word roll: Services, Data, Interfaces, Platforms, At scale, and then the name, going past fast
-and leaning hard into the last one. The step height is read from the rendered slot rather than
-assumed, so the roll lands on the final word whatever the type scale computes to. The panel then
-wipes up in one move — the curtain panels stay parked, since they belong to page transitions.
+`assets/js/typography-loader.js` runs the entry: giant Devanagari, a liquid wave crossing it, and
+each syllable group pulled apart and reformed as Latin as the wave arrives. A group only changes
+while the liquid is actually on it, so the change propagates across the line rather than happening
+at once. `core.js` still owns the lifecycle around it — stopping Lenis, clearing `is-loading`,
+handing back — and falls back to simply removing the loader if the module declines to build.
+
+Three things about it are deliberate:
+
+- **The glyphs stay live SVG `<text>`, not extracted paths.** Devanagari needs real shaping — चिं
+  puts its i-matra *before* the consonant and its anusvara above — and the browser's shaper is the
+  only thing in reach that gets that right. opentype.js, the obvious build-time path extractor,
+  does not shape Devanagari, so baking paths would have produced authentic-looking nonsense. Real
+  path morphing was available (MorphSVGPlugin ships in the free GSAP package now) and was not worth
+  a mis-shaped script.
+- **The swap is buried in the distortion.** Each group is displaced hard enough to be illegible at
+  the wave's peak, and that is the frame where Devanagari hands to Latin — so it reads as one
+  liquid event, not two states cross-dissolving.
+- **The groups are the seven visually connected units, not eight.** A brief listing ग and ा
+  separately cannot be built: a lone matra is not something that stands on its own, and splitting
+  them yields GA + WA + WA + DE = GAWAWADE. Joined as गा the Latin comes out right.
+
+Group widths live in the `GROUPS` table as relative units rather than being measured, so spacing
+stays art-directable — nudge a number, not a layout algorithm. Reduced motion never reaches the
+module at all; `core.js` drops the loader first, which gets those visitors to the page faster than
+any still version would.
+
+The Devanagari face is **Rozha One** (`assets/fonts/rozha-devanagari.woff2`, 71 KB, unicode-range
+limited to Devanagari), chosen because its high contrast matches Fraunces — the two scripts read as
+one family through the morph. It is preloaded on the portfolio only; the blog pages never request
+it.
 
 ## The favicon
 

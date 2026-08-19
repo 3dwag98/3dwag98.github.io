@@ -14,6 +14,12 @@
    ========================================================================= */
 
 @font-face {
+  font-family: 'Rozha';
+  src: url('../fonts/rozha-devanagari.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: block;
+  unicode-range: U+0900-097F, U+200C-200D, U+20B9;
+}
+@font-face {
   font-family: 'Fraunces';
   src: url('../fonts/fraunces.woff2') format('woff2-variations');
   font-weight: 100 900; font-style: normal; font-display: swap;
@@ -447,25 +453,62 @@ html.js .loader {
   will-change: transform;
 }
 
-/* The roll: the words go past fast, slow down, and stop on the name. One
-   slot, one column inside it, nothing but a transform moving. */
-.loader__slot {
-  position: relative;
-  height: 1.08em;
-  overflow: hidden;
-  font-family: var(--serif);
-  font-variation-settings: 'opsz' 144;
-  font-weight: 800;
-  font-size: clamp(1.6rem, 6.2vw, 6rem);
-  line-height: 1.08;
-  letter-spacing: -0.036em;
-  padding-inline: var(--pad);
-  text-align: center;
+/* ── the typography loader ────────────────────────────────────────────────
+   Devanagari at display scale, one cell per syllable group, each with its own
+   displacement filter so the wave can work on them one at a time. */
+
+.tl__defs { position: absolute; width: 0; height: 0; pointer-events: none; }
+
+.tl__stage {
+  --tl-gap: clamp(0.1rem, 0.6vw, 0.6rem);
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline;
+  gap: 0 var(--tl-gap);
+  width: 100%; padding-inline: clamp(0.4rem, 2vw, 2rem);
+  will-change: transform;
 }
 
-.loader__roll { display: block; will-change: transform; }
-.loader__roll span { display: block; height: 1.08em; white-space: nowrap; }
-.loader__roll span:last-child { color: var(--accent); }
+/* the second word starts a new line */
+.tl__break { flex-basis: 100%; height: 0; }
+
+.tl__cell { will-change: transform, opacity; }
+
+/* each cell is as wide as its own group needs, so a long one like MANI does
+   not run into its neighbour */
+.tl__cell { --tl-w: 2; }
+
+.tl__svg {
+  display: block;
+  width: calc(var(--tl-w) * clamp(2.3rem, 6.6vw, 7.4rem));
+  height: clamp(6.2rem, 17.5vw, 20rem);
+  overflow: visible;
+}
+
+/* sizes are viewBox user units, so they scale with the element */
+.tl__dev { font-family: 'Rozha', serif; font-size: 116px; fill: var(--ink); }
+.tl__lat {
+  font-family: var(--serif); font-variation-settings: 'opsz' 144;
+  font-weight: 800; font-size: 88px; letter-spacing: -0.045em; fill: var(--accent);
+}
+
+/* the wave: a band of light that crosses the type */
+.tl__wave {
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: 46%; pointer-events: none; z-index: 2;
+  background: linear-gradient(90deg,
+              transparent 0%,
+              color-mix(in srgb, var(--accent) 8%, transparent) 38%,
+              color-mix(in srgb, var(--accent) 26%, transparent) 50%,
+              color-mix(in srgb, var(--accent) 8%, transparent) 62%,
+              transparent 100%);
+  mix-blend-mode: screen;
+}
+
+/* and the sheet it becomes, which is what wipes the page in */
+.tl__sheet {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: var(--accent);
+  will-change: transform;
+}
 
 .loader__foot {
   position: absolute; left: var(--pad); right: var(--pad);
