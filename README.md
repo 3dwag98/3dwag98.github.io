@@ -14,7 +14,7 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        home.css       # the portfolio scenes
 │   │        blog.css       # archive, reader, prose
 │   ├── js/   core.js       # Lenis + GSAP runtime: loader, curtain, cursor,
-│   │                       #   magnets, velocity skew, marquees, splitting
+│   │                       #   magnets, velocity skew, text splitting
 │   │        home.js        # the scenes
 │   │        posts.js       # the posts.json contract (shared)
 │   │        blog.js        # archive: search + tag filter
@@ -49,14 +49,15 @@ python3 -m http.server 8000
 Warm bone paper, near-black ink, a single vermilion signal — and typography doing most of the
 structural work.
 
-**Bodoni Moda** carries every display size with its optical-size axis driven explicitly:
-`opsz 96` at poster scale for hairline serifs, stepping down to `opsz 14` where the same
-typeface has to be read. **Geist** sets running text, **Geist Mono** sets every label, and
-Bodoni italic carries emphasis. All are self-hosted from `assets/fonts/`, so the page makes no
-third-party request at all. Use `.dsp`, `.dsp--md`, `.dsp--sm`, `.serif-read`, `.lead`, `.copy`
-and `.lbl` rather than setting font sizes by hand — the optical sizing is baked into them.
+**Fraunces** carries every display size with its optical-size axis driven explicitly:
+`opsz 144` at poster scale, stepping down to `opsz 12` where the same face has to be read — and
+with weight behind it (600 at display), because the point is presence rather than hairlines.
+**Geist** sets running text, **Geist Mono** sets every label, and Fraunces italic carries
+emphasis. All are self-hosted from `assets/fonts/`, so the page makes no third-party request at
+all. Use `.dsp`, `.dsp--md`, `.dsp--sm`, `.serif-read`, `.lead`, `.copy` and `.lbl` rather than
+setting font sizes by hand — the optical sizing is baked into them.
 
-Every colour is a CSS custom property, because the creed passage inverts the whole page by
+Every colour is a CSS custom property, because the quote passage inverts the whole page by
 interpolating those six variables as you scroll into it and back out. Change `--accent` in
 `assets/css/base.css` and the entire site follows.
 
@@ -64,8 +65,15 @@ interpolating those six variables as you scroll into it and back out. Change `--
 
 There is no stock photography here and no photographs of anything. The six plates in
 `assets/plates/` are generated line-work — flow fields, compression bands, fault lines,
-interference rings, chord diagrams, dissolving grids — each drawn to name a way distributed
-systems come apart, which is what the field-guide section is about.
+interference rings, chord diagrams, dissolving grids — each drawn to name something that shapes
+how software behaves at scale, which is what the field-guide section is about.
+
+They appear in four places: the masthead, a wide strip between the statement and the quote, one
+per role, and the guide. **Every one of them must be reachable at every viewport.** An earlier
+version put the role plates behind `display: none` under 900px and left the guide in a
+horizontally scrolling track with no way to scroll it on touch, which meant a phone saw one
+image out of ten. `tools/` has no test for this; the check is simply to load the page narrow and
+count.
 
 They are produced by `tools/plates.html` + `tools/plates.mjs`, which render to a canvas in
 headless Chromium and export JPEG. Re-render or reseed them with:
@@ -82,12 +90,12 @@ masthead scrolls away, and is removed entirely under reduced motion or when WebG
 
 | Scene | Section | What drives it |
 | --- | --- | --- |
-| Masthead | `#top` | WebGL surface behind a masked Bodoni entrance; the two halves pull apart on scroll |
-| Band | — | marquee whose speed and direction follow scroll velocity |
+| Masthead | `#top` | WebGL surface behind a masked entrance, with the first plate alongside; the two halves pull apart on scroll |
 | Position | `#about` | the paragraph lights word by word as it passes |
-| Creed | `#creed` | **pinned**: the page inverts to night, the two halves of "get busy living / or / get busy dying" slide past each other and the pulse flatlines |
-| Practice | `#work` | role cards stack — each sticks while the next slides over it, with a plate crop alongside |
-| Field guide | `#field` | **pinned** horizontal gallery of the six plates |
+| Strip | — | a wide plate carrying the eye into the quote |
+| Quote | `#quote` | **pinned**: the page inverts to night, the two halves of the SICP line slide past each other, and the signal runs from a drawn wave into a machine's square wave |
+| Practice | `#work` | role cards stack — each sticks while the next slides over it, with a full plate alongside, alternating sides |
+| Field guide | `#guide` | **pinned** crossfade through the six plates above 900px; a plain vertical list below it |
 | Instruments | `#stack` | capability rows with a vermilion fill sweep on hover |
 | Logs | `#logs` | latest entries, pulled live from `blog/posts.json` |
 | Contact | `#contact` | magnetic email, colophon, closing stamp |
@@ -100,7 +108,6 @@ Reusable hooks, usable on any element:
 | `data-lines` | split into lines and reveal each from behind a mask; add `data-lines-now` to run on load instead of on scroll |
 | `data-words` | split into words for a scrubbed, word-by-word reveal |
 | `data-skew` | leans with scroll velocity |
-| `data-marquee="30"` | seamless marquee; the number is seconds per cycle |
 | `data-magnet="0.3"` | leans toward the pointer |
 | `data-cur="read"` | the label the cursor picks up on hover |
 | `data-parallax` on a `.plate` | drifts the image inside its own frame while the frame travels |
@@ -109,8 +116,8 @@ Reusable hooks, usable on any element:
 ### A note on pinned sections
 
 Pinned sections add height to the page, so any ScrollTrigger created before them measures a
-stale layout. The two pins set `refreshPriority` (20 for the creed, 10 for the figures) so they
-refresh first and every other trigger measures the final page. The one exception is the creed's
+stale layout. The two pins set `refreshPriority` (20 for the quote, 10 for the guide) so they
+refresh first and every other trigger measures the final page. The one exception is the quote's
 theme trigger, which must run at the *default* priority so it sees the pin spacing — its comment
 says so. If you add another pin, give it a positive `refreshPriority`.
 
@@ -181,7 +188,7 @@ DOMPurify before it touches the DOM.
 ## Accessibility and fallbacks
 
 - `prefers-reduced-motion: reduce` drops Lenis, the loader, the curtain, the pins and the
-  cursor. Every element renders in its final state, counters show final numbers, and the creed
+  cursor. Every element renders in its final state, every plate is unclipped, and the quote
   simply renders on its dark ground.
 - With JavaScript off nothing is hidden — the portfolio and the blog chrome degrade to plain
   scrolling documents (post bodies need JS, since they are fetched).

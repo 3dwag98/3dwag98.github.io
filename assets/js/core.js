@@ -8,7 +8,6 @@
      cursor             lagging ring + dot, picks up labels from [data-cur]
      magnet             elements that lean toward the pointer
      skew               scroll velocity leaning into [data-skew] groups
-     marquee            [data-marquee] speed and direction follow the scroll
      splitLines/Words   masked line reveals and word-by-word scrubs
      reveal             [data-r] entrances
 
@@ -240,36 +239,24 @@
     });
   }
 
-  /* ── scroll velocity: skew + marquee ───────────────────────────────── */
+  /* ── scroll velocity ──────────────────────────────────────────────── */
 
   function initVelocity() {
     if (!motion) return;
 
     var skewed = Array.prototype.slice.call(document.querySelectorAll('[data-skew]'));
-    var marquees = Array.prototype.slice.call(document.querySelectorAll('[data-marquee]'));
-    if (!skewed.length && !marquees.length) return;
+    if (!skewed.length) return;
 
     var setSkew = skewed.map(function (el) {
       return gsap.quickTo(el, 'skewY', { duration: 0.55, ease: 'power3' });
-    });
-
-    var loops = marquees.map(function (el) {
-      var speed = parseFloat(el.getAttribute('data-marquee')) || 26;
-      // The row is duplicated in markup, so -50% is exactly one seamless cycle.
-      return gsap.to(el, { xPercent: -50, repeat: -1, duration: speed, ease: 'none' });
     });
 
     var current = 0;
 
     function apply(v) {
       current += (v - current) * 0.12;
-
       var s = gsap.utils.clamp(-5, 5, current * 0.055);
       setSkew.forEach(function (fn) { fn(s); });
-
-      var scale = gsap.utils.clamp(0.35, 5, 1 + Math.abs(current) * 0.008);
-      var dir = current < -0.5 ? -1 : 1;
-      loops.forEach(function (l) { l.timeScale(scale * dir); });
     }
 
     if (lenis) lenis.on('scroll', function (e) { apply(e.velocity || 0); });

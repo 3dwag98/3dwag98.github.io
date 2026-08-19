@@ -4,10 +4,11 @@
      masthead   WebGL surface + masked name, pulled apart on scroll
      plates     every image: clip reveal, then parallax inside its own frame
      statement  a paragraph that lights word by word as it passes
-     creed      pinned. The page inverts to night while the two halves of the
-                quote slide past each other and the pulse flatlines.
+     quote      pinned. The page inverts to night while the two halves of the
+                line slide past each other and the signal squares off.
      work       roles stack — each sticks while the next slides over it
-     field      pinned horizontal gallery of the plates
+     guide      pinned crossfade through the plates on a wide screen; a plain
+                vertical list below that, so every image is reachable anywhere
      logs       latest entries from blog/posts.json
    ========================================================================= */
 
@@ -152,30 +153,41 @@
     });
   }
 
-  /* ── creed ─────────────────────────────────────────────────────────── */
+  /* ── quote ─────────────────────────────────────────────────────────── */
 
-  function creed() {
-    var el = document.querySelector('.creed');
+  function quote() {
+    var el = document.querySelector('.quote');
     if (!el) return;
 
-    var a = el.querySelector('.creed__line--a');
-    var b = el.querySelector('.creed__line--b');
-    var or = el.querySelector('.creed__or');
-    var resolve = el.querySelector('.creed__resolve');
-    var live = el.querySelector('#beat-live');
-    var flat = el.querySelector('#beat-flat');
+    var a = el.querySelector('.quote__line--a');
+    var b = el.querySelector('.quote__line--b');
+    var pivot = el.querySelector('.quote__pivot');
+    var resolve = el.querySelector('.quote__resolve');
+    var human = el.querySelector('#sig-human');
+    var machine = el.querySelector('#sig-machine');
 
-    if (live && flat) {
-      var beat = function (x) {
-        return 'L' + x + ',50 L' + (x + 11) + ',13 L' + (x + 23) + ',87 L' + (x + 34) + ',37 L' + (x + 44) + ',50 ';
-      };
-      live.setAttribute('d', 'M0,50 ' + beat(120) + beat(330) + beat(540) + 'L700,50');
-      flat.setAttribute('d', 'M700,50 L1400,50');
+    // Left half: a drawn wave. Right half: the same signal, squared off by a
+    // machine. The line is about the two audiences for the same code.
+    if (human && machine) {
+      var wave = 'M0,50 ';
+      for (var x = 0; x <= 700; x += 10) {
+        var y = 50 - Math.sin(x / 58) * 21 - Math.sin(x / 23) * 3;
+        wave += 'L' + x + ',' + y.toFixed(1) + ' ';
+      }
+      human.setAttribute('d', wave.trim());
+
+      var sq = 'M700,50 ';
+      var hi = 29, lo = 71, step = 70, up = true;
+      for (var sx = 700; sx < 1400; sx += step) {
+        sq += 'L' + sx + ',' + (up ? hi : lo) + ' L' + (sx + step) + ',' + (up ? hi : lo) + ' ';
+        up = !up;
+      }
+      machine.setAttribute('d', sq.trim());
     }
 
     if (!motion) { el.classList.add('night'); return; }
 
-    [live, flat].forEach(function (p) {
+    [human, machine].forEach(function (p) {
       if (!p) return;
       var len = p.getTotalLength();
       p.style.strokeDasharray = len;
@@ -183,7 +195,7 @@
     });
 
     gsap.set([a, b], { opacity: 0 });
-    gsap.set(or, { opacity: 0, scaleX: 0.2 });
+    gsap.set(pivot, { opacity: 0, scaleX: 0.2 });
     gsap.set(resolve, { opacity: 0, y: 20 });
 
     // Default refresh priority on purpose: this has to be measured after the
@@ -209,24 +221,26 @@
         trigger: el,
         start: 'top top',
         end: '+=320%',
-        pin: '.creed__pin',
+        pin: '.quote__pin',
         scrub: 0.65,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         refreshPriority: 20
       }
     })
-      .fromTo(a, { xPercent: -20, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.26 }, 0.02)
-      .to(live, { strokeDashoffset: 0, duration: 0.22 }, 0.12)
-      .to(or, { opacity: 1, scaleX: 1, duration: 0.1, ease: 'back.out(2)' }, 0.3)
-      .fromTo(b, { xPercent: 20, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.26 }, 0.36)
-      .to(flat, { strokeDashoffset: 0, duration: 0.2 }, 0.44)
+      .fromTo(a, { xPercent: -18, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.26 }, 0.02)
+      .to(human, { strokeDashoffset: 0, duration: 0.22 }, 0.12)
+      .to(pivot, { opacity: 1, scaleX: 1, duration: 0.1, ease: 'back.out(2)' }, 0.3)
+      .fromTo(b, { xPercent: 18, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.26 }, 0.36)
+      .to(machine, { strokeDashoffset: 0, duration: 0.2 }, 0.44)
+      // the machine half takes over for a moment...
       .to(a, { opacity: 0.16, duration: 0.1 }, 0.6)
-      .to(live, { opacity: 0.14, duration: 0.1 }, 0.6)
+      .to(human, { opacity: 0.14, duration: 0.1 }, 0.6)
+      // ...and the readable half wins, which is the whole point of the line
       .to(a, { opacity: 1, duration: 0.1 }, 0.72)
-      .to(live, { opacity: 1, duration: 0.1 }, 0.72)
-      .to(b, { opacity: 0.2, duration: 0.1 }, 0.72)
-      .to(flat, { opacity: 0.28, duration: 0.1 }, 0.72)
+      .to(human, { opacity: 1, duration: 0.1 }, 0.72)
+      .to(b, { opacity: 0.24, duration: 0.1 }, 0.72)
+      .to(machine, { opacity: 0.3, duration: 0.1 }, 0.72)
       .to(resolve, { opacity: 1, y: 0, duration: 0.12, ease: 'expo.out' }, 0.82)
       .to({}, { duration: 0.1 });
   }
@@ -260,32 +274,46 @@
     });
   }
 
-  /* ── field guide: pinned horizontal ────────────────────────────────── */
+  /* ── guide: crossfade through the plates ───────────────────────────── */
 
-  function field() {
-    var section = document.querySelector('.field');
-    var track = document.querySelector('.field__track');
-    if (!section || !track || !motion) return;
+  function guide() {
+    var section = document.querySelector('.guide');
+    var items = Array.prototype.slice.call(document.querySelectorAll('.guide__item'));
+    if (!section || items.length < 2 || !motion) return;
 
-    gsap.matchMedia().add('(min-width: 860px)', function () {
-      var distance = function () { return Math.max(0, track.scrollWidth - window.innerWidth); };
+    // Only above the breakpoint where the CSS stacks them absolutely; below it
+    // they are an ordinary vertical list and need no help.
+    gsap.matchMedia().add('(min-width: 900px)', function () {
+      gsap.set(items, { opacity: 0 });
+      gsap.set(items[0], { opacity: 1 });
 
-      var t = gsap.to(track, {
-        x: function () { return -distance(); },
-        ease: 'none',
+      var tl = gsap.timeline({
+        defaults: { ease: 'none' },
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: function () { return '+=' + (distance() + window.innerHeight * 0.5); },
-          pin: true,
-          scrub: 0.6,
+          end: '+=' + (items.length * 78) + '%',
+          pin: '.guide__pin',
+          scrub: 0.55,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: 10
         }
       });
 
-      return function () { t.scrollTrigger && t.scrollTrigger.kill(); t.kill(); gsap.set(track, { x: 0 }); };
+      items.forEach(function (item, i) {
+        if (i === 0) return;
+        tl.to(items[i - 1], { opacity: 0, scale: 0.985, duration: 0.34 }, i - 0.34)
+          .fromTo(item, { opacity: 0, scale: 1.02 }, { opacity: 1, scale: 1, duration: 0.34 }, i - 0.34);
+      });
+
+      tl.to({}, { duration: 0.35 });
+
+      return function () {
+        tl.scrollTrigger && tl.scrollTrigger.kill();
+        tl.kill();
+        gsap.set(items, { clearProps: 'opacity,scale' });
+      };
     });
   }
 
@@ -333,9 +361,9 @@
     plates();
     masthead();
     statement();
-    creed();
+    quote();
     work();
-    field();
+    guide();
     navTheme();
     logs();
     if (ST) ST.refresh();
