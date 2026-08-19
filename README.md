@@ -21,7 +21,8 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        post.js        # reader: Markdown/HTML → prose
 │   │        gl.js          # the masthead's WebGL surface
 │   │        theme.js       # dark/light toggle + the cg:theme event
-│   │        trace.js       # the find-the-bottleneck game
+│   │        bucket.js      # the rate-limiter game
+│   │        favicon.js     # the animated tab mark
 │   ├── fonts/              # self-hosted woff2 — no external font request
 │   ├── plates/             # generated line-work, six plates
 │   └── vendor/             # GSAP, ScrollTrigger, SplitText, Lenis, marked,
@@ -105,11 +106,11 @@ still image is not motion, and the alternative was a blank ground.
 | Position | `#about` | the paragraph lights word by word as it passes |
 | Strip | — | a wide plate carrying the eye into the quote |
 | Quote | `#quote` | **pinned**: the page inverts to the opposite theme, the two halves of Gall's law slide past each other, and one node accretes into the system it became |
-| Game | `#trace` | "Find the bottleneck" — click the service actually spending the time |
+| Game | `#limit` | "Hold the line" — tune a token bucket so traffic is shed rather than an outage |
 | Practice | `#work` | role cards stack — each sticks while the next slides over it, with a full plate alongside, alternating sides |
 | Field guide | `#guide` | **pinned** crossfade through the six plates above 900px; a plain vertical list below it |
 | Instruments | `#stack` | capability rows with a vermilion fill sweep on hover |
-| Logs | `#logs` | latest entries, pulled live from `blog/posts.json` |
+| Blogs | `#blogs` | latest entries, pulled live from `blog/posts.json` |
 | Contact | `#contact` | magnetic email, colophon, closing stamp |
 
 Reusable hooks, usable on any element:
@@ -227,15 +228,37 @@ which otherwise widens the whole article to fit the diagram.
 
 ## The game
 
-`assets/js/trace.js` runs "Find the bottleneck" under the quote. A fixed service graph is dealt
-a random culprit each round; the culprit's self time jumps, and every ancestor's **total** rises
-with it because they are waiting. The boxes show totals — what a dashboard would show you — and
-the player clicks the service actually spending the time. On reveal the call path lights up and
-every box switches to its self time.
+`assets/js/bucket.js` runs "Hold the line" under the quote. A token bucket sits in front of a
+backend that survives 240 requests a second. Two dials — refill rate and burst capacity — and four
+traffic shapes, each punishing a different wrong answer. The chart draws arriving traffic, what was
+actually served, and the sustained second that the ceiling is judged against.
 
-`data-t-root` goes on the **section**, not the board: the buttons live in the copy column beside
-the canvas, and binding the delegated click handler to the board alone silently loses every
-control. Giving up reveals the answer without scoring it. It repaints on `cg:theme`.
+Two things about the model are worth keeping in mind, because both were wrong first:
+
+- **Overload is sustained, not instantaneous.** A bucket exists to let bursts through, so the
+  momentary served rate sits above the refill rate by design. Judging the ceiling on it made every
+  burst an outage. It is measured over the last second instead.
+- **Capacity zero means "no burst allowance", not "serve nothing".** Capping tokens before they
+  can be spent starves the bucket completely. The step's refill has to be spendable as it lands,
+  with only the carry-over capped.
+
+The pass target for each shape is calibrated against a measured sweep of the parameter space, not
+picked by eye — before that, three of the four shapes were unwinnable under every setting. Capacity
+earns its dial in both directions: with none you shed bursts you could have served, with too much
+you defeat the limiter and overload the backend.
+
+`data-b-root` goes on the **section**, not the board: the dials and buttons live in the copy column
+beside the canvas, and binding the delegated handler to the board alone silently loses every
+control. It repaints on `cg:theme`, and under reduced motion the round is computed in one step and
+drawn as a finished chart rather than played out.
+
+## The loader
+
+The wordmark decodes rather than a number counting up: each slot cycles glyphs until its turn
+arrives and then locks, left to right, with the pulse motif above it. The slots are built once so
+the line cannot reflow while the glyphs churn. Reduced motion skips it entirely — and note that the
+early-return path must clear `is-loading` itself, or `overflow: hidden` stays on `<html>` and the
+page cannot scroll.
 
 ## Plates
 

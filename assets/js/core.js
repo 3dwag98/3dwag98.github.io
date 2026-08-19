@@ -117,9 +117,63 @@
 
     if (lenis) lenis.stop();
 
-    var num = loader.querySelector('.loader__n');
+    var word = loader.querySelector('[data-loader-word]');
+    var pct = loader.querySelector('[data-loader-pct]');
     var bar = loader.querySelector('.loader__bar i');
+    var rings = loader.querySelectorAll('.loader__ring');
     var count = { v: 0 };
+
+    /* The wordmark decodes: each slot cycles glyphs until its turn passes, then
+       locks to the real character. Slots are built once so the line never
+       reflows while the glyphs churn. */
+    var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#*<>=+';
+    var slots = [];
+
+    if (word) {
+      var text = word.textContent;
+      word.textContent = '';
+      for (var i = 0; i < text.length; i++) {
+        var span = document.createElement('i');
+        var ch = text.charAt(i);
+        if (ch === ' ') {
+          span.className = 'is-gap is-set';
+          span.textContent = '\u00A0';
+        } else {
+          span.className = 'is-loose';
+          span.textContent = GLYPHS.charAt((Math.random() * GLYPHS.length) | 0);
+        }
+        word.appendChild(span);
+        slots.push({ el: span, ch: ch, gap: ch === ' ', locked: ch === ' ' });
+      }
+    }
+
+    /** Locks every slot whose turn has come and rerolls the rest. */
+    function decode(progress) {
+      var n = slots.length;
+      for (var i = 0; i < n; i++) {
+        var sl = slots[i];
+        if (sl.gap) continue;
+        var due = 0.12 + (i / n) * 0.74;
+        if (progress >= due) {
+          if (!sl.locked) {
+            sl.locked = true;
+            sl.el.textContent = sl.ch;
+            sl.el.className = 'is-set';
+          }
+        } else if (!sl.locked) {
+          sl.el.textContent = GLYPHS.charAt((Math.random() * GLYPHS.length) | 0);
+        }
+      }
+    }
+
+    // two rings leaving the node, offset so the pulse never stops
+    if (rings.length) {
+      gsap.to(rings, {
+        scale: 2.6, opacity: 0, duration: 1.15, ease: 'power2.out',
+        transformOrigin: '50% 50%', repeat: -1, stagger: 0.42,
+        startAt: { scale: 0.55, opacity: 0.85 }
+      });
+    }
 
     gsap.timeline({
       onComplete: function () {
@@ -131,13 +185,15 @@
     })
       .to(count, {
         v: 100,
-        duration: 1.1,
-        ease: 'power2.inOut',
+        duration: 1.35,
+        ease: 'power1.inOut',
         onUpdate: function () {
           var v = Math.round(count.v);
-          if (num) num.textContent = String(v).padStart(3, '0');
+          if (pct) pct.textContent = String(v).padStart(3, '0');
           if (bar) bar.style.transform = 'scaleX(' + (v / 100) + ')';
-        }
+          decode(count.v / 100);
+        },
+        onComplete: function () { decode(1); }
       })
       .set(p, { scaleY: 1, transformOrigin: '50% 100%' })
       .to(loader, { autoAlpha: 0, duration: 0.25 })
@@ -176,6 +232,29 @@
     window.addEventListener('pageshow', function (e) {
       if (e.persisted) gsap.set(panels(), { scaleY: 0 });
     });
+  }
+
+  /* ── the bar commits once the page moves ───────────────────────────── */
+
+  /** Deliberately plain scroll reading rather than a ScrollTrigger: the nav has
+   *  to stay legible even when GSAP never loaded. */
+  function initNavBar() {
+    var nav = document.querySelector('.nav');
+    if (!nav) return;
+
+    var on = null;
+
+    function check() {
+      var y = window.scrollY || document.documentElement.scrollTop || 0;
+      var next = y > 24;
+      if (next === on) return;
+      on = next;
+      nav.classList.toggle('is-stuck', next);
+    }
+
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check, { passive: true });
+    check();
   }
 
   /* ── cursor ────────────────────────────────────────────────────────── */
@@ -249,13 +328,38 @@
       gsap.to(dot, { opacity: 1, duration: 0.2 });
     });
 
+    /* A flash left where the click landed. Three elements, reused in turn, so a
+       fast clicker never grows the DOM. */
+    var flashes = [];
+    var fi = 0;
+
+    for (var f = 0; f < 3; f++) {
+      var el = document.createElement('i');
+      el.className = 'cur-flash';
+      el.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(el);
+      flashes.push(el);
+    }
+
+    function flash(x, y) {
+      var el = flashes[fi];
+      fi = (fi + 1) % flashes.length;
+
+      gsap.killTweensOf(el);
+      gsap.set(el, { x: x, y: y, scale: 0.3, opacity: 0.9 });
+      gsap.to(el, { scale: 2.6, opacity: 0, duration: 0.62, ease: 'expo.out' });
+    }
+
     /* A press should register on the cursor itself, not just the element. */
-    document.addEventListener('mousedown', function () {
+    document.addEventListener('mousedown', function (e) {
       gsap.to(ring, { scale: scale * 0.82, duration: 0.14, ease: 'power2.out' });
+      ring.classList.add('is-lit');
+      flash(e.clientX, e.clientY);
     });
 
     document.addEventListener('mouseup', function () {
       gsap.to(ring, { scale: scale, duration: 0.3, ease: 'expo.out' });
+      ring.classList.remove('is-lit');
     });
 
     document.addEventListener('mouseleave', function () { gsap.to([ring, dot], { opacity: 0, duration: 0.2 }); });
@@ -444,6 +548,7 @@
     window.CG.lenis = lenis;
 
     initAnchors();
+    initNavBar();
     initCursor();
     initMagnets();
     initProgress();
