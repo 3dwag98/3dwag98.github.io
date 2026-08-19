@@ -110,7 +110,7 @@
 
     if (els.toc) {
       if (toc.length > 1) {
-        els.toc.innerHTML = '<p class="label">Contents</p>' + toc.map(function (t) {
+        els.toc.innerHTML = '<p class="lbl">Contents</p>' + toc.map(function (t) {
           return '<a href="#' + t.id + '" data-depth="' + t.depth + '">' + esc(t.text) + '</a>';
         }).join('');
         spy(toc);
@@ -184,8 +184,8 @@
     var older = posts[i + 1];
     var html = '';
 
-    if (newer) html += '<a href="' + esc(newer.url) + '" data-cur="read"><span class="label">Newer</span><b>' + esc(newer.title) + '</b></a>';
-    if (older) html += '<a href="' + esc(older.url) + '" data-cur="read"><span class="label">Older</span><b>' + esc(older.title) + '</b></a>';
+    if (newer) html += '<a href="' + esc(newer.url) + '" data-cur="read"><span class="lbl">Newer</span><b>' + esc(newer.title) + '</b></a>';
+    if (older) html += '<a href="' + esc(older.url) + '" data-cur="read"><span class="lbl">Older</span><b>' + esc(older.title) + '</b></a>';
 
     if (html) els.nav.innerHTML = html; else els.nav.remove();
   }
