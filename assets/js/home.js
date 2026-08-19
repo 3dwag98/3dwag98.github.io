@@ -170,13 +170,16 @@
     var el = document.querySelector('.mast');
     if (!el || !motion) return;
 
-    var lines = el.querySelectorAll('.mast__name .ln');
+    // The masks, not the inner lines: revealLines owns yPercent on those, and
+    // these two names have to be free to travel sideways independently.
+    var masks = el.querySelectorAll('.mast__name .ln__i-mask');
+    var tl = gsap.timeline({ scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: 0.6 } });
 
-    gsap.timeline({ scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: 0.6 } })
-      .to(lines[0], { xPercent: -12, opacity: 0, ease: 'none' }, 0)
-      .to(lines[1], { xPercent: 10, opacity: 0, ease: 'none' }, 0)
-      .to('.mast__foot', { yPercent: 45, opacity: 0, ease: 'none' }, 0)
-      .to('.mast__top', { opacity: 0, ease: 'none', duration: 0.4 }, 0);
+    if (masks[0]) tl.to(masks[0], { xPercent: -12, opacity: 0, ease: 'none' }, 0);
+    if (masks[1]) tl.to(masks[1], { xPercent: 10, opacity: 0, ease: 'none' }, 0);
+
+    tl.to('.mast__foot', { yPercent: 45, opacity: 0, ease: 'none' }, 0)
+      .to('.mast__say', { yPercent: -20, opacity: 0, ease: 'none', duration: 0.5 }, 0);
   }
 
   /* ── statement ─────────────────────────────────────────────────────── */
@@ -226,13 +229,13 @@
 
       var grid = COLS.map(function (col, ci) {
         var pts = [];
-        // fan out toward the left, but stay inside the 120-unit box
-        var spread = Math.min(50, 5 + (col.n - 1) * 7.5);
+        // fan out toward the left, but stay inside the 240-unit box
+        var spread = Math.min(104, 10 + (col.n - 1) * 15.5);
         for (var i = 0; i < col.n; i++) {
           var t = col.n === 1 ? 0.5 : i / (col.n - 1);
           pts.push({
             x: col.x + (ci === 0 ? 0 : (rnd() - 0.5) * 46),
-            y: 60 + (t - 0.5) * spread * 2 + (rnd() - 0.5) * 7
+            y: 120 + (t - 0.5) * spread * 2 + (rnd() - 0.5) * 14
           });
         }
         return pts;
@@ -260,7 +263,7 @@
           var c2 = document.createElementNS(ns, 'circle');
           c2.setAttribute('cx', p.x.toFixed(1));
           c2.setAttribute('cy', p.y.toFixed(1));
-          c2.setAttribute('r', (2.4 + ci * 0.28).toFixed(2));
+          c2.setAttribute('r', (3.4 + ci * 0.4).toFixed(2));
           nodes.appendChild(c2);
           dots.push(c2);
         });
@@ -324,7 +327,7 @@
       .to(b, { opacity: 1, duration: 0.1 }, 0.72)
       .to(seed, { opacity: 1, scale: 1.5, duration: 0.1 }, 0.72)
       .to(a, { opacity: 0.28, duration: 0.1 }, 0.72)
-      .to([edges, nodes], { opacity: 0.34, duration: 0.1 }, 0.72)
+      .to([edges, nodes], { opacity: 0.55, duration: 0.1 }, 0.72)
       .to(resolve, { opacity: 1, y: 0, duration: 0.12, ease: 'expo.out' }, 0.82)
       .to({}, { duration: 0.1 });
   }

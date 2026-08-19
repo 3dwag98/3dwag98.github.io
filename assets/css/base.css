@@ -270,13 +270,19 @@ body::after { mix-blend-mode: screen; opacity: 0.13; }
 }
 
 .cur {
-  width: 46px; height: 46px; margin: -23px 0 0 -23px;
-  border: 1px solid var(--ink);
+  width: 44px; height: 44px; margin: -22px 0 0 -22px;
+  border: 2px solid var(--ink);
+  /* a hairline of the page colour behind the ring so it separates from a
+     plate, the WebGL ground, or anything else it happens to be over */
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--paper) 60%, transparent);
   display: grid; place-items: center;
-  transition: opacity 0.25s ease, background-color 0.3s ease, border-color 0.3s ease;
+  transition: opacity 0.25s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.cur-dot { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; background: var(--accent); }
+.cur-dot {
+  width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background: var(--accent);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--paper) 55%, transparent);
+}
 
 .cur__t {
   font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.1em;
@@ -284,8 +290,11 @@ body::after { mix-blend-mode: screen; opacity: 0.13; }
   opacity: 0; transition: opacity 0.2s ease; white-space: nowrap;
 }
 
-.cur.is-tagged { background: var(--accent); border-color: var(--accent); }
-.cur.is-tagged .cur__t { opacity: 1; }
+.cur.is-tagged { border-color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
+/* Fill only once there is a word to carry — an empty accent disc reads as a
+   glitch rather than a label. */
+.cur.is-worded { background: var(--accent); }
+.cur.is-worded .cur__t { opacity: 1; }
 
 @media (hover: none), (pointer: coarse) { .cur, .cur-dot { display: none !important; } }
 

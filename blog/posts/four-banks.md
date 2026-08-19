@@ -1,8 +1,8 @@
 ---
-title: Seven years, four banks — the long version
+title: Built, shipped, still running
 date: 2026-08-19
 tags: [platform-engineering, full-stack, spring-boot, kubernetes]
-summary: The portfolio gives each role one line. This is the detail behind those lines — what the systems actually were, and what each one taught me.
+summary: The portfolio gives each role one line. This is the detail behind those lines — seven years across four banks, what the systems actually were, and what each one taught me.
 ---
 
 The front page of this site gives each role a single claim, because a claim is what a

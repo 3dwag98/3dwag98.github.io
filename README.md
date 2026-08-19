@@ -252,7 +252,16 @@ change.
   held, the game starts paused, and the quote simply renders on the inverted ground.
 - With JavaScript off nothing is hidden — the portfolio and the blog chrome degrade to plain
   scrolling documents (post bodies need JS, since they are fetched).
-- The custom cursor only appears for fine pointers; touch devices keep the native one.
+- The custom cursor only appears for fine pointers; touch devices keep the native one. It hides
+  the native cursor only once its own ring is on screen, so a failure leaves you with a pointer
+  rather than none. The ring labels what it is over — `go`, `open`, `write`, `press`, `look`,
+  `pick` — from `data-cur` where it is set and the element type otherwise.
+
+- The favicon is animated by `assets/js/favicon.js`: a pulse leaving the node, drawn to a canvas
+  and pushed into `link[rel=icon]` as a PNG data URL, because Chromium renders SVG favicons but
+  does not animate them. It runs at 10fps, pauses while the tab is hidden, follows the theme, and
+  draws a single static frame under reduced motion. The inline SVG in each page's `<link>` stays
+  as the no-JS mark.
 - Libraries load from jsdelivr at pinned versions — GSAP 3.15.0, Lenis 1.3.26, marked 18.0.10,
   DOMPurify 3.4.13, Prism 1.30.0 — each with an `integrity` hash computed from the published npm
   tarball. A short inline guard after the CDN tags checks for each global and pulls the matching
