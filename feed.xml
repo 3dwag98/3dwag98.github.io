@@ -7,6 +7,17 @@
     <language>en</language>
     <atom:link href="https://3dwag98.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>Where a slow page actually comes from</title>
+      <link>https://3dwag98.github.io/blog/post.html?p=tracing-a-slow-page</link>
+      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=tracing-a-slow-page</guid>
+      <pubDate>Fri, 14 Aug 2026 09:00:00 GMT</pubDate>
+      <description>A page that takes four seconds is rarely slow for the reason the first person to look at it thinks. How to find the real one, from the browser down to the query plan.</description>
+      <category>full-stack</category>
+      <category>performance</category>
+      <category>postgres</category>
+      <category>observability</category>
+    </item>
+    <item>
       <title>Designing for failure — cache-aside, breakers and the authorization hot path</title>
       <link>https://3dwag98.github.io/blog/post.html?p=designing-for-failure</link>
       <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=designing-for-failure</guid>
@@ -18,11 +29,11 @@
       <category>spring-boot</category>
     </item>
     <item>
-      <title>Why this log exists</title>
-      <link>https://3dwag98.github.io/blog/post.html?p=hello-world</link>
-      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=hello-world</guid>
+      <title>Why these notes exist</title>
+      <link>https://3dwag98.github.io/blog/post.html?p=why-these-notes</link>
+      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=why-these-notes</guid>
       <pubDate>Sun, 12 Jul 2026 09:00:00 GMT</pubDate>
-      <description>A short note on writing things down, and the one line taped above my desk.</description>
+      <description>Writing the thing down is how I find out whether I actually understood it.</description>
       <category>meta</category>
       <category>engineering</category>
     </item>

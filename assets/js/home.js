@@ -5,7 +5,8 @@
      plates     every image: clip reveal, then parallax inside its own frame
      statement  a paragraph that lights word by word as it passes
      quote      pinned. The page inverts to night while the two halves of the
-                line slide past each other and the signal squares off.
+                line slide past each other and one plain stroke branches into
+                the thing it grew into.
      work       roles stack — each sticks while the next slides over it
      guide      pinned crossfade through the plates on a wide screen; a plain
                 vertical list below that, so every image is reachable anywhere
@@ -163,31 +164,32 @@
     var b = el.querySelector('.quote__line--b');
     var pivot = el.querySelector('.quote__pivot');
     var resolve = el.querySelector('.quote__resolve');
-    var human = el.querySelector('#sig-human');
-    var machine = el.querySelector('#sig-machine');
+    var complex = el.querySelector('#sig-complex');
+    var simple = el.querySelector('#sig-simple');
 
-    // Left half: a drawn wave. Right half: the same signal, squared off by a
-    // machine. The line is about the two audiences for the same code.
-    if (human && machine) {
-      var wave = 'M0,50 ';
-      for (var x = 0; x <= 700; x += 10) {
-        var y = 50 - Math.sin(x / 58) * 21 - Math.sin(x / 23) * 3;
-        wave += 'L' + x + ',' + y.toFixed(1) + ' ';
-      }
-      human.setAttribute('d', wave.trim());
+    // Right half: one plain line — the simple system that worked. Left half:
+    // what it grew into. Both are drawn right to left, the direction the
+    // sentence actually reads backwards through.
+    if (complex && simple) {
+      simple.setAttribute('d', 'M1400,50 L900,50');
 
-      var sq = 'M700,50 ';
-      var hi = 29, lo = 71, step = 70, up = true;
-      for (var sx = 700; sx < 1400; sx += step) {
-        sq += 'L' + sx + ',' + (up ? hi : lo) + ' L' + (sx + step) + ',' + (up ? hi : lo) + ' ';
-        up = !up;
-      }
-      machine.setAttribute('d', sq.trim());
+      var branch = function (x, y, dx, spread, depth) {
+        if (depth === 0) return '';
+        var nx = x - dx;
+        var up = (y - spread).toFixed(1);
+        var down = (y + spread).toFixed(1);
+        return 'M' + x.toFixed(1) + ',' + y.toFixed(1) + ' L' + nx.toFixed(1) + ',' + up + ' ' +
+               'M' + x.toFixed(1) + ',' + y.toFixed(1) + ' L' + nx.toFixed(1) + ',' + down + ' ' +
+               branch(nx, y - spread, dx * 0.72, spread * 0.58, depth - 1) +
+               branch(nx, y + spread, dx * 0.72, spread * 0.58, depth - 1);
+      };
+
+      complex.setAttribute('d', branch(900, 50, 300, 23, 4).trim());
     }
 
     if (!motion) { el.classList.add('night'); return; }
 
-    [human, machine].forEach(function (p) {
+    [complex, simple].forEach(function (p) {
       if (!p) return;
       var len = p.getTotalLength();
       p.style.strokeDasharray = len;
@@ -229,18 +231,18 @@
       }
     })
       .fromTo(a, { xPercent: -18, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.26 }, 0.02)
-      .to(human, { strokeDashoffset: 0, duration: 0.22 }, 0.12)
+      .to(simple, { strokeDashoffset: 0, duration: 0.22 }, 0.12)
       .to(pivot, { opacity: 1, scaleX: 1, duration: 0.1, ease: 'back.out(2)' }, 0.3)
       .fromTo(b, { xPercent: 18, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.26 }, 0.36)
-      .to(machine, { strokeDashoffset: 0, duration: 0.2 }, 0.44)
-      // the machine half takes over for a moment...
-      .to(a, { opacity: 0.16, duration: 0.1 }, 0.6)
-      .to(human, { opacity: 0.14, duration: 0.1 }, 0.6)
-      // ...and the readable half wins, which is the whole point of the line
-      .to(a, { opacity: 1, duration: 0.1 }, 0.72)
-      .to(human, { opacity: 1, duration: 0.1 }, 0.72)
-      .to(b, { opacity: 0.24, duration: 0.1 }, 0.72)
-      .to(machine, { opacity: 0.3, duration: 0.1 }, 0.72)
+      .to(complex, { strokeDashoffset: 0, duration: 0.24 }, 0.42)
+      // the complexity dominates for a moment...
+      .to(b, { opacity: 0.16, duration: 0.1 }, 0.6)
+      .to(simple, { opacity: 0.16, duration: 0.1 }, 0.6)
+      // ...then the simple system it grew from is what the line is about
+      .to(b, { opacity: 1, duration: 0.1 }, 0.72)
+      .to(simple, { opacity: 1, duration: 0.1 }, 0.72)
+      .to(a, { opacity: 0.28, duration: 0.1 }, 0.72)
+      .to(complex, { opacity: 0.34, duration: 0.1 }, 0.72)
       .to(resolve, { opacity: 1, y: 0, duration: 0.12, ease: 'expo.out' }, 0.82)
       .to({}, { duration: 0.1 });
   }

@@ -1,26 +1,25 @@
-<!--
-  An HTML-format entry. Same pipeline as Markdown, minus the conversion step:
-  the file is fetched, sanitized and dropped into .prose, so every prose style
-  (headings, code, tables, callouts) applies exactly as it does to Markdown.
-
-  Write a fragment, not a full document — no <html>, <head> or <body>.
+<!--meta
+title: Publishing a note — the authoring workflow
+date: 2026-07-10
+tags: [meta, workflow]
+summary: How entries are written, registered and rendered. Written in HTML to show the second format.
+draft: true
 -->
 
 <p>
-  This entry is written in raw HTML rather than Markdown, which is the escape hatch for
-  posts that need markup Markdown cannot express &mdash; a custom diagram, an inline SVG, a
-  table with merged cells. Everything else on this site treats it identically.
+  This entry is written in raw HTML rather than Markdown, which is the escape hatch for notes
+  that need markup Markdown cannot express &mdash; a custom diagram, an inline SVG, a table with
+  merged cells. Everything else on this site treats the two identically.
 </p>
 
-<p>It is also flagged <code>"draft": true</code> in the manifest, so it stays out of the public
-  index and is only reachable with <code>?drafts=1</code>. That is the workflow for anything
-  half-written.</p>
+<p>It is also flagged <code>"draft": true</code>, so it stays out of the public index and is only
+  reachable with <code>?drafts=1</code>. That is the workflow for anything half-written.</p>
 
-<h2>Adding an entry</h2>
+<h2>Adding a note</h2>
 
 <ol>
-  <li>Drop a file in <code>blog/posts/</code> &mdash; <code>my-entry.md</code> or
-      <code>my-entry.html</code>.</li>
+  <li>Drop a file in <code>blog/posts/</code> &mdash; <code>my-note.md</code> or
+      <code>my-note.html</code>.</li>
   <li>Register it in <code>blog/posts.json</code>, or run
       <code>node tools/build-index.mjs</code> to regenerate the manifest from the files
       themselves.</li>
@@ -29,13 +28,13 @@
 
 <h3>Markdown front matter</h3>
 
-<p>Markdown entries can carry their own metadata, which wins over the manifest when both
-   define the same field:</p>
+<p>Markdown entries carry their own metadata, which wins over the manifest when both define the
+   same field:</p>
 
 <pre><code class="language-yaml">---
-title: Designing for failure
-date: 2026-08-02
-tags: [distributed-systems, resilience]
+title: Where a slow page actually comes from
+date: 2026-08-14
+tags: [full-stack, performance]
 summary: One sentence that shows up on the index.
 ---</code></pre>
 
@@ -60,8 +59,7 @@ summary: One sentence that shows up on the index.
 <h2>What the reader adds for free</h2>
 
 <ul>
-  <li>Headings become anchored and feed the table of contents on the right, which tracks
-      scroll position.</li>
+  <li>Headings become anchored and feed the table of contents, which tracks scroll position.</li>
   <li>Code blocks get a language label, a copy button and syntax highlighting &mdash; tag the
       fence with a language for the colours.</li>
   <li>External links open in a new tab; images are lazy-loaded.</li>
@@ -69,7 +67,7 @@ summary: One sentence that shows up on the index.
 </ul>
 
 <blockquote>
-  <p>Everything is sanitized before it hits the DOM, so a paste from somewhere else cannot
+  <p>Everything is sanitized before it reaches the DOM, so a paste from somewhere else cannot
      smuggle a script into the page.</p>
 </blockquote>
 

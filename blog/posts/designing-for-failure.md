@@ -124,6 +124,23 @@ redis-cli -h cache-01 DEBUG sleep 30
 Case three is the one that finds bugs. It is where you learn whether your "cache errors are
 misses" wrapper is real or aspirational.
 
+## And what the caller sees
+
+One more thing, because it is the part that gets left to last and then designed by accident:
+whatever the service decides, the screen has to say it. A degraded *allow* served from a stale
+copy is a different state from a fresh one, and if the API returns both as a bare `200` then no
+front end can ever tell the user which they got.
+
+Put it in the response, not in a log line:
+
+```json
+{ "decision": "allow", "source": "cache", "degraded": true, "asOf": "2026-08-02T09:41:12Z" }
+```
+
+Now the UI has something to work with — a quiet marker rather than a spinner or a lie — and
+support has an answer that does not require reading a dashboard. Failure semantics that stop at
+the service boundary are only half specified.
+
 ## The short version
 
 - Cache-aside, so a cache outage costs latency and not correctness.
@@ -132,3 +149,4 @@ misses" wrapper is real or aspirational.
 - Count slow calls, not just failed ones.
 - Decide the open-circuit behaviour per resource class, in writing, before an incident
   decides it for you.
+- Say which answer you gave, all the way out to the screen.

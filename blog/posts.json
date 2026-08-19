@@ -2,6 +2,20 @@
   "$comment": "Index of every entry. Regenerate with: node tools/build-index.mjs",
   "posts": [
     {
+      "slug": "tracing-a-slow-page",
+      "title": "Where a slow page actually comes from",
+      "date": "2026-08-14",
+      "summary": "A page that takes four seconds is rarely slow for the reason the first person to look at it thinks. How to find the real one, from the browser down to the query plan.",
+      "tags": [
+        "full-stack",
+        "performance",
+        "postgres",
+        "observability"
+      ],
+      "format": "md",
+      "readingTime": "3 min read"
+    },
+    {
       "slug": "designing-for-failure",
       "title": "Designing for failure — cache-aside, breakers and the authorization hot path",
       "date": "2026-08-02",
@@ -13,23 +27,23 @@
         "spring-boot"
       ],
       "format": "md",
-      "readingTime": "3 min read"
+      "readingTime": "4 min read"
     },
     {
-      "slug": "hello-world",
-      "title": "Why this log exists",
+      "slug": "why-these-notes",
+      "title": "Why these notes exist",
       "date": "2026-07-12",
-      "summary": "A short note on writing things down, and the one line taped above my desk.",
+      "summary": "Writing the thing down is how I find out whether I actually understood it.",
       "tags": [
         "meta",
         "engineering"
       ],
       "format": "md",
-      "readingTime": "1 min read"
+      "readingTime": "2 min read"
     },
     {
-      "slug": "publishing-a-log",
-      "title": "Publishing a log — the authoring workflow",
+      "slug": "publishing-a-note",
+      "title": "Publishing a note — the authoring workflow",
       "date": "2026-07-10",
       "summary": "How entries are written, registered and rendered. Written in HTML to show the second format.",
       "tags": [
