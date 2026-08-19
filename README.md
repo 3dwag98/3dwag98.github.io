@@ -194,6 +194,25 @@ The reader adds heading anchors, a table of contents that tracks scroll, code he
 copy button, Prism highlighting, lazy images and prev/next links. Everything is passed through
 DOMPurify before it touches the DOM.
 
+### Diagrams inside a note
+
+Inline SVG survives the sanitizer, so a note can carry real diagrams. Wrap one in
+`<figure class="diagram">` and style it with the classes in `blog.css` — `d-box`, `d-ghost`,
+`d-accent-box`, `d-rule`, `d-accent-line`, `d-cap`, `d-key` — which read from the theme tokens,
+so a diagram works in both themes without a second copy.
+
+Two traps, both of which cost me a debugging round:
+
+- **No blank lines inside the block.** Markdown ends an HTML block at the first empty line, so
+  an SVG written with airy spacing gets silently truncated there and the rest is parsed as
+  prose. Keep the whole `<figure>` as one unbroken run of lines.
+- **No `<defs>`, `<marker>` or `<use>`.** Draw arrowheads as plain `<path>` triangles; the
+  sanitizer is not guaranteed to keep the others.
+
+The figure scrolls horizontally on a narrow screen, and `.article__layout > * { min-width: 0 }`
+stops a wide diagram from stretching the prose column — grid items default to `min-width: auto`,
+which otherwise widens the whole article to fit the diagram.
+
 ## The game
 
 `assets/js/trace.js` runs "Find the bottleneck" under the quote. A fixed service graph is dealt

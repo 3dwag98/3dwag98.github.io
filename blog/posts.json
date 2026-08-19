@@ -30,17 +30,17 @@
       "readingTime": "4 min read"
     },
     {
-      "slug": "system-design-reading-list",
-      "title": "The system design research worth reading, and why",
+      "slug": "caching-papers",
+      "title": "Four papers that explain caching",
       "date": "2026-07-12",
-      "summary": "A short guide to the papers and references that actually changed how production systems get built — what each one contributed, and where to read it.",
+      "summary": "What ARC, TinyLFU, Facebook's memcache paper and S3-FIFO actually say — the mechanisms drawn out, and why each one exists.",
       "tags": [
+        "caching",
         "system-design",
-        "distributed-systems",
-        "reading"
+        "distributed-systems"
       ],
       "format": "md",
-      "readingTime": "4 min read"
+      "readingTime": "12 min read"
     },
     {
       "slug": "publishing-a-note",

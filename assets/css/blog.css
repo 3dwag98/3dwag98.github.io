@@ -66,6 +66,10 @@
 
 .article__layout { display: grid; grid-template-columns: 1fr; gap: 3rem; margin-top: clamp(2.5rem, 6vw, 4.5rem); }
 
+/* Grid items default to min-width:auto, so a wide diagram inside the prose
+   column stretches the whole column — and the paragraphs with it. */
+.article__layout > * { min-width: 0; }
+
 @media (min-width: 1100px) {
   .article__layout { grid-template-columns: minmax(0, 1fr) 230px; gap: 5rem; align-items: start; }
   .toc { position: sticky; top: 18vh; }
@@ -211,3 +215,31 @@
 .token.regex, .token.important { color: var(--accent); }
 .token.important, .token.bold { font-weight: 700; }
 .token.italic { font-style: italic; }
+
+/* ── diagrams in prose ─────────────────────────────────────────────────── */
+
+.prose figure.diagram {
+  margin-block: 2.4em;
+  padding: clamp(1rem, 2.5vw, 1.6rem);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper-2);
+  overflow-x: auto;
+}
+
+.prose .diagram svg { width: 100%; min-width: 520px; height: auto; overflow: visible; display: block; }
+
+/* one visual language, driven by the theme tokens */
+.diagram .d-box        { fill: var(--paper); stroke: var(--line); stroke-width: 1; }
+.diagram .d-ghost      { fill: none; stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 4; }
+.diagram .d-accent-box { fill: none; stroke: var(--accent); stroke-width: 1.4; }
+.diagram .d-accent-fill{ fill: var(--accent); stroke: none; }
+.diagram .d-fill-rule  { fill: var(--mute); stroke: none; }
+.diagram .d-rule       { fill: none; stroke: var(--mute); stroke-width: 1; }
+.diagram .d-accent-line{ fill: none; stroke: var(--accent); stroke-width: 1.4; }
+
+.diagram text { font-family: var(--mono); fill: var(--mute); }
+.diagram .d-cap        { font-size: 11px; letter-spacing: 0.06em; }
+.diagram .d-accent-cap { font-size: 11px; letter-spacing: 0.06em; fill: var(--accent); }
+.diagram .d-key        { font-size: 15px; fill: var(--ink); letter-spacing: -0.01em; }
+.diagram .d-on-accent  { font-size: 12px; fill: var(--on-accent); }
