@@ -23,6 +23,7 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        theme.js       # dark/light toggle + the cg:theme event
 │   │        serve.js       # the you-are-the-server game
 │   │        typography-loader.js  # चिंतामणी गावडे → CHINTAMANI GAWADE
+│   │        liquid-wave.js  # the WebGL wave the loader morphs under
 │   │        favicon.js     # the animated tab mark
 │   ├── fonts/              # self-hosted woff2 — no external font request
 │   ├── plates/             # generated line-work, twelve plates
@@ -250,31 +251,49 @@ with Start disabled.
 
 ## The loader
 
-`assets/js/typography-loader.js`. Both scripts are drawn to offscreen 2D canvases at viewport size
-and handed to the GPU as textures; a fragment shader then runs a fluid field over them. Domain-warped
-fbm gives the flow, an advancing front eats across the screen along a noise-warped boundary, and each
-pixel decides for itself which script it is showing based on whether the front has reached it. One
-GSAP tween drives one uniform; everything else is derived in the shader.
+चिंतामणी गावडे becomes CHINTAMANI GAWADE, one syllable group at a time, as a liquid front crosses
+the screen. Two files, deliberately split:
 
-It is WebGL rather than the SVG filter it replaces because `feDisplacementMap` can only push pixels
-around inside a box — the "wave" was a rectangular band travelling left to right, which reads as a
-scan. A shader can make the boundary itself organic, tear the letterforms along it, refract through
-the ridge and leave the liquid behind as a body that floods the screen.
+- `assets/js/liquid-wave.js` is the wave, and only the wave — a WebGL fragment shader drawing onto a
+  transparent canvas. Domain-warped fbm (an fbm of an fbm) gives the flow, the leading edge is
+  displaced by the same field that moves the body, and one GSAP tween drives one uniform while the
+  shader derives everything else. It exposes `window.CGWave.mount(canvas)` and nothing more.
+- `assets/js/typography-loader.js` is the type. The glyphs stay live SVG `<text>`, and each group
+  gets its own `feTurbulence` + `feDisplacementMap` pair so it can be torn independently as the wave
+  arrives over it. The Devanagari hands over to the Latin at the peak of that distortion, where
+  nothing is legible, so the eye reads one continuous liquid event rather than two states
+  cross-dissolving.
 
-Two things that were wrong first and are worth not repeating:
+The wave is WebGL because the SVG version could not be anything else: `feDisplacementMap` only pushes
+pixels around inside a box, so its front was a rectangular band travelling left to right, and that
+reads as a scan. A shader can warp the boundary itself. The per-glyph tearing stays on SVG filters,
+because that part genuinely is a local distortion of a letterform and the filter does it well.
 
-- **The canvas font shorthand is `[style] [weight] [size] [family]`.** Folding a weight into the
-  family string gives `"500px 700 'Baloo'"`, which is invalid; the assignment is silently ignored and
-  every measurement afterwards comes back from the 10px default. The Latin plate worked and the
-  Devanagari one came out tiny, which is exactly the shape that bug makes.
-- **Canvas 2D does not honour `font-display`.** It draws whatever is available the instant it is
-  asked, so the plates have to wait on `document.fonts.load` explicitly. The timeline is created
-  paused and played once the faces resolve, with a 1.4s ceiling so a font that never arrives cannot
-  hang the entry.
+**The glyphs stay live text rather than extracted paths.** Devanagari needs real shaping — चिं puts
+its i-matra before the consonant and its anusvara above — and the browser's shaper is the only thing
+here that gets that right. A build-time path extractor (opentype.js) does not shape Devanagari, so
+baking paths would have produced authentic-looking nonsense.
 
-The shader renders below device resolution (0.7×) and runs three octaves rather than five. The field
+**Cells are measured, not guessed.** Each group's width comes from `getComputedTextLength()` on both
+scripts once the fonts are in, sized to whichever needs more room. Hand-tuned widths are only ever
+right for the face they were tuned against: carried over to Dela Gothic, which is 10–24% wider, every
+group overflowed its cell and sat on top of its neighbour. For the same reason the closing tighten
+takes a share of the space that is measurably between two glyphs rather than a flat slice of the
+viewport — a fixed fraction is far more than the gap on a phone and rather less than it on a wide
+screen. The final swell is worked out the same way, from what is actually left over, which is what
+lets the name start large enough to fill a phone and still finish filling it.
+
+Measuring means waiting: the timeline is created paused and played once `document.fonts` resolves,
+with a 1.2s ceiling so a font that never arrives cannot strand the entry, and a second fit attached
+to `fonts.ready` in case that ceiling wins the race.
+
+The shader renders below device resolution (0.65×) and runs three octaves rather than five. The field
 is soft enough that neither is visible, and together they took a software-rendered frame rate from 18
 to 40fps — a loader stuttering on a weak GPU is worse than a loader being slightly soft.
+
+No WebGL, no `liquid-wave.js`, or a shader that will not compile: `mount()` returns null, the canvas
+is hidden and the morphs run without it. Reduced motion never reaches any of this — `core.js` drops
+the loader entirely, which gets those visitors to the page faster than a still version would.
 
 ## Fonts
 
