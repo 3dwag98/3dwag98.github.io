@@ -21,7 +21,7 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        post.js        # reader: Markdown/HTML → prose
 │   │        gl.js          # the masthead's WebGL surface
 │   │        theme.js       # dark/light toggle + the cg:theme event
-│   │        serve.js       # the you-are-the-server game
+│   │        life.js        # Conway's Game of Life + its tutorial
 │   │        typography-loader.js  # चिंतामणी गावडे → CHINTAMANI GAWADE
 │   │        liquid-wave.js  # the WebGL wave the loader morphs under
 │   │        favicon.js     # the animated tab mark
@@ -108,7 +108,7 @@ still image is not motion, and the alternative was a blank ground.
 | Position | `#about` | the paragraph lights word by word as it passes |
 | Strip | — | a wide plate carrying the eye into the quote |
 | Quote | `#quote` | **pinned**: the page inverts to the opposite theme, the two halves of Gall's law slide past each other, and one node accretes into the system it became |
-| Game | `#limit` | "You are the server" — click requests before they time out, then see what actually fixes it |
+| Game | `#life` | Conway's Game of Life — four rules shown as before/after diagrams, a three-step coach, and a board you draw on |
 | Practice | `#work` | role cards stack — each sticks while the next slides over it, with a full plate alongside, alternating sides |
 | Design review | `#guide` | **pinned** crossfade through six questions above 900px; a plain vertical list below it |
 | Instruments | `#stack` | capability rows with a vermilion fill sweep on hover |
@@ -230,24 +230,36 @@ which otherwise widens the whole article to fit the diagram.
 
 ## The game
 
-`assets/js/serve.js` runs "You are the server" under the quote. Requests arrive as tiles with a
-bar counting down; click one before its bar empties or it is dropped. The arrival rate climbs the
-whole time, so at some point you cannot keep up — which is the entire argument, and it needs no
-vocabulary to land. Ten drops ends the round.
+`assets/js/life.js` runs Conway's Game of Life under the quote, which is where the argument of the
+quote is: complicated systems that work turn out to have grown from simple ones that worked. A
+Gosper glider gun is already firing when you arrive. Drag to draw cells, stamp a Glider or a
+Pulsar, single-step it, clear it. The field wraps, so a glider leaving the right edge arrives at
+the left.
 
-Then the two things that actually fix it are offered: a cache that answers a share of the arrivals
-before they ever reach you, and a second machine working the queue oldest-first. Play again with
-either.
+**The rules exist once.** `stepGrid` is the only place they are written, and both the board and the
+teaching diagrams call it. Duplicating them for the diagrams would have been easier and the
+diagrams would eventually have been lying about what the board does.
 
-The difficulty is balanced against a simulated player clicking every 340ms, not by eye. At that
-rate: no helpers drowns, a cache alone just holds, a second machine alone still drowns, and both
-together finish the round clean. That the cache does more than the extra machine is the honest
-result of the model, not a thumb on the scale — repeats are cheaper to not-serve than to serve
-twice.
+### The tutorial
 
-`data-s-root` goes on the **section**, not the board: the buttons live in the copy column beside
-the canvas. Reduced motion gets the same argument as a still bar chart instead of a timed game,
-with Start disabled.
+Two parts, because "how to play" and "what the rules are" are different questions.
+
+The rules are four small before/after diagrams: a 5×5 field, the generation the real rules produce
+from it, and the square the rule is about ringed in both halves. Deliberately a diagram and not an
+animation — it is legible the instant it is on screen, it needs no timer, and it says the same
+thing to someone who has asked for reduced motion. There is a test that reads the drawn pixels
+back and checks each diagram actually demonstrates its own caption.
+
+How to play is a three-step coach, and each step is ticked off by the thing it asks for rather than
+by a Next button — draw, then Step, then stamp a pattern — so it can only ever be describing
+something you have not done yet. Step 2 is the Step button rather than Play on purpose: the board
+is already running when you arrive, so asking someone to press a Play button that currently reads
+"Pause" would skip a number and look broken.
+
+`data-life-root` goes on the **section**, not the board: the buttons and the tutorial live in the
+copy column beside the canvas, and binding to the board alone silently loses every control. The
+simulation pauses off screen and when the tab is hidden, repaints on `cg:theme`, and under reduced
+motion starts paused with the button reading Play.
 
 ## The loader
 
