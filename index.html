@@ -7,7 +7,7 @@
 
 <meta name="description" content="Full stack engineer building engineering solutions at scale — services, data pipelines and the interfaces on top of them, for platforms teams depend on. SDE 2 at JPMorgan Chase &amp; Co.">
 <meta name="author" content="Chintamani Gawade">
-<meta name="theme-color" content="#0F1214">
+<meta name="theme-color" content="#0A0B0A">
 <link rel="canonical" href="https://3dwag98.github.io/">
 
 <meta property="og:type" content="website">
@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://3dwag98.github.io/assets/plates/flow.jpg">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23F1EFEA'/><circle cx='50' cy='50' r='25' fill='%237F570A'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230A0B0A'/><text x='50' y='52' font-family='monospace' font-size='58' font-weight='bold' text-anchor='middle' dominant-baseline='central' fill='%23C6F24E'>&gt;_</text></svg>">
 <link rel="alternate" type="application/rss+xml" title="Blogs — Chintamani Gawade" href="/feed.xml">
 
 <link rel="preload" href="assets/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
@@ -44,19 +44,21 @@
 <body>
 
 <div class="loader">
-  <div class="loader__stage">
-    <p class="loader__word" data-loader-word aria-label="Chintamani Gawade">
-      <span class="loader__ln"><i>Chintamani</i></span>
-      <span class="loader__ln"><i>Gawade</i></span>
-    </p>
+  <div class="loader__slot" aria-label="Chintamani Gawade">
+    <div class="loader__roll" data-loader-roll>
+        <span>Services</span>
+        <span>Data</span>
+        <span>Interfaces</span>
+        <span>Platforms</span>
+        <span>At scale</span>
+        <span>Chintamani Gawade</span>
+    </div>
   </div>
 
   <div class="loader__foot">
     <span class="lbl loader__pct" data-loader-pct>000</span>
-    <span class="lbl loader__tag" data-loader-tag>fonts</span>
+    <span class="lbl" data-loader-tag>loading</span>
   </div>
-
-  <div class="loader__bar"><i></i></div>
 </div>
 
 <div class="curtain" aria-hidden="true">
@@ -196,10 +198,10 @@
         <span class="quote__pivot">is invariably found to have evolved from</span>
         <span class="quote__line quote__line--b">a simple system that worked</span>
 
-        <svg class="quote__signal" viewBox="0 0 1400 340" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="quote__signal" aria-hidden="true">
           <path id="sig-edges"></path>
           <g id="sig-nodes"></g>
-          <circle id="sig-seed" cx="1348" cy="170" r="13"></circle>
+          <circle id="sig-seed" r="9"></circle>
         </svg>
 
         <div class="quote__resolve">
@@ -215,46 +217,46 @@
   </section>
 
   <!-- ═══ game ═══════════════════════════════════════════════════════════ -->
-  <section class="game" id="limit" data-b-root>
+  <section class="game" id="limit" data-s-root>
     <div class="wrap game__grid">
       <div class="game__copy">
-        <p class="lbl" data-r>III &mdash; Hold the line</p>
+        <p class="lbl" data-r>III &mdash; Try it</p>
         <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem" data-r>
-          Shedding load is <em>a feature</em>.
+          You are <em>the server</em>.
         </h2>
         <p class="copy" data-r data-delay="0.06">
-          A token bucket in front of a backend that survives 240 requests a second. Every request
-          takes a token or gets turned away. You set how fast the bucket refills and how much
-          burst it can hold &mdash; then four traffic shapes each punish a different wrong answer.
+          Requests arrive. Click each one before its bar runs out. It speeds up, and it keeps
+          speeding up &mdash; at some point you will not be fast enough, and that is the part
+          worth feeling. <strong>Nothing here needs explaining first.</strong>
         </p>
 
-        <div class="dials" data-r data-delay="0.1">
-          <label class="dial">
-            <span class="dial__k">Refill <b data-b-rate>200</b> req/s</span>
-            <input type="range" min="40" max="500" step="10" value="200" data-b="rate" aria-label="Refill rate, requests per second">
-          </label>
-          <label class="dial">
-            <span class="dial__k">Burst capacity <b data-b-cap>120</b> tokens</span>
-            <input type="range" min="0" max="400" step="10" value="120" data-b="cap" aria-label="Burst capacity in tokens">
-          </label>
+        <div class="game__controls" data-r data-delay="0.12">
+          <button class="game__btn" type="button" data-s="start">Start</button>
         </div>
 
-        <div class="game__controls" data-r data-delay="0.14">
-          <button class="game__btn" type="button" data-b="run">Run it</button>
-          <button class="game__btn" type="button" data-b="next">Next shape</button>
+        <div class="game__helpers" data-s-helpers hidden>
+          <p class="lbl">What actually fixes it</p>
+          <div class="game__controls">
+            <button class="game__btn" type="button" data-s="cache" aria-pressed="false">Add a cache</button>
+            <button class="game__btn" type="button" data-s="replica" aria-pressed="false">Add a second machine</button>
+          </div>
+          <p class="copy game__note">
+            A cache answers the repeats before they reach you. A second machine takes a share of
+            the rest. Same load, same reflexes &mdash; different architecture.
+          </p>
         </div>
 
         <p class="lbl game__verdict" data-r data-delay="0.18">
-          <span data-b-verdict>Steady. Set the dials, then run it.</span>
+          <span data-s-verdict>Press start.</span>
         </p>
       </div>
 
       <div class="game__board" data-r data-delay="0.08">
-        <canvas aria-label="Arriving traffic against traffic served, with the backend ceiling marked."></canvas>
+        <canvas aria-label="Pending requests, each with a bar counting down until it is dropped."></canvas>
         <div class="game__hud">
-          <span>Shape <b data-b-scene>1/4</b></span>
-          <span>Served <b data-b-served>--</b></span>
-          <span>Overload <b data-b-over>0</b></span>
+          <span>Served <b data-s-served>0</b></span>
+          <span>Dropped <b data-s-dropped>0</b></span>
+          <span>Arriving <b data-s-rate>0.0/s</b></span>
         </div>
       </div>
     </div>
@@ -540,7 +542,7 @@
         <a class="btn" href="blog/" data-magnet="0.25">Read the archive <i>&rarr;</i></a>
       </div>
 
-      <svg class="hook hook--index" viewBox="0 0 640 74" role="img" aria-label="Three abstracted entries — a title rule over two shorter body rules each." data-r>
+      <svg class="hook hook--index" viewBox="0 0 640 62" role="img" aria-label="Three abstracted entries — a title rule over two shorter body rules each." data-r>
         <path class="hook__acc" d="M0 8 L150 8"/>
         <path class="hook__line" d="M0 22 L196 22M0 32 L120 32"/>
         <path class="hook__rule" d="M226 8 L358 8"/>
@@ -548,7 +550,6 @@
         <path class="hook__rule" d="M440 8 L556 8"/>
         <path class="hook__line" d="M440 22 L620 22M440 32 L528 32"/>
         <path class="hook__line" d="M0 58 L640 58"/>
-        <text class="hook__cap" x="0" y="72">MARKDOWN OR HTML — SAME READER</text>
       </svg>
 
       <div data-blogs="3"><p class="blogs__empty">Loading the index&hellip;</p></div>
@@ -649,7 +650,7 @@
 </script>
 <script src="assets/js/gl.js"></script>
 <script src="assets/js/core.js"></script>
-<script src="assets/js/bucket.js"></script>
+<script src="assets/js/serve.js"></script>
 <script src="assets/js/posts.js"></script>
 <script src="assets/js/home.js"></script>
 </body>

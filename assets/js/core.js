@@ -117,55 +117,59 @@
 
     if (lenis) lenis.stop();
 
-    var lines = loader.querySelectorAll('.loader__ln i');
+    var roll = loader.querySelector('[data-loader-roll]');
+    var slot = loader.querySelector('.loader__slot');
     var pct = loader.querySelector('[data-loader-pct]');
     var tag = loader.querySelector('[data-loader-tag]');
-    var bar = loader.querySelector('.loader__bar i');
-    var stage = loader.querySelector('.loader__stage');
+    var words = roll ? roll.children.length : 0;
     var count = { v: 0 };
 
-    /* What the bar is nominally waiting on, so the label is not decoration. */
-    var STAGES = [[0, 'fonts'], [34, 'plates'], [62, 'scenes'], [88, 'ready']];
+    var STAGES = [[0, 'loading'], [30, 'fonts'], [58, 'plates'], [84, 'ready']];
     var stageAt = -1;
 
-    // the two names swing up out of their masks, tipped back in z
-    gsap.set(lines, { yPercent: 116, rotateX: -62, transformOrigin: '50% 100% -40px' });
+    /* Step height comes from the rendered slot, not a guess, so the roll lands
+       on the last word whatever the type scale computes to. */
+    function stepPx() { return slot ? slot.getBoundingClientRect().height : 0; }
 
-    gsap.timeline({
+    var tl = gsap.timeline({
       onComplete: function () {
         loader.remove();
         document.documentElement.classList.remove('is-loading');
         if (lenis) { lenis.start(); lenis.scrollTo(0, { immediate: true }); }
         done();
       }
-    })
-      .to(lines, {
-        yPercent: 0, rotateX: 0,
-        duration: 1.15, ease: 'expo.out', stagger: 0.1
-      }, 0)
-      .to(count, {
-        v: 100,
-        duration: 1.5,
-        ease: 'power1.inOut',
-        onUpdate: function () {
-          var v = Math.round(count.v);
-          if (pct) pct.textContent = String(v).padStart(3, '0');
-          if (bar) bar.style.transform = 'scaleX(' + (v / 100) + ')';
+    });
 
-          for (var i = STAGES.length - 1; i >= 0; i--) {
-            if (v >= STAGES[i][0]) {
-              if (i !== stageAt && tag) { stageAt = i; tag.textContent = STAGES[i][1]; }
-              break;
-            }
+    if (roll && words > 1) {
+      gsap.set(roll, { y: 0 });
+      // fast at first, then it leans hard into the last word
+      tl.to(roll, {
+        y: function () { return -(words - 1) * stepPx(); },
+        duration: 1.6,
+        ease: 'power4.out'
+      }, 0);
+    }
+
+    tl.to(count, {
+      v: 100,
+      duration: 1.55,
+      ease: 'power1.inOut',
+      onUpdate: function () {
+        var v = Math.round(count.v);
+        if (pct) pct.textContent = String(v).padStart(3, '0');
+        for (var i = STAGES.length - 1; i >= 0; i--) {
+          if (v >= STAGES[i][0]) {
+            if (i !== stageAt && tag) { stageAt = i; tag.textContent = STAGES[i][1]; }
+            break;
           }
         }
-      }, 0)
-      // the whole plate pushes toward the viewer as it hands off
-      .to(stage, { scale: 1.09, opacity: 0, duration: 0.5, ease: 'power2.in' }, 1.28)
-      .set(p, { scaleY: 1, transformOrigin: '50% 100%' })
-      .to(loader, { autoAlpha: 0, duration: 0.25 })
-      .set(p, { transformOrigin: '50% 0%' })
-      .to(p, { scaleY: 0, duration: 0.85, ease: 'expo.inOut', stagger: 0.06 }, '<0.05');
+      }
+    }, 0)
+      // one decisive wipe rather than a row of panels
+      .to(loader, { yPercent: -100, duration: 0.85, ease: 'expo.inOut' }, 1.72)
+      // the curtain panels stay parked; they belong to page transitions, and
+      // the loader now clears itself in one move rather than handing over
+      .set(p, { scaleY: 0, transformOrigin: '50% 0%' });
   }
 
   /** Cover the screen, then navigate. Keeps page changes from cutting. */

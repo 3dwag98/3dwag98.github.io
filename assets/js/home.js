@@ -25,14 +25,14 @@
      declared here so the flip can be interpolated rather than switched. */
   var PALETTES = {
     dark: {
-      '--paper': '#0F1214', '--paper-2': '#171B1E', '--ink': '#E9EDEF',
-      '--ink-2': '#BAC3C7', '--mute': '#7C878C', '--line': 'rgba(233,237,239,0.15)',
-      '--accent': '#F2B33D', '--on-accent': '#0F1214'
+      '--paper': '#0A0B0A', '--paper-2': '#131614', '--ink': '#F4F6F2',
+      '--ink-2': '#C2C8BE', '--mute': '#858C80', '--line': 'rgba(244,246,242,0.15)',
+      '--accent': '#C6F24E', '--on-accent': '#0A0B0A'
     },
     light: {
-      '--paper': '#F1EFEA', '--paper-2': '#E5E2DA', '--ink': '#0F1214',
-      '--ink-2': '#3B4247', '--mute': '#666E72', '--line': 'rgba(15,18,20,0.15)',
-      '--accent': '#7F570A', '--on-accent': '#FAF8F3'
+      '--paper': '#F4F4EF', '--paper-2': '#E6E7DF', '--ink': '#0A0B0A',
+      '--ink-2': '#3A3E38', '--mute': '#5E6359', '--line': 'rgba(10,11,10,0.15)',
+      '--accent': '#4A6606', '--on-accent': '#F7F8F3'
     }
   };
 
@@ -68,9 +68,9 @@
     var read = function () {
       var t = window.CGTheme;
       return {
-        paper: t ? t.token('--paper', '#0F1214') : '#0F1214',
-        ink: t ? t.token('--ink', '#E9EDEF') : '#E9EDEF',
-        accent: t ? t.token('--accent', '#F2B33D') : '#F2B33D'
+        paper: t ? t.token('--paper', '#0A0B0A') : '#0A0B0A',
+        ink: t ? t.token('--ink', '#F4F6F2') : '#F4F6F2',
+        accent: t ? t.token('--accent', '#C6F24E') : '#C6F24E'
       };
     };
 
@@ -214,28 +214,39 @@
     var seed = el.querySelector('#sig-seed');
     var dots = [];
 
-    // One node on the right; to its left, the system it turned into. Columns
-    // get denser and the links cross more as they go — built right to left,
-    // the direction the sentence reads backwards through.
-    if (edges && nodes) {
-      var COLS = [
-        { x: 1355, n: 1 }, { x: 1180, n: 1 }, { x: 1010, n: 2 }, { x: 845, n: 3 },
-        { x: 670, n: 4 }, { x: 480, n: 6 }, { x: 265, n: 7 }, { x: 55, n: 9 }
-      ];
+    /* One node on the right; to its left, the system it turned into.
+       Laid out in the element's own pixels and re-laid on resize, rather than
+       drawn into a fixed viewBox and stretched to fit — a stretched box is
+       what turned the nodes into ellipses and pulled the whole figure thin. */
+    var svg = el.querySelector('.quote__signal');
+
+    function layout() {
+      if (!edges || !nodes || !svg) return;
+
+      var r = svg.getBoundingClientRect();
+      var W = Math.max(320, Math.round(r.width));
+      var H = Math.max(120, Math.round(r.height));
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+      // eight columns right to left, getting denser as they go
+      var SHAPE = [1, 1, 2, 3, 4, 6, 7, 9];
+      var m = Math.min(46, W * 0.035);              // margin at either end
+      var mid = H / 2;
 
       var rnd = (function (seedv) {
         return function () { seedv = (seedv * 16807) % 2147483647; return seedv / 2147483647; };
       })(20260819);
 
-      var grid = COLS.map(function (col, ci) {
+      var grid = SHAPE.map(function (n, ci) {
         var pts = [];
-        // fan out toward the left, but stay inside the 340-unit box
-        var spread = Math.min(150, 14 + (col.n - 1) * 22);
-        for (var i = 0; i < col.n; i++) {
-          var t = col.n === 1 ? 0.5 : i / (col.n - 1);
+        var x = W - m - (ci / (SHAPE.length - 1)) * (W - m * 2);
+        // spread scales with the box, so the figure keeps its proportions
+        var spread = Math.min(H * 0.42, H * 0.05 + (n - 1) * H * 0.062);
+        for (var i = 0; i < n; i++) {
+          var t = n === 1 ? 0.5 : i / (n - 1);
           pts.push({
-            x: col.x + (ci === 0 ? 0 : (rnd() - 0.5) * 46),
-            y: 170 + (t - 0.5) * spread * 2 + (rnd() - 0.5) * 20
+            x: x + (ci === 0 ? 0 : (rnd() - 0.5) * W * 0.032),
+            y: mid + (t - 0.5) * spread * 2 + (rnd() - 0.5) * H * 0.05
           });
         }
         return pts;
@@ -243,34 +254,55 @@
 
       var d = '';
       for (var c = 1; c < grid.length; c++) {
-        grid[c].forEach(function (p, i) {
+        grid[c].forEach(function (pt, i) {
           var prev = grid[c - 1];
-          var a = prev[Math.min(prev.length - 1, Math.floor(i * prev.length / grid[c].length))];
-          d += 'M' + a.x.toFixed(1) + ',' + a.y.toFixed(1) + ' L' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' ';
-          // a second, crossing link so the field reads as a network rather
-          // than a ladder
+          var q = prev[Math.min(prev.length - 1, Math.floor(i * prev.length / grid[c].length))];
+          d += 'M' + q.x.toFixed(1) + ',' + q.y.toFixed(1) + ' L' + pt.x.toFixed(1) + ',' + pt.y.toFixed(1) + ' ';
           if (prev.length > 1 && rnd() < 0.7) {
-            var b = prev[Math.floor(rnd() * prev.length)];
-            d += 'M' + b.x.toFixed(1) + ',' + b.y.toFixed(1) + ' L' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' ';
+            var q2 = prev[Math.floor(rnd() * prev.length)];
+            d += 'M' + q2.x.toFixed(1) + ',' + q2.y.toFixed(1) + ' L' + pt.x.toFixed(1) + ',' + pt.y.toFixed(1) + ' ';
           }
         });
       }
       edges.setAttribute('d', d.trim());
 
+      // nodes are real circles now, because nothing is being scaled
       var ns = 'http://www.w3.org/2000/svg';
+      nodes.textContent = '';
+      dots.length = 0;
+      var rBase = Math.max(3, Math.min(6.5, H * 0.026));
       grid.slice(1).forEach(function (col, ci) {
-        col.forEach(function (p) {
+        col.forEach(function (pt) {
           var c2 = document.createElementNS(ns, 'circle');
-          c2.setAttribute('cx', p.x.toFixed(1));
-          c2.setAttribute('cy', p.y.toFixed(1));
-          c2.setAttribute('r', (5.4 + ci * 0.75).toFixed(2));
+          c2.setAttribute('cx', pt.x.toFixed(1));
+          c2.setAttribute('cy', pt.y.toFixed(1));
+          c2.setAttribute('r', (rBase + ci * rBase * 0.13).toFixed(2));
           nodes.appendChild(c2);
           dots.push(c2);
         });
       });
+
+      if (seed) {
+        seed.setAttribute('cx', String(W - m));
+        seed.setAttribute('cy', String(mid));
+        seed.setAttribute('r', (rBase * 1.9).toFixed(2));
+      }
     }
 
-    if (!motion) { el.classList.add('night'); return; }
+    layout();
+
+    var lt = 0;
+    window.addEventListener('resize', function () {
+      clearTimeout(lt);
+      lt = setTimeout(function () {
+        layout();
+        if (edges) {
+          var l = edges.getTotalLength();
+          edges.style.strokeDasharray = l;
+        }
+        if (ST) ST.refresh();
+      }, 180);
+    });
 
     if (edges) {
       var len = edges.getTotalLength();

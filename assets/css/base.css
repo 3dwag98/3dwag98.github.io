@@ -49,14 +49,14 @@ a { color: inherit; text-decoration: none; }
 
 :root {
   /* dark is the default look */
-  --paper:   #0F1214;
-  --paper-2: #171B1E;
-  --ink:     #E9EDEF;
-  --ink-2:   #BAC3C7;
-  --mute:    #7C878C;
-  --line:    rgba(233, 237, 239, 0.15);
-  --accent:  #F2B33D;
-  --on-accent: #0F1214;
+  --paper:   #0A0B0A;
+  --paper-2: #131614;
+  --ink:     #F4F6F2;
+  --ink-2:   #C2C8BE;
+  --mute:    #858C80;
+  --line:    rgba(244, 246, 242, 0.15);
+  --accent:  #C6F24E;
+  --on-accent: #0A0B0A;
 
   color-scheme: dark;
 
@@ -79,7 +79,7 @@ a { color: inherit; text-decoration: none; }
   --lift-1: 0 1px 2px rgba(0, 0, 0, 0.34), 0 3px 10px rgba(0, 0, 0, 0.26);
   --lift-2: 0 2px 6px rgba(0, 0, 0, 0.38), 0 14px 38px rgba(0, 0, 0, 0.36);
   --lift-3: 0 6px 18px rgba(0, 0, 0, 0.42), 0 34px 78px rgba(0, 0, 0, 0.46);
-  --edge:   inset 0 0 0 1px rgba(233, 237, 239, 0.07);
+  --edge:   inset 0 0 0 1px rgba(244, 246, 242, 0.07);
 
   --pad: clamp(1.15rem, 4.5vw, 4.5rem);
   --max: 1600px;
@@ -88,20 +88,20 @@ a { color: inherit; text-decoration: none; }
 
 /* the alternate: bone paper, warm ink */
 :root[data-theme='light'] {
-  --paper:   #F1EFEA;
-  --paper-2: #E5E2DA;
-  --ink:     #0F1214;
-  --ink-2:   #3B4247;
-  --mute:    #666E72;
-  --line:    rgba(15, 18, 20, 0.15);
-  --accent:  #7F570A;
-  --on-accent: #FAF8F3;
+  --paper:   #F4F4EF;
+  --paper-2: #E6E7DF;
+  --ink:     #0A0B0A;
+  --ink-2:   #3A3E38;
+  --mute:    #5E6359;
+  --line:    rgba(10, 11, 10, 0.15);
+  --accent:  #4A6606;
+  --on-accent: #F7F8F3;
 
   /* bone paper takes a softer, warmer shadow than the graphite ground */
-  --lift-1: 0 1px 2px rgba(15, 18, 20, 0.10), 0 3px 10px rgba(15, 18, 20, 0.07);
-  --lift-2: 0 2px 6px rgba(15, 18, 20, 0.11), 0 14px 34px rgba(15, 18, 20, 0.11);
-  --lift-3: 0 6px 18px rgba(15, 18, 20, 0.13), 0 34px 70px rgba(15, 18, 20, 0.16);
-  --edge:   inset 0 0 0 1px rgba(15, 18, 20, 0.07);
+  --lift-1: 0 1px 2px rgba(10, 11, 10, 0.10), 0 3px 10px rgba(10, 11, 10, 0.07);
+  --lift-2: 0 2px 6px rgba(10, 11, 10, 0.11), 0 14px 34px rgba(10, 11, 10, 0.11);
+  --lift-3: 0 6px 18px rgba(10, 11, 10, 0.13), 0 34px 70px rgba(10, 11, 10, 0.16);
+  --edge:   inset 0 0 0 1px rgba(10, 11, 10, 0.07);
 
   color-scheme: light;
 }
@@ -109,25 +109,25 @@ a { color: inherit; text-decoration: none; }
 /* The quote passage inverts to whichever theme is not on. `.night` is the
    no-JS / reduced-motion equivalent of that flip. */
 .night {
-  --paper:   #F1EFEA;
-  --paper-2: #E5E2DA;
-  --ink:     #0F1214;
-  --ink-2:   #3B4247;
-  --mute:    #666E72;
-  --line:    rgba(15, 18, 20, 0.15);
-  --accent:  #7F570A;
-  --on-accent: #FAF8F3;
+  --paper:   #F4F4EF;
+  --paper-2: #E6E7DF;
+  --ink:     #0A0B0A;
+  --ink-2:   #3A3E38;
+  --mute:    #5E6359;
+  --line:    rgba(10, 11, 10, 0.15);
+  --accent:  #4A6606;
+  --on-accent: #F7F8F3;
 }
 
 :root[data-theme='light'] .night {
-  --paper:   #0F1214;
-  --paper-2: #171B1E;
-  --ink:     #E9EDEF;
-  --ink-2:   #BAC3C7;
-  --mute:    #7C878C;
-  --line:    rgba(233, 237, 239, 0.15);
-  --accent:  #F2B33D;
-  --on-accent: #0F1214;
+  --paper:   #0A0B0A;
+  --paper-2: #131614;
+  --ink:     #F4F6F2;
+  --ink-2:   #C2C8BE;
+  --mute:    #858C80;
+  --line:    rgba(244, 246, 242, 0.15);
+  --accent:  #C6F24E;
+  --on-accent: #0A0B0A;
 }
 
 /* ---------- base -------------------------------------------------------- */
@@ -444,43 +444,38 @@ html.js .curtain { display: grid; }
 html.js .loader {
   position: fixed; inset: 0; z-index: 9995;
   background: var(--paper); display: grid; place-items: center;
+  will-change: transform;
 }
 
-.loader__stage {
+/* The roll: the words go past fast, slow down, and stop on the name. One
+   slot, one column inside it, nothing but a transform moving. */
+.loader__slot {
   position: relative;
-  display: grid; place-items: center;
-  padding-inline: var(--pad);
-  perspective: 900px;
-}
-
-/* Display scale, and the two lines swing up out of their masks in 3D rather
-   than sliding flat — the same depth the card stack uses. */
-.loader__word {
+  height: 1.08em;
+  overflow: hidden;
   font-family: var(--serif);
   font-variation-settings: 'opsz' 144;
   font-weight: 800;
-  font-size: clamp(2.6rem, 12.5vw, 11rem);
-  line-height: 0.86;
-  letter-spacing: -0.042em;
+  font-size: clamp(1.6rem, 6.2vw, 6rem);
+  line-height: 1.08;
+  letter-spacing: -0.036em;
+  padding-inline: var(--pad);
   text-align: center;
-  transform-style: preserve-3d;
 }
 
-.loader__ln { display: block; overflow: hidden; padding-bottom: 0.08em; }
-.loader__ln i { display: block; font-style: normal; will-change: transform; }
-.loader__ln:last-child i { color: var(--accent); }
+.loader__roll { display: block; will-change: transform; }
+.loader__roll span { display: block; height: 1.08em; white-space: nowrap; }
+.loader__roll span:last-child { color: var(--accent); }
 
 .loader__foot {
   position: absolute; left: var(--pad); right: var(--pad);
-  bottom: clamp(2.4rem, 7vw, 4.2rem);
+  bottom: clamp(1.6rem, 5vw, 3rem);
   display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
   color: var(--mute);
 }
 
 .loader__pct { font-variant-numeric: tabular-nums; color: var(--accent); }
 
-.loader__bar { position: absolute; left: var(--pad); right: var(--pad); bottom: clamp(1.2rem, 4vw, 2.5rem); height: 1px; background: var(--line); }
-.loader__bar i { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: 0 50%; }
 
 /* ---------- entry row (home teaser + archive) --------------------------- */
 

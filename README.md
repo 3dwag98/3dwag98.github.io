@@ -21,7 +21,7 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        post.js        # reader: Markdown/HTML → prose
 │   │        gl.js          # the masthead's WebGL surface
 │   │        theme.js       # dark/light toggle + the cg:theme event
-│   │        bucket.js      # the rate-limiter game
+│   │        serve.js       # the you-are-the-server game
 │   │        favicon.js     # the animated tab mark
 │   ├── fonts/              # self-hosted woff2 — no external font request
 │   ├── plates/             # generated line-work, twelve plates
@@ -106,7 +106,7 @@ still image is not motion, and the alternative was a blank ground.
 | Position | `#about` | the paragraph lights word by word as it passes |
 | Strip | — | a wide plate carrying the eye into the quote |
 | Quote | `#quote` | **pinned**: the page inverts to the opposite theme, the two halves of Gall's law slide past each other, and one node accretes into the system it became |
-| Game | `#limit` | "Hold the line" — tune a token bucket so traffic is shed rather than an outage |
+| Game | `#limit` | "You are the server" — click requests before they time out, then see what actually fixes it |
 | Practice | `#work` | role cards stack — each sticks while the next slides over it, with a full plate alongside, alternating sides |
 | Design review | `#guide` | **pinned** crossfade through six questions above 900px; a plain vertical list below it |
 | Instruments | `#stack` | capability rows with a vermilion fill sweep on hover |
@@ -228,37 +228,38 @@ which otherwise widens the whole article to fit the diagram.
 
 ## The game
 
-`assets/js/bucket.js` runs "Hold the line" under the quote. A token bucket sits in front of a
-backend that survives 240 requests a second. Two dials — refill rate and burst capacity — and four
-traffic shapes, each punishing a different wrong answer. The chart draws arriving traffic, what was
-actually served, and the sustained second that the ceiling is judged against.
+`assets/js/serve.js` runs "You are the server" under the quote. Requests arrive as tiles with a
+bar counting down; click one before its bar empties or it is dropped. The arrival rate climbs the
+whole time, so at some point you cannot keep up — which is the entire argument, and it needs no
+vocabulary to land. Ten drops ends the round.
 
-Two things about the model are worth keeping in mind, because both were wrong first:
+Then the two things that actually fix it are offered: a cache that answers a share of the arrivals
+before they ever reach you, and a second machine working the queue oldest-first. Play again with
+either.
 
-- **Overload is sustained, not instantaneous.** A bucket exists to let bursts through, so the
-  momentary served rate sits above the refill rate by design. Judging the ceiling on it made every
-  burst an outage. It is measured over the last second instead.
-- **Capacity zero means "no burst allowance", not "serve nothing".** Capping tokens before they
-  can be spent starves the bucket completely. The step's refill has to be spendable as it lands,
-  with only the carry-over capped.
+The difficulty is balanced against a simulated player clicking every 340ms, not by eye. At that
+rate: no helpers drowns, a cache alone just holds, a second machine alone still drowns, and both
+together finish the round clean. That the cache does more than the extra machine is the honest
+result of the model, not a thumb on the scale — repeats are cheaper to not-serve than to serve
+twice.
 
-The pass target for each shape is calibrated against a measured sweep of the parameter space, not
-picked by eye — before that, three of the four shapes were unwinnable under every setting. Capacity
-earns its dial in both directions: with none you shed bursts you could have served, with too much
-you defeat the limiter and overload the backend.
-
-`data-b-root` goes on the **section**, not the board: the dials and buttons live in the copy column
-beside the canvas, and binding the delegated handler to the board alone silently loses every
-control. It repaints on `cg:theme`, and under reduced motion the round is computed in one step and
-drawn as a finished chart rather than played out.
+`data-s-root` goes on the **section**, not the board: the buttons live in the copy column beside
+the canvas. Reduced motion gets the same argument as a still bar chart instead of a timed game,
+with Start disabled.
 
 ## The loader
 
-The wordmark decodes rather than a number counting up: each slot cycles glyphs until its turn
-arrives and then locks, left to right, with the pulse motif above it. The slots are built once so
-the line cannot reflow while the glyphs churn. Reduced motion skips it entirely — and note that the
-early-return path must clear `is-loading` itself, or `overflow: hidden` stays on `<html>` and the
-page cannot scroll.
+A word roll: Services, Data, Interfaces, Platforms, At scale, and then the name, going past fast
+and leaning hard into the last one. The step height is read from the rendered slot rather than
+assumed, so the roll lands on the final word whatever the type scale computes to. The panel then
+wipes up in one move — the curtain panels stay parked, since they belong to page transitions.
+
+## The favicon
+
+`assets/js/favicon.js` draws a terminal prompt and a spinner cycling `-` `\` `|` `/` to a canvas
+and pushes it into `link[rel=icon]` as a PNG data URL, because Chromium renders SVG favicons but
+will not animate them. Two glyphs is about all that survives sixteen pixels. Paused while the tab
+is hidden, follows the theme, one still frame under reduced motion.
 
 ## Plates
 

@@ -1,8 +1,7 @@
 /* ============================================================================
    favicon.js — the tab mark, animated.
 
-   A pulse leaving the node: the same "one node becomes a system" figure the
-   quote and the section hooks use, at 16 pixels.
+   ASCII: a terminal prompt with a spinner turning next to it.
 
    Drawn to a canvas and pushed into the existing <link rel="icon"> as a data
    URL, because SVG favicons do not animate in Chromium — a canvas swap is the
@@ -33,30 +32,33 @@
     return (window.CGTheme && window.CGTheme.token(name, fallback)) || fallback;
   }
 
-  /** One frame. `p` runs 0 → 1 and wraps; the ring rides it outward. */
+  /* A terminal prompt: a chevron, and a spinner cycling the four characters
+     everyone has watched a build run behind. Two glyphs is all that survives
+     being drawn at sixteen pixels. */
+  var SPIN = ['-', '\\', '|', '/'];
+
+  /** One frame. `p` runs 0 → 1 and wraps; the spinner steps through it. */
   function draw(p) {
-    var paper = token('--paper', '#0F1214');
-    var accent = token('--accent', '#F2B33D');
-    var mid = S / 2;
+    var paper = token('--paper', '#0A0B0A');
+    var accent = token('--accent', '#C6F24E');
+    var mute = token('--mute', '#858C80');
 
     cx.clearRect(0, 0, S, S);
     cx.fillStyle = paper;
     cx.fillRect(0, 0, S, S);
 
-    // the pulse on its way out, thinning and fading as it goes
-    cx.strokeStyle = accent;
-    cx.globalAlpha = 0.75 * (1 - p);
-    cx.lineWidth = 6 * (1 - p) + 2;
-    cx.beginPath();
-    cx.arc(mid, mid, 11 + p * 20, 0, Math.PI * 2);
-    cx.stroke();
+    cx.font = 'bold ' + Math.round(S * 0.52) + 'px ui-monospace, SFMono-Regular, Menlo, monospace';
+    cx.textBaseline = 'middle';
 
-    // the node itself, always solid
-    cx.globalAlpha = 1;
+    // the prompt, held
+    cx.fillStyle = mute;
+    cx.textAlign = 'right';
+    cx.fillText('>', S * 0.52, S * 0.54);
+
+    // the spinner, turning
     cx.fillStyle = accent;
-    cx.beginPath();
-    cx.arc(mid, mid, 11, 0, Math.PI * 2);
-    cx.fill();
+    cx.textAlign = 'left';
+    cx.fillText(SPIN[Math.floor(p * SPIN.length) % SPIN.length], S * 0.56, S * 0.54);
 
     try {
       link.href = cv.toDataURL('image/png');
@@ -77,7 +79,7 @@
     if (!start) start = now;
     if (now - last >= 1000 / FPS) {
       last = now;
-      draw(((now - start) / 1900) % 1);   // one pulse every 1.9s
+      draw(((now - start) / 900) % 1);    // a full turn every 0.9s
     }
     timer = window.requestAnimationFrame(tick);
   }

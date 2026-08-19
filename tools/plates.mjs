@@ -20,7 +20,7 @@ mkdirSync(OUT, { recursive: true });
 
 /* One set, drawn on the dark ground, used by both themes — on the light page
    the plates read as prints rather than as part of the background. */
-const PALETTE = { paper: '#0F1214', ink: '#E4E9EB', accent: '#F2B33D' };
+const PALETTE = { paper: '#0A0B0A', ink: '#EAEFE4', accent: '#C6F24E' };
 
 /* name, width, height, seed */
 const PLATES = [
