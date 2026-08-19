@@ -2,6 +2,20 @@
   "$comment": "Index of every entry. Regenerate with: node tools/build-index.mjs",
   "posts": [
     {
+      "slug": "four-banks",
+      "title": "Seven years, four banks — the long version",
+      "date": "2026-08-19",
+      "summary": "The portfolio gives each role one line. This is the detail behind those lines — what the systems actually were, and what each one taught me.",
+      "tags": [
+        "platform-engineering",
+        "full-stack",
+        "spring-boot",
+        "kubernetes"
+      ],
+      "format": "md",
+      "readingTime": "5 min read"
+    },
+    {
       "slug": "tracing-a-slow-page",
       "title": "Where a slow page actually comes from",
       "date": "2026-08-14",

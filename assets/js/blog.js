@@ -56,7 +56,7 @@
 
     list.innerHTML = shown.length
       ? shown.map(window.CGPosts.rowHTML).join('')
-      : '<p class="logs__empty">Nothing matches <b>' + esc(state.q || state.tag) + '</b>. Clear the filter to see everything.</p>';
+      : '<p class="blogs__empty">Nothing matches <b>' + esc(state.q || state.tag) + '</b>. Clear the filter to see everything.</p>';
 
     if (shown.length && CG.reveal) CG.reveal(list);
     if (countEl) countEl.textContent = String(shown.length).padStart(2, '0');
@@ -84,13 +84,13 @@
     .then(function (posts) {
       state.all = posts;
       if (!posts.length) {
-        list.innerHTML = '<p class="logs__empty">The archive is empty. First entry pending.</p>';
+        list.innerHTML = '<p class="blogs__empty">The archive is empty. First entry pending.</p>';
         return;
       }
       render();
     })
     .catch(function (err) {
-      list.innerHTML = '<p class="logs__empty">Could not read <b>posts.json</b> — ' + esc(err.message) +
+      list.innerHTML = '<p class="blogs__empty">Could not read <b>posts.json</b> — ' + esc(err.message) +
         '. If you opened this file directly, serve the folder over HTTP instead.</p>';
     });
 })();

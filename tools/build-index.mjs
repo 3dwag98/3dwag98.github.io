@@ -21,8 +21,8 @@ const MANIFEST = join(ROOT, 'blog', 'posts.json');
 
 const SITE = {
   url: 'https://3dwag98.github.io',
-  title: 'Notes — Chintamani Gawade',
-  description: 'Working notes on building software at scale.',
+  title: 'Blogs — Chintamani Gawade',
+  description: 'Blogs on building software at scale.',
   author: 'Chintamani Gawade'
 };
 

@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23EFEAE1'/><circle cx='50' cy='50' r='25' fill='%23E4441A'/></svg>">
-<link rel="alternate" type="application/rss+xml" title="Notes — Chintamani Gawade" href="/feed.xml">
+<link rel="alternate" type="application/rss+xml" title="Blogs — Chintamani Gawade" href="/feed.xml">
 
 <link rel="preload" href="assets/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
@@ -61,7 +61,7 @@
     <a href="#quote" class="nav__sm">Principle</a>
     <a href="#work">Practice</a>
     <a href="#guide" class="nav__sm">Field guide</a>
-    <a href="blog/">Notes</a>
+    <a href="blog/">Blogs</a>
     <a href="#contact">Contact</a>
     <button class="theme-btn" type="button" data-theme-toggle aria-label="Switch to light">
       <svg class="moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M13.5 9.6A6 6 0 1 1 6.4 2.5a4.8 4.8 0 0 0 7.1 7.1Z"/></svg>
@@ -112,6 +112,21 @@
     <div class="wrap stmt__grid">
       <aside class="stmt__aside" data-r>
         <p class="lbl">I &mdash; Position</p>
+
+        <svg class="hook hook--layers" viewBox="0 0 214 140" role="img" aria-label="Four stacked layers — interface, services, data, platform — with a single thread running through all of them.">
+          <rect class="hook__fill" x="0" y="6" width="150" height="24"/><text class="hook__cap" x="9" y="21">INTERFACE</text>
+          <rect class="hook__fill" x="0" y="40" width="150" height="24"/><text class="hook__cap" x="9" y="55">SERVICES</text>
+          <rect class="hook__fill" x="0" y="74" width="150" height="24"/><text class="hook__cap" x="9" y="89">DATA</text>
+          <rect class="hook__fill" x="0" y="108" width="150" height="24"/><text class="hook__cap" x="9" y="123">PLATFORM</text>
+          <path class="hook__rule" d="M150 18 L168 18M150 52 L168 52M150 86 L168 86M150 120 L168 120"/>
+          <path class="hook__acc" d="M172 12 L172 126"/>
+          <circle class="hook__dot--acc" cx="172" cy="18" r="3.2"/>
+          <circle class="hook__dot--acc" cx="172" cy="52" r="3.2"/>
+          <circle class="hook__dot--acc" cx="172" cy="86" r="3.2"/>
+          <circle class="hook__dot--acc" cx="172" cy="120" r="3.2"/>
+          <text class="hook__cap hook__cap--acc" x="184" y="72">ONE</text>
+        </svg>
+
         <dl>
           <dt class="lbl">Role</dt><dd>Full stack engineer</dd>
           <dt class="lbl">Field</dt><dd>Investment banking</dd>
@@ -123,23 +138,13 @@
       <div class="stmt__body">
         <p class="stmt__big" data-words>
           I build things that have to work at <em>scale</em> — and I build the whole of them.
-          The service, the schema, the pipeline moving data between them, and the interface
-          somebody actually uses. Owning the full path is what makes the design honest.
+          Service, schema, pipeline, and the interface somebody actually uses.
         </p>
 
         <div class="stmt__note">
           <p class="copy" data-r>
-            Seven years across four banks, most of it spent on platforms other teams build on.
-            Spring Boot and Python services, Kafka through the middle, Postgres and Redis holding
-            state, Kubernetes underneath, Angular and React where the work meets a person. The
-            common thread is scale: designs that keep their shape as load, teams and scope grow.
-          </p>
-          <p class="copy" data-r data-delay="0.08">
-            I like problems that span layers, because that is where the good decisions live. A
-            slow page is sometimes a frontend problem and sometimes a missing index; a flaky
-            workflow is sometimes a bug and sometimes a design that never said what it would do
-            under load. <strong>Being able to follow the thread the whole way</strong> is most of
-            the job.
+            Seven years, four banks, most of it on platforms other teams build on. The thread is
+            scale: <strong>designs that keep their shape</strong> as load, teams and scope grow.
           </p>
         </div>
       </div>
@@ -197,13 +202,9 @@
           Everything is red. <em>Only one of them is guilty.</em>
         </h2>
         <p class="copy" data-r data-delay="0.06">
-          One service in this graph has gone slow. Every service above it on the call path looks
-          slow too &mdash; not because anything is wrong with them, but because they are sitting
-          there waiting. That is why a dashboard full of red is a symptom, not an answer.
-        </p>
-        <p class="copy" data-r data-delay="0.1">
-          The numbers on the boxes are totals, which is what a dashboard would show you.
-          <strong>Click the service that is actually spending the time.</strong>
+          One service here has gone slow. Everything above it on the call path looks slow too
+          &mdash; those are just waiting. The numbers are totals, like a dashboard would show.
+          <strong>Click the one actually spending the time.</strong>
         </p>
 
         <div class="game__controls" data-r data-delay="0.14">
@@ -232,9 +233,11 @@
     <div class="wrap work__head">
       <p class="lbl" data-r>IV &mdash; Practice</p>
       <h2 class="dsp" style="font-size:var(--t-hero)" data-lines>Built, shipped,<br><em>still running</em></h2>
+      <p class="work__more" data-r data-delay="0.08">
+        One claim each. <a href="blog/post.html?p=four-banks" data-cur="read">The long version &rarr;</a>
+      </p>
     </div>
 
-    <!-- 01 -->
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
@@ -251,29 +254,14 @@
 
           <p class="role__title">SDE 2 &mdash; core trading platforms, <em>Asset Management</em></p>
 
-          <div class="role__cols">
-            <div class="role__blk">
-              <h4>What I build</h4>
-              <p>
-                Core trading platforms for Asset Management: the services that carry the flow, the
-                data model underneath them, and the screens the desk works in. Scalable, resilient
-                and fast, engineered to stay that way as volume grows.
-              </p>
-            </div>
-            <div class="role__blk">
-              <h4>The scale of it</h4>
-              <p>
-                Modernization on a platform that cannot stop trading. The craft is delivering real
-                capability every quarter while the system underneath is replaced piece by piece,
-                and making the swap <em>invisible</em> to the people using it.
-              </p>
-            </div>
-          </div>
+          <p class="role__claim" data-lines>Modernizing a platform that <em>cannot stop trading</em>.</p>
+          <p class="role__line">Services, data model and the screens the desk works in, replaced piece by piece &mdash; the swap invisible to the people using it.</p>
+
+          <ul class="role__tags"><li>Java</li><li>Spring Boot</li><li>Asset Management</li><li>Trading platforms</li></ul>
         </div>
       </div>
     </article>
 
-    <!-- 02 -->
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
@@ -289,56 +277,14 @@
 
           <p class="role__title">Software Engineer BA4 &mdash; platform engineering, <em>end to end</em></p>
 
-          <div class="role__cols">
-            <div class="role__blk">
-              <h4>A control plane for the whole estate</h4>
-              <p>
-                Global job scheduling ran through legacy command-line tools that could not grow.
-                I designed and built its replacement: a highly available Spring Boot service
-                behind one REST API, with a multi-constraint authorization layer over a
-                <strong>Redis cache-aside</strong> pattern and circuit breakers holding the
-                edges.
-              </p>
-              <p>
-                It went from a handful of operators to being the way an entire estate is
-                scheduled &mdash; which is the only test of an interface that matters.
-              </p>
-            </div>
+          <p class="role__claim" data-lines>One API replaced the tools that scheduled an <em>entire estate</em>.</p>
+          <p class="role__line">Highly available Spring Boot, a Redis cache-aside authorization layer, breakers on the edges &mdash; from a handful of operators to the way everything is scheduled.</p>
 
-            <div class="role__blk">
-              <h4>Moving events at volume</h4>
-              <p>
-                An enrichment and preprocessing engine in Python and Nginx with dynamic,
-                schema-driven routing, built to take enterprise alert traffic and place each event
-                where it belongs the moment it arrives rather than several hops later.
-              </p>
-            </div>
-
-            <div class="role__blk">
-              <h4>Products, not scripts</h4>
-              <p>
-                Credential rotation, maintenance suppression and resource onboarding were manual
-                rituals. Each became a product with a front end and an API: Vault-driven restarts
-                across OpenShift, maintenance-aware suppression, and an Angular and Django
-                onboarding platform wired into ServiceNow over events.
-              </p>
-            </div>
-
-            <div class="role__blk">
-              <h4>What four years taught me</h4>
-              <p>
-                Building for other engineers is its own discipline. <em>The interface is the
-                product</em> &mdash; a clear API with honest semantics carries more weight than
-                any amount of internal cleverness, and it is what lets a platform keep growing
-                after you stop touching it.
-              </p>
-            </div>
-          </div>
+          <ul class="role__tags"><li>Spring Boot</li><li>Redis</li><li>Kafka</li><li>Python</li><li>OpenShift</li><li>Vault</li><li>Angular</li></ul>
         </div>
       </div>
     </article>
 
-    <!-- 03 -->
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
@@ -354,29 +300,14 @@
 
           <p class="role__title">DevOps Engineer &mdash; delivery, containers, <em>configuration as code</em></p>
 
-          <div class="role__cols">
-            <div class="role__blk">
-              <h4>Making room to grow</h4>
-              <p>
-                Moved deployments onto Kubernetes and OpenShift and gave them room to scale
-                horizontally through peak volume, instead of scaling by hand at the worst possible
-                hour.
-              </p>
-            </div>
-            <div class="role__blk">
-              <h4>Delivery as a product</h4>
-              <p>
-                Standardized environments in Ansible, wrote collections that took secret handling
-                out of human hands, and moved quality and security gates into the pipeline ahead
-                of review. Shipping became something the team could do on any given afternoon.
-              </p>
-            </div>
-          </div>
+          <p class="role__claim" data-lines>Deployment stopped being an <em>event</em>.</p>
+          <p class="role__line">Kubernetes and OpenShift with room to scale through peak, environments in Ansible, secrets out of human hands.</p>
+
+          <ul class="role__tags"><li>Kubernetes</li><li>OpenShift</li><li>Ansible</li><li>Jenkins</li><li>Terraform</li></ul>
         </div>
       </div>
     </article>
 
-    <!-- 04 -->
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
@@ -392,25 +323,10 @@
 
           <p class="role__title">Senior Analyst &mdash; where the <em>full stack habit</em> started</p>
 
-          <div class="role__cols">
-            <div class="role__blk">
-              <h4>Both ends of the wire</h4>
-              <p>
-                RESTful services in Django and Flask, the case for splitting a monolith into
-                pieces that could be deployed separately, and the React and Angular front ends
-                that consumed them &mdash; usually written by the same person, which is where the
-                habit comes from.
-              </p>
-            </div>
-            <div class="role__blk">
-              <h4>The lesson</h4>
-              <p>
-                A backend nobody can see is a backend nobody can fix. Building the dashboards as
-                well as the services taught me to design the API around the thing someone
-                eventually has to look at.
-              </p>
-            </div>
-          </div>
+          <p class="role__claim" data-lines>Both ends of the wire, usually the <em>same afternoon</em>.</p>
+          <p class="role__line">Django and Flask services with the React and Angular front ends that consumed them, written by the same person.</p>
+
+          <ul class="role__tags"><li>Django</li><li>Flask</li><li>React</li><li>Angular</li><li>REST</li></ul>
         </div>
       </div>
     </article>
@@ -435,7 +351,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">i</span>
             <h3 class="guide__name">Flow</h3>
-            <p class="guide__note">Traffic never arrives evenly. The shape it takes through a system is the first thing worth drawing, and usually the last thing anyone draws.</p>
+            <p class="guide__note">Traffic never arrives evenly. The shape it takes is the first thing worth drawing.</p>
           </figcaption>
         </figure>
 
@@ -446,7 +362,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">ii</span>
             <h3 class="guide__name">Backpressure</h3>
-            <p class="guide__note">A queue that grows is a system telling you it cannot keep up. The answer is almost always upstream, not another consumer.</p>
+            <p class="guide__note">A growing queue is a system saying it cannot keep up. The answer is upstream.</p>
           </figcaption>
         </figure>
 
@@ -457,7 +373,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">iii</span>
             <h3 class="guide__name">Partition</h3>
-            <p class="guide__note">The network will split. What matters is what each side believes while it lasts, and which of them is allowed to be wrong.</p>
+            <p class="guide__note">The network will split. What matters is which side is allowed to be wrong.</p>
           </figcaption>
         </figure>
 
@@ -468,7 +384,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">iv</span>
             <h3 class="guide__name">Retry storm</h3>
-            <p class="guide__note">Retries without ceilings turn a slow dependency into an outage. Jitter, budgets, and a breaker that counts slow calls as failures.</p>
+            <p class="guide__note">Retries without ceilings turn a slow dependency into an outage. Jitter, budgets, breakers.</p>
           </figcaption>
         </figure>
 
@@ -479,7 +395,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">v</span>
             <h3 class="guide__name">Consensus</h3>
-            <p class="guide__note">Agreement is expensive. Spend it only where being wrong is worse than being slow, and be honest about which one you are choosing.</p>
+            <p class="guide__note">Agreement is expensive. Spend it only where being wrong beats being slow.</p>
           </figcaption>
         </figure>
 
@@ -490,7 +406,7 @@
           <figcaption class="guide__cap">
             <span class="guide__no">vi</span>
             <h3 class="guide__name">Decay</h3>
-            <p class="guide__note">Nothing holds its shape unattended. Certificates, dashboards, runbooks, the diagram on the wall — all of it drifts from the thing it describes.</p>
+            <p class="guide__note">Nothing holds its shape unattended. Runbooks and diagrams drift from what they describe.</p>
           </figcaption>
         </figure>
       </div>
@@ -501,12 +417,24 @@
   <section class="inst" id="stack">
     <div class="wrap">
       <p class="lbl" data-r>VI &mdash; The stack</p>
-      <h2 class="dsp" style="font-size:var(--t-hero);margin-bottom:1rem" data-lines>Top of the page<br><em>to the disk</em></h2>
+      <h2 class="dsp" style="font-size:var(--t-hero);margin-bottom:1rem" data-chars>Top of the page<br><em>to the disk</em></h2>
       <p class="copy inst__intro" data-r>
-        Ordered the way a request travels, because that is the order I think in. I have shipped
-        production work at every one of these layers, and the interesting problems have almost
-        always been at the seams between two of them.
+        Ordered the way a request travels. The interesting problems live at the
+        <em>seams between two layers</em>.
       </p>
+
+      <svg class="hook hook--path" viewBox="0 0 640 58" role="img" aria-label="A request travelling through six layers, from the top of the page down to the disk." data-r>
+        <path class="hook__rule" d="M8 26 L632 26"/>
+        <path class="hook__acc" id="inst-path" d="M8 26 L632 26"/>
+        <circle class="hook__dot--acc" cx="8" cy="26" r="4.5"/>
+        <circle class="hook__dot" cx="132" cy="26" r="3.5"/>
+        <circle class="hook__dot" cx="257" cy="26" r="3.5"/>
+        <circle class="hook__dot" cx="382" cy="26" r="3.5"/>
+        <circle class="hook__dot" cx="507" cy="26" r="3.5"/>
+        <circle class="hook__dot--acc" cx="632" cy="26" r="4.5"/>
+        <text class="hook__cap hook__cap--acc" x="8" y="50">TOP OF THE PAGE</text>
+        <text class="hook__cap hook__cap--acc" x="632" y="50" text-anchor="end">THE DISK</text>
+      </svg>
 
       <div class="inst__row" data-r>
         <span class="inst__no">01</span>
@@ -564,18 +492,29 @@
     </div>
   </section>
 
-  <!-- ═══ logs ═══════════════════════════════════════════════════════════ -->
-  <section class="logs" id="logs">
+  <!-- ═══ blogs ═══════════════════════════════════════════════════════════ -->
+  <section class="blogs" id="blogs">
     <div class="wrap">
-      <div class="logs__head">
+      <div class="blogs__head">
         <div>
           <p class="lbl" data-r>VII &mdash; Writing</p>
-          <h2 class="dsp" style="font-size:var(--t-hero)" data-lines>Notes on<br><em>building things</em></h2>
+          <h2 class="dsp" style="font-size:var(--t-hero)" data-chars>Blogs on<br><em>building things</em></h2>
         </div>
         <a class="btn" href="blog/" data-magnet="0.25">Read the archive <i>&rarr;</i></a>
       </div>
 
-      <div data-logs="3"><p class="logs__empty">Loading the index&hellip;</p></div>
+      <svg class="hook hook--index" viewBox="0 0 640 74" role="img" aria-label="Three abstracted entries — a title rule over two shorter body rules each." data-r>
+        <path class="hook__acc" d="M0 8 L150 8"/>
+        <path class="hook__line" d="M0 22 L196 22M0 32 L120 32"/>
+        <path class="hook__rule" d="M226 8 L358 8"/>
+        <path class="hook__line" d="M226 22 L410 22M226 32 L332 32"/>
+        <path class="hook__rule" d="M440 8 L556 8"/>
+        <path class="hook__line" d="M440 22 L620 22M440 32 L528 32"/>
+        <path class="hook__line" d="M0 58 L640 58"/>
+        <text class="hook__cap" x="0" y="72">MARKDOWN OR HTML — SAME READER</text>
+      </svg>
+
+      <div data-blogs="3"><p class="blogs__empty">Loading the index&hellip;</p></div>
     </div>
   </section>
 </main>
@@ -588,6 +527,13 @@
     <a class="foot__mail" href="mailto:gawdechintamani@gmail.com" data-cur="write" data-magnet="0.1" data-lines>
       gawdechintamani<br><span class="it">@gmail.com</span>
     </a>
+
+    <svg class="hook hook--end" viewBox="0 0 640 34" role="img" aria-label="A long line resolving into a single accent node." data-r>
+      <path class="hook__rule" d="M0 17 L520 17"/>
+      <path class="hook__acc" d="M520 17 L612 17"/>
+      <circle class="hook__dot--acc" cx="620" cy="17" r="6"/>
+      <text class="hook__cap hook__cap--acc" x="0" y="10">END OF THE LINE</text>
+    </svg>
 
     <div class="foot__grid">
       <div class="foot__col">
@@ -617,7 +563,7 @@
         <ul>
           <li><a href="#work">Practice</a></li>
           <li><a href="#guide">Field guide</a></li>
-          <li><a href="blog/">Notes</a></li>
+          <li><a href="blog/">Blogs</a></li>
         </ul>
       </div>
     </div>
@@ -645,10 +591,24 @@
 </script>
 
 <script src="assets/js/theme.js"></script>
-<script src="assets/vendor/gsap.min.js"></script>
-<script src="assets/vendor/ScrollTrigger.min.js"></script>
-<script src="assets/vendor/SplitText.min.js"></script>
-<script src="assets/vendor/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" integrity="sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js" integrity="sha384-wl5TeDVvOWt30Pbf8aSo2ZrzsOjddu3avOBvHe+p+OhJt9gP6w9YXmDkN5DK2/dF" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js" integrity="sha384-SWJ0lLVRoipvHh59xj0pL7uC7Ih51F+5smaFtrG+2nr+TlDZU5SYJHmxfolbeNTr" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js" integrity="sha384-jqpi9VmOdhyLoLURgjCn7EpnG9BbnHW57ibIZoeaIU+erWDH3k8fQQg0xH2ySjnw" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  /* CDN blocked, offline, or a bad hash? Fall back to the copies committed
+     in assets/vendor. document.write preserves the parse order these
+     libraries depend on, and the fallback is same-origin, so Chrome's
+     document.write intervention does not apply to it. */
+  (function () {
+    var need = [["gsap","gsap.min.js"],["ScrollTrigger","ScrollTrigger.min.js"],["SplitText","SplitText.min.js"],["Lenis","lenis.min.js"]];
+    for (var i = 0; i < need.length; i++) {
+      if (!window[need[i][0]]) {
+        document.write('<script src="assets/vendor/' + need[i][1] + '"><\/script>');
+      }
+    }
+  })();
+</script>
 <script src="assets/js/gl.js"></script>
 <script src="assets/js/core.js"></script>
 <script src="assets/js/trace.js"></script>

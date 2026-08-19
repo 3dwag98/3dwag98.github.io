@@ -7,7 +7,7 @@
 .arch-hero { padding-block: clamp(8rem, 24vh, 15rem) clamp(2rem, 5vw, 3.5rem); }
 
 .arch-hero__title { font-size: var(--t-hero); }
-.arch-hero__title .ln:last-child { margin-left: clamp(0px, 7vw, 7rem); }
+.arch-hero__title .ln__i-mask:last-child { margin-left: clamp(0px, 7vw, 7rem); }
 
 .arch-hero__row { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: end; margin-top: clamp(2rem, 5vw, 3.5rem); }
 @media (min-width: 900px) { .arch-hero__row { grid-template-columns: 1.2fr 0.8fr; gap: 4rem; } }
@@ -33,8 +33,8 @@
 
 .arch-list { padding-bottom: clamp(4rem, 12vh, 8rem); }
 
-.logs__empty { padding-block: 2.5rem; border-top: 1px solid var(--line); color: var(--mute); }
-.logs__empty b { color: var(--ink); font-weight: 500; }
+.blogs__empty { padding-block: 2.5rem; border-top: 1px solid var(--line); color: var(--mute); }
+.blogs__empty b { color: var(--ink); font-weight: 500; }
 
 /* ── article ───────────────────────────────────────────────────────────── */
 
