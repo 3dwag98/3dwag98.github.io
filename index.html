@@ -7,7 +7,7 @@
 
 <meta name="description" content="Full stack engineer building engineering solutions at scale — services, data pipelines and the interfaces on top of them, for platforms teams depend on. SDE 2 at JPMorgan Chase &amp; Co.">
 <meta name="author" content="Chintamani Gawade">
-<meta name="theme-color" content="#14120F">
+<meta name="theme-color" content="#0F1214">
 <link rel="canonical" href="https://3dwag98.github.io/">
 
 <meta property="og:type" content="website">
@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://3dwag98.github.io/assets/plates/flow.jpg">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23EFEAE1'/><circle cx='50' cy='50' r='25' fill='%23E4441A'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23F1EFEA'/><circle cx='50' cy='50' r='25' fill='%237F570A'/></svg>">
 <link rel="alternate" type="application/rss+xml" title="Blogs — Chintamani Gawade" href="/feed.xml">
 
 <link rel="preload" href="assets/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,14 +45,17 @@
 
 <div class="loader">
   <div class="loader__stage">
-    <svg class="loader__pulse" viewBox="0 0 220 220" aria-hidden="true">
-      <circle class="loader__ring" cx="110" cy="110" r="34"/>
-      <circle class="loader__ring loader__ring--b" cx="110" cy="110" r="34"/>
-      <circle class="loader__node" cx="110" cy="110" r="10"/>
-    </svg>
-    <p class="loader__word" data-loader-word aria-label="Chintamani Gawade">CHINTAMANI GAWADE</p>
-    <p class="lbl loader__meta"><span data-loader-pct>000</span> &middot; assembling</p>
+    <p class="loader__word" data-loader-word aria-label="Chintamani Gawade">
+      <span class="loader__ln"><i>Chintamani</i></span>
+      <span class="loader__ln"><i>Gawade</i></span>
+    </p>
   </div>
+
+  <div class="loader__foot">
+    <span class="lbl loader__pct" data-loader-pct>000</span>
+    <span class="lbl loader__tag" data-loader-tag>fonts</span>
+  </div>
+
   <div class="loader__bar"><i></i></div>
 </div>
 
@@ -172,7 +175,7 @@
   <!-- ═══ strip ══════════════════════════════════════════════════════════ -->
   <figure class="strip">
     <div class="plate plate--reveal" data-parallax>
-      <img src="assets/plates/backpressure.jpg" alt="Generated plate: turbulence settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
+      <img src="assets/plates/latency.jpg" alt="Generated plate: stacked density bands with one long tail" width="1100" height="1375" loading="lazy" decoding="async">
     </div>
     <figcaption>
       <span class="lbl">Backpressure &mdash; plate ii</span>
@@ -193,10 +196,10 @@
         <span class="quote__pivot">is invariably found to have evolved from</span>
         <span class="quote__line quote__line--b">a simple system that worked</span>
 
-        <svg class="quote__signal" viewBox="0 0 1400 240" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="quote__signal" viewBox="0 0 1400 340" preserveAspectRatio="none" aria-hidden="true">
           <path id="sig-edges"></path>
           <g id="sig-nodes"></g>
-          <circle id="sig-seed" cx="1352" cy="120" r="8"></circle>
+          <circle id="sig-seed" cx="1348" cy="170" r="13"></circle>
         </svg>
 
         <div class="quote__resolve">
@@ -295,7 +298,7 @@
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/partition.jpg" alt="Generated plate: a field of marks split by a fault line" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/mesh.jpg" alt="Generated plate: a structured grid pulled out of true along one seam" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -319,7 +322,7 @@
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/storm.jpg" alt="Generated plate: overlapping concentric bursts" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/cascade.jpg" alt="Generated plate: one branch failing outward into many" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -343,7 +346,7 @@
     <article class="role">
       <div class="wrap role__grid">
         <figure class="plate plate--reveal role__media" data-parallax>
-          <img src="assets/plates/decay.jpg" alt="Generated plate: an ordered grid dissolving into scattered marks" width="1100" height="1375" loading="lazy" decoding="async">
+          <img src="assets/plates/drift.jpg" alt="Generated plate: contours pulling away from where they started" width="1100" height="1375" loading="lazy" decoding="async">
         </figure>
 
         <div>
@@ -365,13 +368,13 @@
     </article>
   </section>
 
-  <!-- ═══ guide ══════════════════════════════════════════════════════════ -->
+  <!-- ═══ guide ═══════════════════════════════════════════════════════════ -->
   <section class="guide" id="guide">
     <div class="guide__pin">
       <div class="guide__head">
         <div>
-          <p class="lbl">V &mdash; A field guide to scale</p>
-          <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem">Six things that shape<br>what I build</h2>
+          <p class="lbl">V &mdash; Design review</p>
+          <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem">The questions that<br>change a design</h2>
         </div>
         <p class="lbl">Keep scrolling</p>
       </div>
@@ -379,23 +382,12 @@
       <div class="guide__stack">
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/flow.jpg" alt="Streamlines tracing a flow field, one thread picked out" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/backpressure.jpg" alt="Streamlines bunching into tight bands against a wall" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">i</span>
-            <h3 class="guide__name">Flow</h3>
-            <p class="guide__note">Traffic never arrives evenly. The shape it takes through a system is the first thing worth drawing, and usually the last thing anyone draws.</p>
-          </figcaption>
-        </figure>
-
-        <figure class="guide__item">
-          <div class="plate plate--reveal">
-            <img src="assets/plates/backpressure.jpg" alt="Turbulent lines settling into tightly compressed bands" width="1100" height="1375" loading="lazy" decoding="async">
-          </div>
-          <figcaption class="guide__cap">
-            <span class="guide__no">ii</span>
-            <h3 class="guide__name">Backpressure</h3>
-            <p class="guide__note">A queue that grows is a system telling you it cannot keep up. The answer is almost always upstream, not another consumer.</p>
+            <h3 class="guide__name">What happens when this is <em>slow</em>, not down?</h3>
+            <p class="guide__note">Total failure is the case everyone designs for. Partial degradation is the one that takes the system with it — a dependency at four seconds instead of forty milliseconds, and every caller upstream holding a thread open waiting for it.</p>
           </figcaption>
         </figure>
 
@@ -404,9 +396,20 @@
             <img src="assets/plates/partition.jpg" alt="A regular field of marks split by an irregular fault" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
+            <span class="guide__no">ii</span>
+            <h3 class="guide__name">Who is allowed to be <em>wrong</em> here?</h3>
+            <p class="guide__note">Every split-brain argument is this question wearing a costume. Decide which side may keep serving stale data during a partition, write it down, and stop pretending both halves can be authoritative.</p>
+          </figcaption>
+        </figure>
+
+        <figure class="guide__item">
+          <div class="plate plate--reveal">
+            <img src="assets/plates/queue.jpg" alt="A depth field swelling in the middle and draining away" width="1100" height="1375" loading="lazy" decoding="async">
+          </div>
+          <figcaption class="guide__cap">
             <span class="guide__no">iii</span>
-            <h3 class="guide__name">Partition</h3>
-            <p class="guide__note">The network will split. What matters is what each side believes while it lasts, and which of them is allowed to be wrong.</p>
+            <h3 class="guide__name">Where does this bend at <em>ten times</em> the volume?</h3>
+            <p class="guide__note">Not "does it scale" — that question has no answer. Which specific thing gives first: a query plan that flips, a lock everyone queues behind, or the one partition all the hot keys hash to.</p>
           </figcaption>
         </figure>
 
@@ -416,19 +419,19 @@
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">iv</span>
-            <h3 class="guide__name">Retry storm</h3>
-            <p class="guide__note">Retries without ceilings turn a slow dependency into an outage. Jitter, budgets, and a breaker that counts slow calls as failures.</p>
+            <h3 class="guide__name">Can someone else run this at <em>3am</em>?</h3>
+            <p class="guide__note">If the answer involves calling you, it is not finished. What signal fires, what the runbook says to do about it, and where the switch is that turns the feature off without a deploy.</p>
           </figcaption>
         </figure>
 
         <figure class="guide__item">
           <div class="plate plate--reveal">
-            <img src="assets/plates/consensus.jpg" alt="Chords across a ring of nodes with a quorum picked out" width="1100" height="1375" loading="lazy" decoding="async">
+            <img src="assets/plates/shard.jpg" alt="Unequal partitions with one carrying far more than its share" width="1100" height="1375" loading="lazy" decoding="async">
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">v</span>
-            <h3 class="guide__name">Consensus</h3>
-            <p class="guide__note">Agreement is expensive. Spend it only where being wrong is worse than being slow, and be honest about which you are choosing.</p>
+            <h3 class="guide__name">What did we just make <em>impossible</em> to change?</h3>
+            <p class="guide__note">Schemas and public APIs are one-way doors; almost everything else can be revisited next quarter. Knowing which kind of door you are walking through is most of the design review.</p>
           </figcaption>
         </figure>
 
@@ -438,8 +441,8 @@
           </div>
           <figcaption class="guide__cap">
             <span class="guide__no">vi</span>
-            <h3 class="guide__name">Decay</h3>
-            <p class="guide__note">Nothing holds its shape unattended. Certificates, dashboards, runbooks, the diagram on the wall &mdash; all of it drifts from the thing it describes.</p>
+            <h3 class="guide__name">How will we know it <em>stopped</em> working?</h3>
+            <p class="guide__note">Not the dashboard nobody opens. The specific signal, the threshold that trips it, and the person it wakes — decided now, while it is cheap, rather than during the incident.</p>
           </figcaption>
         </figure>
       </div>

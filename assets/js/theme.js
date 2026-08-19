@@ -29,11 +29,11 @@
     window.dispatchEvent(new CustomEvent('cg:theme', {
       detail: {
         theme: current(),
-        paper: token('--paper', '#14120F'),
-        ink: token('--ink', '#F2EDE3'),
-        accent: token('--accent', '#FF5A2B'),
-        mute: token('--mute', '#8A8377'),
-        line: token('--line', 'rgba(242,237,227,0.16)')
+        paper: token('--paper', '#0F1214'),
+        ink: token('--ink', '#E9EDEF'),
+        accent: token('--accent', '#F2B33D'),
+        mute: token('--mute', '#7C878C'),
+        line: token('--line', 'rgba(233,237,239,0.15)')
       }
     }));
   }
@@ -49,7 +49,7 @@
     root.classList.remove('is-inverted');
 
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'light' ? '#EFEAE1' : '#14120F');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#F1EFEA' : '#0F1214');
 
     if (persist) { try { localStorage.setItem(KEY, theme); } catch (e) {} }
     announce();

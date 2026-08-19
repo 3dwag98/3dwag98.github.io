@@ -20,7 +20,7 @@ mkdirSync(OUT, { recursive: true });
 
 /* One set, drawn on the dark ground, used by both themes — on the light page
    the plates read as prints rather than as part of the background. */
-const PALETTE = { paper: '#14120F', ink: '#EDE7DA', accent: '#FF5A2B' };
+const PALETTE = { paper: '#0F1214', ink: '#E4E9EB', accent: '#F2B33D' };
 
 /* name, width, height, seed */
 const PLATES = [
@@ -28,11 +28,22 @@ const PLATES = [
   ['backpressure', 1100, 1375, 771],
   ['partition',    1100, 1375, 4242],
   ['storm',        1100, 1375, 9091],
-  ['consensus',    1100, 1375, 3131],
-  ['decay',        1100, 1375, 5150]
+  ['consensus',    1100, 1375, 5150],
+  ['decay',        1100, 1375, 8123],
+  ['queue',        1100, 1375, 3307],
+  ['shard',        1100, 1375, 6612],
+  ['cascade',      1100, 1375, 1904],
+  ['latency',      1100, 1375, 7756],
+  ['mesh',         1100, 1375, 2288],
+  ['drift',        1100, 1375, 9431]
 ];
 
-const browser = await chromium.launch({ args: ['--no-sandbox'] });
+const browser = await chromium.launch({
+  args: ['--no-sandbox'],
+  // set CHROME_PATH when the machine already has a Chromium and Playwright
+  // has not downloaded its own
+  ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {})
+});
 const page = await browser.newPage({ viewport: { width: 800, height: 600 } });
 await page.goto(pathToFileURL(join(HERE, 'plates.html')).href);
 
