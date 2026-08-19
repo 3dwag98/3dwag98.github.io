@@ -22,6 +22,7 @@
     var d = document.documentElement;
     d.classList.add('js');
     try { if (localStorage.getItem('cg-theme') === 'light') d.setAttribute('data-theme', 'light'); } catch (e) {}
+    try { if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion'); } catch (e) { d.classList.add('motion'); }
   })();
   window.Prism = window.Prism || {};
   window.Prism.manual = true;   /* content is injected, so highlight on demand */
@@ -41,7 +42,6 @@
 <nav class="nav">
   <a class="nav__id" href="../">
     <span class="nav__mark">Chintamani Gawade</span>
-    <span class="lbl">Ind. 2019</span>
   </a>
   <div class="nav__links">
     <a href="../#work">Practice</a>

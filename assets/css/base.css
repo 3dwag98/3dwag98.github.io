@@ -294,7 +294,7 @@ body::after { mix-blend-mode: screen; opacity: 0.13; }
   color: var(--ink);
 }
 
-.nav__id { display: flex; align-items: baseline; gap: 0.6rem; }
+.nav__id { display: inline-flex; align-items: baseline; }
 
 .nav__mark {
   font-family: var(--serif);
@@ -304,9 +304,6 @@ body::after { mix-blend-mode: screen; opacity: 0.13; }
   letter-spacing: -0.018em;
   white-space: nowrap;
 }
-
-.nav__id .lbl { display: none; }
-@media (min-width: 760px) { .nav__id .lbl { display: inline; } }
 
 .nav__links { display: flex; align-items: center; gap: clamp(0.85rem, 2vw, 2.1rem); }
 

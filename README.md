@@ -94,7 +94,9 @@ The masthead's moving surface is `assets/js/gl.js`: a single full-screen quad wi
 domain-warped fbm fragment shader, written by hand. A 3D library was considered and rejected —
 this needs no scene graph, and hand-rolled WebGL is about 6 KB where three.js would be roughly
 740 KB for identical pixels. It fades in only once its first frame is drawn, pauses when the
-masthead scrolls away, and is removed entirely under reduced motion or when WebGL is missing.
+masthead scrolls away, and is removed entirely when WebGL is missing. Under reduced motion it
+still draws — once, then holds that frame, repainting only on a theme change or a resize. A
+still image is not motion, and the alternative was a blank ground.
 
 | Scene | Section | What drives it |
 | --- | --- | --- |
@@ -134,6 +136,15 @@ Two more things that only bite when JavaScript is off: `.plate--reveal` (which c
 nothing until they are revealed) and the loader overlay are both scoped under `html.js`, so a
 visitor without the runtime sees the images and the page rather than a blank clip and a
 permanent overlay. Keep new JS-dependent hiding under that class.
+
+**Layout that JavaScript drives goes under `html.motion`, not under a width alone.** The
+crossfade stack and the sticky role cards are only coherent while something is setting their
+opacity and scale; left on their own they pile six chapters on top of each other and park the
+cards under the fixed nav. So the readable, flowing version is the *default*, and the pinned
+version is opt-in — `html.motion .guide__item`, `html.motion .role`. `index.html` adds the class
+before first paint from the media query alone (no reflow), and `core.js` takes it back off if
+GSAP never loaded. Reduced motion, no JS, and a failed CDN therefore all land on the same
+layout, which is the one a phone already gets.
 
 ## Writing a post
 
@@ -235,8 +246,9 @@ change.
 ## Accessibility and fallbacks
 
 - `prefers-reduced-motion: reduce` drops Lenis, the loader, the curtain, the pins and the
-  cursor. Every element renders in its final state, every plate is unclipped, the game starts
-  paused, and the quote simply renders on the inverted ground.
+  cursor, and clears `html.motion` so the pinned scenes fall back to plain flow. Every element
+  renders in its final state, every plate is unclipped, the masthead ground is drawn once and
+  held, the game starts paused, and the quote simply renders on the inverted ground.
 - With JavaScript off nothing is hidden — the portfolio and the blog chrome degrade to plain
   scrolling documents (post bodies need JS, since they are fetched).
 - The custom cursor only appears for fine pointers; touch devices keep the native one.
