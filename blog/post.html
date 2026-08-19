@@ -6,7 +6,7 @@
 <title>Note — Chintamani Gawade</title>
 
 <meta name="description" content="A write-up from the logs.">
-<meta name="theme-color" content="#EFEAE1">
+<meta name="theme-color" content="#14120F">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Notes — Chintamani Gawade">
 
@@ -18,7 +18,11 @@
 <link rel="stylesheet" href="../assets/css/blog.css">
 
 <script>
-  document.documentElement.classList.add('js');
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js');
+    try { if (localStorage.getItem('cg-theme') === 'light') d.setAttribute('data-theme', 'light'); } catch (e) {}
+  })();
   window.Prism = window.Prism || {};
   window.Prism.manual = true;   /* content is injected, so highlight on demand */
 </script>
@@ -44,6 +48,10 @@
     <a href="../#guide" class="nav__sm">Field guide</a>
     <a href="./" aria-current="page">Notes</a>
     <a href="../#contact">Contact</a>
+    <button class="theme-btn" type="button" data-theme-toggle aria-label="Switch to light">
+      <svg class="moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M13.5 9.6A6 6 0 1 1 6.4 2.5a4.8 4.8 0 0 0 7.1 7.1Z"/></svg>
+      <svg class="sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="8" cy="8" r="3.1"/><path d="M8 .8v1.7M8 13.5v1.7M.8 8h1.7M13.5 8h1.7M2.9 2.9l1.2 1.2M11.9 11.9l1.2 1.2M13.1 2.9l-1.2 1.2M4.1 11.9l-1.2 1.2"/></svg>
+    </button>
   </div>
 </nav>
 
@@ -67,12 +75,13 @@
 <footer class="foot">
   <div class="wrap">
     <div class="foot__stamp">
-      <b>Written for people to read.</b>
+      <b>Start with something that works.</b>
       <span class="lbl"><a href="./">← All notes</a> &middot; <a href="../">Portfolio</a></span>
     </div>
   </div>
 </footer>
 
+<script src="../assets/js/theme.js"></script>
 <script src="../assets/vendor/gsap.min.js"></script>
 <script src="../assets/vendor/ScrollTrigger.min.js"></script>
 <script src="../assets/vendor/SplitText.min.js"></script>

@@ -1,9 +1,9 @@
 /* ============================================================================
    gl.js — the moving surface behind the masthead.
 
-   A single full-screen quad with a domain-warped fbm shader: slow ink ridges
-   drifting across paper with a vermilion filament that answers the scroll and
-   the pointer. Hand-written WebGL rather than a 3D library, because a
+   A single full-screen quad with a domain-warped fbm shader: slow ridges
+   drifting across the page ground with a vermilion filament that answers the
+   scroll and the pointer. Its three colours come from the live theme. Hand-written WebGL rather than a 3D library, because a
    full-screen fragment shader needs no scene graph — this is ~4 KB where
    three.js would be ~740 KB for the same pixels.
 
@@ -159,6 +159,12 @@
     return {
       resize: resize,
       frame: frame,
+      setPalette: function (c) {
+        gl.useProgram(prog);
+        if (c.paper) gl.uniform3fv(U.uPaper, hex(c.paper));
+        if (c.ink) gl.uniform3fv(U.uInk, hex(c.ink));
+        if (c.accent) gl.uniform3fv(U.uAcc, hex(c.accent));
+      },
       setScroll: function (v) { state.scroll = v; },
       setPointer: function (x, y) { state.target[0] = x; state.target[1] = y; },
       lost: function () { return gl.isContextLost(); }

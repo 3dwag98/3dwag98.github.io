@@ -5,8 +5,8 @@
      plates     every image: clip reveal, then parallax inside its own frame
      statement  a paragraph that lights word by word as it passes
      quote      pinned. The page inverts to night while the two halves of the
-                line slide past each other and one plain stroke branches into
-                the thing it grew into.
+                line slide past each other while one node accretes into the
+                system it became.
      work       roles stack — each sticks while the next slides over it
      guide      pinned crossfade through the plates on a wide screen; a plain
                 vertical list below that, so every image is reachable anywhere
@@ -21,25 +21,40 @@
   var ST = window.ScrollTrigger;
   var motion = CG.motion && !!ST;
 
-  var THEME = {
-    day: {
-      '--paper': '#EFEAE1', '--paper-2': '#E6E0D3', '--ink': '#14120F',
-      '--ink-2': '#3E3A32', '--mute': '#7C7568', '--line': 'rgba(20,18,15,0.15)'
+  /* The quote passage flips the page to the opposite theme. Both palettes are
+     declared here so the flip can be interpolated rather than switched. */
+  var PALETTES = {
+    dark: {
+      '--paper': '#14120F', '--paper-2': '#1C1915', '--ink': '#F2EDE3',
+      '--ink-2': '#C9C2B4', '--mute': '#8A8377', '--line': 'rgba(242,237,227,0.16)',
+      '--accent': '#FF5A2B', '--on-accent': '#17140F'
     },
-    night: {
-      '--paper': '#0B0A08', '--paper-2': '#15130E', '--ink': '#F3EFE6',
-      '--ink-2': '#D2CBBD', '--mute': '#8C8578', '--line': 'rgba(243,239,230,0.18)'
+    light: {
+      '--paper': '#EFEAE1', '--paper-2': '#E6E0D3', '--ink': '#14120F',
+      '--ink-2': '#3E3A32', '--mute': '#7C7568', '--line': 'rgba(20,18,15,0.15)',
+      '--accent': '#E4441A', '--on-accent': '#FBF7F0'
     }
   };
 
-  var KEYS = Object.keys(THEME.day);
+  var KEYS = Object.keys(PALETTES.dark);
+
+  function base() { return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
 
   function paint(mix) {
     var root = document.documentElement;
-    for (var i = 0; i < KEYS.length; i++) {
-      root.style.setProperty(KEYS[i], gsap.utils.interpolate(THEME.day[KEYS[i]], THEME.night[KEYS[i]], mix));
+    var from = PALETTES[base()];
+    var to = PALETTES[base() === 'light' ? 'dark' : 'light'];
+
+    if (mix <= 0.001) {
+      KEYS.forEach(function (k) { root.style.removeProperty(k); });
+      root.classList.remove('is-inverted');
+      return;
     }
-    root.classList.toggle('is-night', mix > 0.5);
+
+    KEYS.forEach(function (k) {
+      root.style.setProperty(k, gsap.utils.interpolate(from[k], to[k], mix));
+    });
+    root.classList.toggle('is-inverted', mix > 0.5);
   }
 
   /* ── the surface behind the masthead ───────────────────────────────── */
@@ -50,8 +65,21 @@
 
     if (!motion || !window.CGSurface) { canvas.remove(); return; }
 
-    var s = window.CGSurface(canvas, { paper: '#EFEAE1', ink: '#14120F', accent: '#E4441A' });
+    var read = function () {
+      var t = window.CGTheme;
+      return {
+        paper: t ? t.token('--paper', '#14120F') : '#14120F',
+        ink: t ? t.token('--ink', '#F2EDE3') : '#F2EDE3',
+        accent: t ? t.token('--accent', '#FF5A2B') : '#FF5A2B'
+      };
+    };
+
+    var s = window.CGSurface(canvas, read());
     if (!s) { canvas.remove(); return; }
+
+    window.addEventListener('cg:theme', function (e) {
+      s.setPalette({ paper: e.detail.paper, ink: e.detail.ink, accent: e.detail.accent });
+    });
 
     var live = true;
     var last = 0;
@@ -84,6 +112,25 @@
   }
 
   /* ── images ────────────────────────────────────────────────────────── */
+
+  /** Two plate sets exist; only the one in use is ever fetched. */
+  function plateTheme() {
+    function swap(theme) {
+      var dir = theme === 'light' ? '' : 'dark/';
+      document.querySelectorAll('img[data-plate]').forEach(function (img) {
+        var want = 'assets/plates/' + dir + img.getAttribute('data-plate') + '.jpg';
+        var rel = img.getAttribute('src');
+        // blog pages would need ../ — the plates only appear on the home page
+        if (rel !== want) img.setAttribute('src', want);
+      });
+    }
+
+    window.addEventListener('cg:theme', function (e) { swap(e.detail.theme); });
+
+    // theme.js announces once at startup, which is before this module boots —
+    // so set the right set now rather than waiting for a toggle.
+    swap(window.CGTheme ? window.CGTheme.current() : 'dark');
+  }
 
   function plates() {
     var frames = Array.prototype.slice.call(document.querySelectorAll('.plate'));
@@ -164,37 +211,76 @@
     var b = el.querySelector('.quote__line--b');
     var pivot = el.querySelector('.quote__pivot');
     var resolve = el.querySelector('.quote__resolve');
-    var complex = el.querySelector('#sig-complex');
-    var simple = el.querySelector('#sig-simple');
+    var edges = el.querySelector('#sig-edges');
+    var nodes = el.querySelector('#sig-nodes');
+    var seed = el.querySelector('#sig-seed');
+    var dots = [];
 
-    // Right half: one plain line — the simple system that worked. Left half:
-    // what it grew into. Both are drawn right to left, the direction the
-    // sentence actually reads backwards through.
-    if (complex && simple) {
-      simple.setAttribute('d', 'M1400,50 L900,50');
+    // One node on the right; to its left, the system it turned into. Columns
+    // get denser and the links cross more as they go — built right to left,
+    // the direction the sentence reads backwards through.
+    if (edges && nodes) {
+      var COLS = [
+        { x: 1355, n: 1 }, { x: 1180, n: 1 }, { x: 1010, n: 2 }, { x: 845, n: 3 },
+        { x: 670, n: 4 }, { x: 480, n: 6 }, { x: 265, n: 7 }, { x: 55, n: 9 }
+      ];
 
-      var branch = function (x, y, dx, spread, depth) {
-        if (depth === 0) return '';
-        var nx = x - dx;
-        var up = (y - spread).toFixed(1);
-        var down = (y + spread).toFixed(1);
-        return 'M' + x.toFixed(1) + ',' + y.toFixed(1) + ' L' + nx.toFixed(1) + ',' + up + ' ' +
-               'M' + x.toFixed(1) + ',' + y.toFixed(1) + ' L' + nx.toFixed(1) + ',' + down + ' ' +
-               branch(nx, y - spread, dx * 0.72, spread * 0.58, depth - 1) +
-               branch(nx, y + spread, dx * 0.72, spread * 0.58, depth - 1);
-      };
+      var rnd = (function (seedv) {
+        return function () { seedv = (seedv * 16807) % 2147483647; return seedv / 2147483647; };
+      })(20260819);
 
-      complex.setAttribute('d', branch(900, 50, 300, 23, 4).trim());
+      var grid = COLS.map(function (col, ci) {
+        var pts = [];
+        // fan out toward the left, but stay inside the 120-unit box
+        var spread = Math.min(50, 5 + (col.n - 1) * 7.5);
+        for (var i = 0; i < col.n; i++) {
+          var t = col.n === 1 ? 0.5 : i / (col.n - 1);
+          pts.push({
+            x: col.x + (ci === 0 ? 0 : (rnd() - 0.5) * 46),
+            y: 60 + (t - 0.5) * spread * 2 + (rnd() - 0.5) * 7
+          });
+        }
+        return pts;
+      });
+
+      var d = '';
+      for (var c = 1; c < grid.length; c++) {
+        grid[c].forEach(function (p, i) {
+          var prev = grid[c - 1];
+          var a = prev[Math.min(prev.length - 1, Math.floor(i * prev.length / grid[c].length))];
+          d += 'M' + a.x.toFixed(1) + ',' + a.y.toFixed(1) + ' L' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' ';
+          // a second, crossing link so the field reads as a network rather
+          // than a ladder
+          if (prev.length > 1 && rnd() < 0.7) {
+            var b = prev[Math.floor(rnd() * prev.length)];
+            d += 'M' + b.x.toFixed(1) + ',' + b.y.toFixed(1) + ' L' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' ';
+          }
+        });
+      }
+      edges.setAttribute('d', d.trim());
+
+      var ns = 'http://www.w3.org/2000/svg';
+      grid.slice(1).forEach(function (col, ci) {
+        col.forEach(function (p) {
+          var c2 = document.createElementNS(ns, 'circle');
+          c2.setAttribute('cx', p.x.toFixed(1));
+          c2.setAttribute('cy', p.y.toFixed(1));
+          c2.setAttribute('r', (2.4 + ci * 0.28).toFixed(2));
+          nodes.appendChild(c2);
+          dots.push(c2);
+        });
+      });
     }
 
     if (!motion) { el.classList.add('night'); return; }
 
-    [complex, simple].forEach(function (p) {
-      if (!p) return;
-      var len = p.getTotalLength();
-      p.style.strokeDasharray = len;
-      p.style.strokeDashoffset = len;
-    });
+    if (edges) {
+      var len = edges.getTotalLength();
+      edges.style.strokeDasharray = len;
+      edges.style.strokeDashoffset = len;
+    }
+    gsap.set(dots, { scale: 0, transformOrigin: '50% 50%' });
+    gsap.set(seed, { scale: 0, transformOrigin: '50% 50%' });
 
     gsap.set([a, b], { opacity: 0 });
     gsap.set(pivot, { opacity: 0, scaleX: 0.2 });
@@ -231,18 +317,19 @@
       }
     })
       .fromTo(a, { xPercent: -18, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.26 }, 0.02)
-      .to(simple, { strokeDashoffset: 0, duration: 0.22 }, 0.12)
+      .to(seed, { scale: 1, duration: 0.06, ease: 'back.out(3)' }, 0.1)
       .to(pivot, { opacity: 1, scaleX: 1, duration: 0.1, ease: 'back.out(2)' }, 0.3)
       .fromTo(b, { xPercent: 18, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.26 }, 0.36)
-      .to(complex, { strokeDashoffset: 0, duration: 0.24 }, 0.42)
+      .to(edges, { strokeDashoffset: 0, duration: 0.26 }, 0.4)
+      .to(dots, { scale: 1, duration: 0.2, stagger: { each: 0.004, from: 'end' }, ease: 'back.out(2)' }, 0.44)
       // the complexity dominates for a moment...
       .to(b, { opacity: 0.16, duration: 0.1 }, 0.6)
-      .to(simple, { opacity: 0.16, duration: 0.1 }, 0.6)
+      .to(seed, { opacity: 0.2, duration: 0.1 }, 0.6)
       // ...then the simple system it grew from is what the line is about
       .to(b, { opacity: 1, duration: 0.1 }, 0.72)
-      .to(simple, { opacity: 1, duration: 0.1 }, 0.72)
+      .to(seed, { opacity: 1, scale: 1.5, duration: 0.1 }, 0.72)
       .to(a, { opacity: 0.28, duration: 0.1 }, 0.72)
-      .to(complex, { opacity: 0.34, duration: 0.1 }, 0.72)
+      .to([edges, nodes], { opacity: 0.34, duration: 0.1 }, 0.72)
       .to(resolve, { opacity: 1, y: 0, duration: 0.12, ease: 'expo.out' }, 0.82)
       .to({}, { duration: 0.1 });
   }
@@ -360,6 +447,7 @@
 
   function boot() {
     surface();
+    plateTheme();
     plates();
     masthead();
     statement();

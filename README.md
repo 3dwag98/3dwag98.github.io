@@ -20,9 +20,10 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        blog.js        # archive: search + tag filter
 │   │        post.js        # reader: Markdown/HTML → prose
 │   │        gl.js          # the masthead's WebGL surface
-│   │        life.js        # the Game of Life panel
+│   │        theme.js       # dark/light toggle + the cg:theme event
+│   │        queue.js       # the backpressure game
 │   ├── fonts/              # self-hosted woff2 — no external font request
-│   ├── plates/             # generated line-work, six plates
+│   ├── plates/             # generated line-work — six plates, light and dark
 │   └── vendor/             # GSAP, ScrollTrigger, SplitText, Lenis, marked,
 │                           #   DOMPurify, Prism — pinned copies, no CDN
 ├── blog/
@@ -47,8 +48,14 @@ python3 -m http.server 8000
 
 ## Design
 
-Warm bone paper, near-black ink, a single vermilion signal — and typography doing most of the
-structural work.
+Warm ink, bone type, a single vermilion signal — and typography doing most of the structural
+work.
+
+**Dark is the default.** Light is the alternate, reached by the toggle in the nav and remembered
+in `localStorage`. Both are the same eight variables, so anything that paints its own pixels —
+the WebGL surface, the game canvas, the plates — listens for `cg:theme` and repaints rather than
+hardcoding a hex. A tiny inline script in each `<head>` applies the stored choice before first
+paint, so switching never flashes the other theme.
 
 **Fraunces** carries every display size with its optical-size axis driven explicitly:
 `opsz 144` at poster scale, stepping down to `opsz 12` where the same face has to be read — and
@@ -94,8 +101,8 @@ masthead scrolls away, and is removed entirely under reduced motion or when WebG
 | Masthead | `#top` | WebGL surface behind a masked entrance, with the first plate alongside; the two halves pull apart on scroll |
 | Position | `#about` | the paragraph lights word by word as it passes |
 | Strip | — | a wide plate carrying the eye into the quote |
-| Quote | `#quote` | **pinned**: the page inverts to night, the two halves of Gall's law slide past each other, and one plain stroke branches into the thing it grew into |
-| Life | `#life` | Conway's Game of Life — drag the cursor to draw cells, or drop a pattern |
+| Quote | `#quote` | **pinned**: the page inverts to the opposite theme, the two halves of Gall's law slide past each other, and one node accretes into the system it became |
+| Game | `#queue` | "Hold the line" — drag to set the worker count against traffic you do not control |
 | Practice | `#work` | role cards stack — each sticks while the next slides over it, with a full plate alongside, alternating sides |
 | Field guide | `#guide` | **pinned** crossfade through the six plates above 900px; a plain vertical list below it |
 | Instruments | `#stack` | capability rows with a vermilion fill sweep on hover |
@@ -187,22 +194,34 @@ The reader adds heading anchors, a table of contents that tracks scroll, code he
 copy button, Prism highlighting, lazy images and prev/next links. Everything is passed through
 DOMPurify before it touches the DOM.
 
-## The Life panel
+## The game
 
-`assets/js/life.js` runs Conway's Game of Life under the quote, because four rules producing
-gliders and guns is the quote's argument in motion. Drag across the board to draw cells; the
-buttons seed a glider, a pulsar or a Gosper gun, step one generation, or clear.
+`assets/js/queue.js` runs a small backpressure sandbox under the quote. Traffic arrives at a rate
+that breathes and spikes; you set the worker count by dragging across the board, with the arrow
+keys, or with the buttons. Latency is `service + queue / capacity`, drawn against the SLO line;
+past the queue cap requests are shed and the "held" percentage falls. It is Little's law with a
+scoreboard.
 
-`data-life-root` goes on the **section**, not the board — the buttons live in the copy column
-beside the canvas, and binding the delegated click handler to the board alone silently loses
-every control. The field wraps at the edges, it pauses when scrolled out of view or the tab is
-hidden, and it starts paused under reduced motion.
+`data-q-root` goes on the **section**, not the board — the buttons live in the copy column beside
+the canvas, and binding the delegated click handler to the board alone silently loses every
+control. It pauses when scrolled out of view or the tab is hidden, starts paused under reduced
+motion, and repaints on `cg:theme`.
+
+## Plates and the theme
+
+Two sets live under `assets/plates/` — the light one at the root, the dark one in `dark/`. The
+markup ships the dark set and `home.js` swaps `src` from `data-plate` when the theme changes, so
+only the set in use is ever fetched. It also swaps **once on boot**: `theme.js` announces the
+initial theme before `home.js` finishes loading, so waiting for the event alone leaves a light
+page showing dark plates.
+
+Regenerate both sets with `node tools/plates.mjs` — the generators take a palette.
 
 ## Accessibility and fallbacks
 
 - `prefers-reduced-motion: reduce` drops Lenis, the loader, the curtain, the pins and the
-  cursor. Every element renders in its final state, every plate is unclipped, the Life panel
-  starts paused but still draws, and the quote simply renders on its dark ground.
+  cursor. Every element renders in its final state, every plate is unclipped, the game starts
+  paused, and the quote simply renders on the inverted ground.
 - With JavaScript off nothing is hidden — the portfolio and the blog chrome degrade to plain
   scrolling documents (post bodies need JS, since they are fetched).
 - The custom cursor only appears for fine pointers; touch devices keep the native one.
