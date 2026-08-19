@@ -117,59 +117,31 @@
 
     if (lenis) lenis.stop();
 
-    var roll = loader.querySelector('[data-loader-roll]');
-    var slot = loader.querySelector('.loader__slot');
-    var pct = loader.querySelector('[data-loader-pct]');
-    var tag = loader.querySelector('[data-loader-tag]');
-    var words = roll ? roll.children.length : 0;
-    var count = { v: 0 };
+    /* The Devanagari-to-Latin sequence builds its own timeline; this function
+       still owns the lifecycle around it — stopping Lenis, clearing
+       is-loading, and handing back to the page. */
+    var seq = window.CGTypeLoader
+      ? window.CGTypeLoader.create(loader)
+      : null;
 
-    var STAGES = [[0, 'loading'], [30, 'fonts'], [58, 'plates'], [84, 'ready']];
-    var stageAt = -1;
-
-    /* Step height comes from the rendered slot, not a guess, so the roll lands
-       on the last word whatever the type scale computes to. */
-    function stepPx() { return slot ? slot.getBoundingClientRect().height : 0; }
-
-    var tl = gsap.timeline({
-      onComplete: function () {
-        loader.remove();
-        document.documentElement.classList.remove('is-loading');
-        if (lenis) { lenis.start(); lenis.scrollTo(0, { immediate: true }); }
-        done();
-      }
-    });
-
-    if (roll && words > 1) {
-      gsap.set(roll, { y: 0 });
-      // fast at first, then it leans hard into the last word
-      tl.to(roll, {
-        y: function () { return -(words - 1) * stepPx(); },
-        duration: 1.6,
-        ease: 'power4.out'
-      }, 0);
+    if (!seq) {                       // module missing or it declined to build
+      loader.remove();
+      document.documentElement.classList.remove('is-loading');
+      if (p.length) gsap.set(p, { scaleY: 0 });
+      if (lenis) lenis.start();
+      done();
+      return;
     }
 
-    tl.to(count, {
-      v: 100,
-      duration: 1.55,
-      ease: 'power1.inOut',
-      onUpdate: function () {
-        var v = Math.round(count.v);
-        if (pct) pct.textContent = String(v).padStart(3, '0');
-        for (var i = STAGES.length - 1; i >= 0; i--) {
-          if (v >= STAGES[i][0]) {
-            if (i !== stageAt && tag) { stageAt = i; tag.textContent = STAGES[i][1]; }
-            break;
-          }
-        }
-      }
-    }, 0)
-      // one decisive wipe rather than a row of panels
-      .to(loader, { yPercent: -100, duration: 0.85, ease: 'expo.inOut' }, 1.72)
-      // the curtain panels stay parked; they belong to page transitions, and
-      // the loader now clears itself in one move rather than handing over
-      .set(p, { scaleY: 0, transformOrigin: '50% 0%' });
+    seq.eventCallback('onComplete', function () {
+      loader.remove();
+      document.documentElement.classList.remove('is-loading');
+      if (lenis) { lenis.start(); lenis.scrollTo(0, { immediate: true }); }
+      done();
+    });
+
+    // the curtain panels belong to page transitions; keep them parked
+    if (p.length) gsap.set(p, { scaleY: 0, transformOrigin: '50% 0%' });
   }
 
   /** Cover the screen, then navigate. Keeps page changes from cutting. */

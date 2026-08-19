@@ -21,6 +21,7 @@
 <link rel="alternate" type="application/rss+xml" title="Blogs — Chintamani Gawade" href="/feed.xml">
 
 <link rel="preload" href="assets/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/rozha-devanagari.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/home.css">
@@ -43,22 +44,19 @@
 
 <body>
 
-<div class="loader">
-  <div class="loader__slot" aria-label="Chintamani Gawade">
-    <div class="loader__roll" data-loader-roll>
-        <span>Services</span>
-        <span>Data</span>
-        <span>Interfaces</span>
-        <span>Platforms</span>
-        <span>At scale</span>
-        <span>Chintamani Gawade</span>
-    </div>
-  </div>
+<div class="loader" data-tl-root>
+  <svg class="tl__defs" aria-hidden="true"><defs data-tl-defs></defs></svg>
+
+  <div class="tl__wave" data-tl-wave aria-hidden="true"></div>
+
+  <div class="tl__stage" data-tl-stage role="img" aria-label="Chintamani Gawade"></div>
 
   <div class="loader__foot">
-    <span class="lbl loader__pct" data-loader-pct>000</span>
-    <span class="lbl" data-loader-tag>loading</span>
+    <span class="lbl loader__pct" data-tl-pct>000</span>
+    <span class="lbl">चिंतामणी गावडे</span>
   </div>
+
+  <div class="tl__sheet" data-tl-sheet aria-hidden="true"></div>
 </div>
 
 <div class="curtain" aria-hidden="true">
@@ -649,6 +647,7 @@
   })();
 </script>
 <script src="assets/js/gl.js"></script>
+<script src="assets/js/typography-loader.js"></script>
 <script src="assets/js/core.js"></script>
 <script src="assets/js/serve.js"></script>
 <script src="assets/js/posts.js"></script>
