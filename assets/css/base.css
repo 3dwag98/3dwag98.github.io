@@ -119,7 +119,11 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- base -------------------------------------------------------- */
 
-html { background: var(--paper); }
+html {
+  background: var(--paper);
+  /* the bar is fixed, so an anchored jump must stop below it */
+  scroll-padding-top: clamp(4.5rem, 9vw, 6.5rem);
+}
 
 body {
   background: var(--paper);
@@ -296,7 +300,19 @@ body::after { mix-blend-mode: screen; opacity: 0.13; }
 .cur.is-worded { background: var(--accent); }
 .cur.is-worded .cur__t { opacity: 1; }
 
-@media (hover: none), (pointer: coarse) { .cur, .cur-dot { display: none !important; } }
+/* the ring flares for the length of the press */
+.cur.is-lit { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 18px color-mix(in srgb, var(--accent) 40%, transparent); }
+
+/* and a ring is left behind where the click landed */
+.cur-flash {
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  width: 42px; height: 42px; margin: -21px 0 0 -21px;
+  border: 2px solid var(--accent); border-radius: 50%;
+  pointer-events: none; opacity: 0; will-change: transform, opacity;
+}
+
+@media (hover: none), (pointer: coarse) { .cur, .cur-dot, .cur-flash { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { .cur-flash { display: none !important; } }
 
 .nav {
   position: fixed; inset: 0 0 auto 0; z-index: 90;
@@ -304,6 +320,39 @@ body::after { mix-blend-mode: screen; opacity: 0.13; }
   padding: clamp(1rem, 2.2vw, 1.7rem) var(--pad);
   color: var(--ink);
 }
+
+/* The bar is fixed, so anything tall enough passes underneath it. A scrim keeps
+   the wordmark and the links readable over whatever is behind. It is plain CSS
+   and always on, so this holds with JavaScript off too. */
+.nav::before {
+  content: '';
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(to bottom,
+              var(--paper) 0%,
+              color-mix(in srgb, var(--paper) 82%, transparent) 55%,
+              transparent 100%);
+  /* the gradient reaches past the bar so the fade ends in open space */
+  bottom: -1.6rem;
+  transition: opacity 0.35s ease;
+}
+
+/* Once the page has actually moved, commit to a solid bar — a gradient alone
+   cannot carry body text scrolling behind it. */
+.nav::after {
+  content: '';
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: color-mix(in srgb, var(--paper) 97%, transparent);
+  border-bottom: 1px solid var(--line);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .nav::after { background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(12px) saturate(1.35); }
+}
+
+.nav.is-stuck::after { opacity: 1; }
+.nav.is-stuck::before { opacity: 0; }
 
 .nav__id { display: inline-flex; align-items: baseline; }
 
@@ -384,15 +433,33 @@ html.js .loader {
   background: var(--paper); display: grid; place-items: center;
 }
 
-.loader__n {
-  font-family: var(--serif);
-  font-variation-settings: 'opsz' 144;
-  font-weight: 600;
-  font-size: clamp(4rem, 24vw, 20rem);
-  line-height: 0.8;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums lining-nums;
+.loader__stage { position: relative; display: grid; place-items: center; gap: clamp(1.1rem, 3.4vh, 2.2rem); padding-inline: var(--pad); }
+
+/* the pulse the favicon and the section hooks both use, in its own row so
+   the node never lands on top of a letter */
+.loader__pulse { width: clamp(88px, 13vw, 140px); height: auto; overflow: visible; pointer-events: none; }
+.loader__ring { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0; }
+.loader__node { fill: var(--accent); }
+
+/* the wordmark decodes rather than a number counting */
+.loader__word {
+  position: relative;
+  font-family: var(--mono);
+  font-size: clamp(0.95rem, 3.4vw, 2.1rem);
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  text-align: center;
+  white-space: nowrap;
+  /* the glyphs swap constantly, so the box must not resize with them */
+  font-variant-numeric: tabular-nums;
 }
+
+.loader__word i { font-style: normal; display: inline-block; min-width: 0.62em; text-align: center; }
+.loader__word i.is-gap { min-width: 0.34em; }
+.loader__word i.is-set { color: var(--ink); }
+.loader__word i.is-loose { color: var(--accent); opacity: 0.65; }
+
+.loader__meta { position: relative; color: var(--mute); }
 
 .loader__bar { position: absolute; left: var(--pad); right: var(--pad); bottom: clamp(1.2rem, 4vw, 2.5rem); height: 1px; background: var(--line); }
 .loader__bar i { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: 0 50%; }

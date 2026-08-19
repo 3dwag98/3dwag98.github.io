@@ -43,7 +43,18 @@
 
 <body>
 
-<div class="loader"><div class="loader__n">000</div><div class="loader__bar"><i></i></div></div>
+<div class="loader">
+  <div class="loader__stage">
+    <svg class="loader__pulse" viewBox="0 0 220 220" aria-hidden="true">
+      <circle class="loader__ring" cx="110" cy="110" r="34"/>
+      <circle class="loader__ring loader__ring--b" cx="110" cy="110" r="34"/>
+      <circle class="loader__node" cx="110" cy="110" r="10"/>
+    </svg>
+    <p class="loader__word" data-loader-word aria-label="Chintamani Gawade">CHINTAMANI GAWADE</p>
+    <p class="lbl loader__meta"><span data-loader-pct>000</span> &middot; assembling</p>
+  </div>
+  <div class="loader__bar"><i></i></div>
+</div>
 
 <div class="curtain" aria-hidden="true">
   <i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i><i class="curtain__p"></i>
@@ -201,39 +212,46 @@
   </section>
 
   <!-- ═══ game ═══════════════════════════════════════════════════════════ -->
-  <section class="game" id="trace" data-t-root>
+  <section class="game" id="limit" data-b-root>
     <div class="wrap game__grid">
       <div class="game__copy">
-        <p class="lbl" data-r>III &mdash; Find the bottleneck</p>
+        <p class="lbl" data-r>III &mdash; Hold the line</p>
         <h2 class="dsp dsp--sm" style="font-size:var(--t-h3);margin-top:0.5rem" data-r>
-          Everything is red. <em>Only one of them is guilty.</em>
+          Shedding load is <em>a feature</em>.
         </h2>
         <p class="copy" data-r data-delay="0.06">
-          One service here has gone slow. Everything above it on the call path looks slow too, not
-          because anything is wrong with them but because they are sitting there waiting &mdash;
-          which is why a dashboard full of red is a symptom, not an answer.
-        </p>
-        <p class="copy" data-r data-delay="0.1">
-          The numbers on the boxes are totals, which is what a dashboard would show you.
-          <strong>Click the service that is actually spending the time.</strong>
+          A token bucket in front of a backend that survives 240 requests a second. Every request
+          takes a token or gets turned away. You set how fast the bucket refills and how much
+          burst it can hold &mdash; then four traffic shapes each punish a different wrong answer.
         </p>
 
+        <div class="dials" data-r data-delay="0.1">
+          <label class="dial">
+            <span class="dial__k">Refill <b data-b-rate>200</b> req/s</span>
+            <input type="range" min="40" max="500" step="10" value="200" data-b="rate" aria-label="Refill rate, requests per second">
+          </label>
+          <label class="dial">
+            <span class="dial__k">Burst capacity <b data-b-cap>120</b> tokens</span>
+            <input type="range" min="0" max="400" step="10" value="120" data-b="cap" aria-label="Burst capacity in tokens">
+          </label>
+        </div>
+
         <div class="game__controls" data-r data-delay="0.14">
-          <button class="game__btn" type="button" data-t="next">Skip</button>
-          <button class="game__btn" type="button" data-t="reveal">Give up</button>
+          <button class="game__btn" type="button" data-b="run">Run it</button>
+          <button class="game__btn" type="button" data-b="next">Next shape</button>
         </div>
 
         <p class="lbl game__verdict" data-r data-delay="0.18">
-          <span data-t-verdict>One service is spending the time. The rest are waiting on it.</span>
+          <span data-b-verdict>Steady. Set the dials, then run it.</span>
         </p>
       </div>
 
       <div class="game__board" data-r data-delay="0.08">
-        <canvas tabindex="0" aria-label="A service call graph. Click the service that is the root cause of the latency."></canvas>
+        <canvas aria-label="Arriving traffic against traffic served, with the backend ceiling marked."></canvas>
         <div class="game__hud">
-          <span>Trace <b data-t-round>01</b></span>
-          <span>Found <b data-t-score>0/1</b></span>
-          <span>Streak <b data-t-streak>00</b></span>
+          <span>Shape <b data-b-scene>1/4</b></span>
+          <span>Served <b data-b-served>--</b></span>
+          <span>Overload <b data-b-over>0</b></span>
         </div>
       </div>
     </div>
@@ -628,7 +646,7 @@
 </script>
 <script src="assets/js/gl.js"></script>
 <script src="assets/js/core.js"></script>
-<script src="assets/js/trace.js"></script>
+<script src="assets/js/bucket.js"></script>
 <script src="assets/js/posts.js"></script>
 <script src="assets/js/home.js"></script>
 </body>
