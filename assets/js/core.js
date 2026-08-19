@@ -28,6 +28,12 @@
   if (hasST) gsap.registerPlugin(ST);
   if (hasGsap && window.SplitText) gsap.registerPlugin(window.SplitText);
 
+  /* Scenes that are pinned, stacked or crossfaded only lay out correctly while
+     this runtime is driving them. index.html guesses from the media query
+     before first paint; correct that here, so GSAP failing to load falls back
+     to the plain document instead of leaving the layout mid-flight. */
+  document.documentElement.classList.toggle('motion', motion && hasST);
+
   var ready = [];
   var lenis = null;
 
@@ -103,6 +109,7 @@
     if (!loader || !motion) {
       if (loader) loader.remove();
       if (p.length) gsap.set && gsap.set(p, { scaleY: 0 });
+      document.documentElement.classList.remove('is-loading');
       done();
       return;
     }

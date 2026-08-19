@@ -32,6 +32,9 @@
     var d = document.documentElement;
     d.classList.add('js', 'is-loading');
     try { if (localStorage.getItem('cg-theme') === 'light') d.setAttribute('data-theme', 'light'); } catch (e) {}
+    /* Pinned and stacked scenes need the motion runtime to lay out. Guess here
+       so there is no reflow; core.js corrects it if GSAP never arrives. */
+    try { if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion'); } catch (e) { d.classList.add('motion'); }
     setTimeout(function () { d.classList.remove('is-loading'); }, 5000);
   })();
 </script>

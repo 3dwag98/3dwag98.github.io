@@ -13,6 +13,7 @@
     var d = document.documentElement;
     d.classList.add('js');
     try { if (localStorage.getItem('cg-theme') === 'light') d.setAttribute('data-theme', 'light'); } catch (e) {}
+    try { if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion'); } catch (e) { d.classList.add('motion'); }
   })();
 </script>
 <style>

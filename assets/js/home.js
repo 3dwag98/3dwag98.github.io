@@ -63,7 +63,7 @@
     var canvas = document.querySelector('.mast__gl');
     if (!canvas) return;
 
-    if (!motion || !window.CGSurface) { canvas.remove(); return; }
+    if (!window.CGSurface) { canvas.remove(); return; }
 
     var read = function () {
       var t = window.CGTheme;
@@ -79,7 +79,21 @@
 
     window.addEventListener('cg:theme', function (e) {
       s.setPalette({ paper: e.detail.paper, ink: e.detail.ink, accent: e.detail.accent });
+      if (!motion) still();
     });
+
+    /* Reduced motion asks for no movement, not for no ground. Draw the field
+       once and hold it there — repainted only when the theme or the size of
+       the canvas actually changes. */
+    function still() { s.resize(); s.frame(0); }
+
+    if (!motion) {
+      s.frame(2.4);                       // settle somewhere worth looking at
+      canvas.classList.add('is-live');
+      var rt;
+      window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(still, 160); });
+      return;
+    }
 
     var live = true;
     var last = 0;
