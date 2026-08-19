@@ -250,36 +250,43 @@ with Start disabled.
 
 ## The loader
 
-`assets/js/typography-loader.js` runs the entry: giant Devanagari, a liquid wave crossing it, and
-each syllable group pulled apart and reformed as Latin as the wave arrives. A group only changes
-while the liquid is actually on it, so the change propagates across the line rather than happening
-at once. `core.js` still owns the lifecycle around it — stopping Lenis, clearing `is-loading`,
-handing back — and falls back to simply removing the loader if the module declines to build.
+`assets/js/typography-loader.js`. Both scripts are drawn to offscreen 2D canvases at viewport size
+and handed to the GPU as textures; a fragment shader then runs a fluid field over them. Domain-warped
+fbm gives the flow, an advancing front eats across the screen along a noise-warped boundary, and each
+pixel decides for itself which script it is showing based on whether the front has reached it. One
+GSAP tween drives one uniform; everything else is derived in the shader.
 
-Three things about it are deliberate:
+It is WebGL rather than the SVG filter it replaces because `feDisplacementMap` can only push pixels
+around inside a box — the "wave" was a rectangular band travelling left to right, which reads as a
+scan. A shader can make the boundary itself organic, tear the letterforms along it, refract through
+the ridge and leave the liquid behind as a body that floods the screen.
 
-- **The glyphs stay live SVG `<text>`, not extracted paths.** Devanagari needs real shaping — चिं
-  puts its i-matra *before* the consonant and its anusvara above — and the browser's shaper is the
-  only thing in reach that gets that right. opentype.js, the obvious build-time path extractor,
-  does not shape Devanagari, so baking paths would have produced authentic-looking nonsense. Real
-  path morphing was available (MorphSVGPlugin ships in the free GSAP package now) and was not worth
-  a mis-shaped script.
-- **The swap is buried in the distortion.** Each group is displaced hard enough to be illegible at
-  the wave's peak, and that is the frame where Devanagari hands to Latin — so it reads as one
-  liquid event, not two states cross-dissolving.
-- **The groups are the seven visually connected units, not eight.** A brief listing ग and ा
-  separately cannot be built: a lone matra is not something that stands on its own, and splitting
-  them yields GA + WA + WA + DE = GAWAWADE. Joined as गा the Latin comes out right.
+Two things that were wrong first and are worth not repeating:
 
-Group widths live in the `GROUPS` table as relative units rather than being measured, so spacing
-stays art-directable — nudge a number, not a layout algorithm. Reduced motion never reaches the
-module at all; `core.js` drops the loader first, which gets those visitors to the page faster than
-any still version would.
+- **The canvas font shorthand is `[style] [weight] [size] [family]`.** Folding a weight into the
+  family string gives `"500px 700 'Baloo'"`, which is invalid; the assignment is silently ignored and
+  every measurement afterwards comes back from the 10px default. The Latin plate worked and the
+  Devanagari one came out tiny, which is exactly the shape that bug makes.
+- **Canvas 2D does not honour `font-display`.** It draws whatever is available the instant it is
+  asked, so the plates have to wait on `document.fonts.load` explicitly. The timeline is created
+  paused and played once the faces resolve, with a 1.4s ceiling so a font that never arrives cannot
+  hang the entry.
 
-The Devanagari face is **Rozha One** (`assets/fonts/rozha-devanagari.woff2`, 71 KB, unicode-range
-limited to Devanagari), chosen because its high contrast matches Fraunces — the two scripts read as
-one family through the morph. It is preloaded on the portfolio only; the blog pages never request
-it.
+The shader renders below device resolution (0.7×) and runs three octaves rather than five. The field
+is soft enough that neither is visible, and together they took a software-rendered frame rate from 18
+to 40fps — a loader stuttering on a weak GPU is worse than a loader being slightly soft.
+
+## Fonts
+
+**Dela Gothic One** carries the Latin. **Baloo 2 at 700** carries the Devanagari — chosen because its
+heavy monoline weight matches Dela; the high-contrast alternatives fight it. Both are preloaded on the
+portfolio only and never requested by the blog.
+
+**AMS Prashant is not what is running here.** It is not on npm or Google Fonts and could not be
+obtained. It is also a legacy non-Unicode font: it maps Devanagari shapes onto Latin codepoints, so
+`चिंतामणी` would not render in it at all — the source text would have to become ASCII that means
+nothing to a screen reader or a search engine. If the file turns up, wiring it in is a one-line
+change, but the encoding problem is worth deciding about first.
 
 ## The favicon
 
