@@ -272,15 +272,20 @@ The offsets between groups are what make the change travel along the name
 instead of arriving everywhere at once.
 
 The name arrives out of a field of code rain — `assets/js/code-rain.js`,
-columns of Devanagari falling with a bright head and a fading trail — and each
-syllable cycles through that same alphabet before locking to its real glyph.
-Using one character set for the rain and the resolve is the whole trick: the
-type does not arrive over the rain, it settles out of it.
+columns falling with a bright head and a fading trail — and each syllable
+cycles through the Devanagari the rain is also falling in before locking to its
+real glyph. Sharing the characters is the whole trick: the type does not arrive
+over the rain, it settles out of it.
 
-Devanagari rather than katakana because the name is Devanagari. The form is
-what makes it read as code rain — falling columns, a bright head, a trail — not
-the particular script, and borrowing the alphabet of a film would have made it
-a costume.
+The field is Chinese, Devanagari, alphanumerics and the punctuation a language
+is actually made of, weighted by repetition rather than a table of
+probabilities. The Han is chosen for sense rather than at random — data, flow,
+code, network, system, process, cache, queue, thread, request, response — so a
+stranger reads it as texture either way and someone who reads Chinese finds the
+subject of the site rather than a keyboard mash. Devanagari is in there because
+the name is, and it is the part the scramble borrows; katakana is not, because
+the falling column is what makes this read as code rain, not the particular
+script, and borrowing the alphabet of a film would have made it a costume.
 
 **There was a wave before this, twice, and both were wrong the same way:** a
 gradient band first, then a WebGL fluid with a noise-warped front. A gradient
@@ -355,6 +360,22 @@ trail — sixty-odd draws a frame instead of well over a thousand.
 ties trail length to frame rate: identical code gives long tails on a fast
 machine and stubs on a slow one, which is exactly backwards. `1 - exp(-dt/tau)`
 holds the look steady wherever it runs.
+
+**There is no test for whether the Chinese will render,** and that is worth
+writing down because it looks like an omission. Rozha carries the Devanagari
+and GeistMono the Latin, but the Han comes from whatever the system has: a CJK
+face is several megabytes and no loading screen is worth that. Every platform
+that matters ships one, so the gap is a bare Linux desktop, where Chromium
+draws hex boxes instead — which in a field of falling code reads as more code
+rather than as breakage.
+
+Two ways to detect it were tried and neither works. Chromium's tofu is a box
+holding the character's own hex digits, so every missing codepoint renders
+differently and comparing one against another proves nothing. And its advance
+is exactly 1em — the same as a real Han glyph, measured at 16px against 16px —
+so comparing widths proves nothing either. A test that cannot be made reliable
+is worse than none, because its failure mode is dropping the Chinese on a
+machine that could have shown it.
 
 Thinning out is done by not restarting columns, never by cutting one mid-fall —
 a trail that vanishes reads as a dropped frame, a column that finishes and does

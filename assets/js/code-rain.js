@@ -29,10 +29,45 @@
 (function () {
   'use strict';
 
-  /* Consonants, a few vowels, and the Devanagari digits — the digits are what
-     stop it reading as decorative script and start it reading as code. */
-  var GLYPHS = ('अआइईउऊएऐओऔकखगघङचछजझटठडढणतथदधनपफबभमयरलवशषसह' +
-                '०१२३४५६७८९').split('');
+  /* Devanagari — consonants, a few vowels, and the digits. This is also the
+     set the loader's scramble cycles through, which is what ties the resolve
+     to the rain: the characters a syllable passes through on its way to itself
+     are characters that were falling a moment earlier. */
+  var DEV = ('अआइईउऊएऐओऔकखगघङचछजझटठडढणतथदधनपफबभमयरलवशषसह' +
+             '०१२३४५६७८९').split('');
+
+  /* Chinese, chosen for sense rather than at random: data, flow, code,
+     network, system, process, cache, queue, thread, request, response. A
+     stranger reads them as texture either way, and someone who reads Chinese
+     finds the subject of the site rather than a keyboard mash. */
+  var HAN = ('数据流码网络系统程序算法结构安全时间' +
+             '空间转换信号输入输出状态连接请求响应' +
+             '服务器存储缓存队列线程进程内核编译执行').split('');
+
+  /* The punctuation a language is actually made of, and the digits and letters
+     between them. */
+  var CODE = '{}[]()<>/\\|;:=+-*&^%$#@!?_~.,\'"`'.split('');
+  var ALNUM = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+
+  /* Rozha carries the Devanagari and GeistMono the Latin and the punctuation.
+     The Chinese comes from whatever the system has: a CJK face is several
+     megabytes and no loading screen is worth that, and there is no subsetting
+     step in this repo to cut one down.
+
+     Every platform that matters ships one — Windows, macOS, iOS, Android,
+     ChromeOS — so the gap is a bare Linux desktop, where Chromium draws its
+     hex boxes instead. In a field of falling code that reads as more code
+     rather than as breakage, which is the one place it is survivable.
+
+     There is no feature test here on purpose, and it is worth writing down
+     why, because it looks like an omission. Chromium's tofu is a box holding
+     the character's own hex digits, so every missing codepoint renders
+     differently and comparing one against another proves nothing; and its
+     advance is exactly 1em, the same as a real Han glyph, so measuring widths
+     proves nothing either. Both were tried. A test that cannot be made
+     reliable is worse than none, because its failure mode is dropping the
+     Chinese on a machine that could have shown it. */
+  var FACE = "'Rozha', 'GeistMono', ui-monospace, monospace";
 
   function rgb(hex, fallback) {
     var h = (hex || '').trim().replace('#', '');
@@ -57,6 +92,12 @@
 
       var W = 0, H = 0, dpr = 1, cell = 0, rows = 0;
       var y = [], v = [], on = [], at = [];
+
+      /* Weighted by repetition rather than by a table of probabilities: the
+         Han and the Devanagari are what the field should read as, and the
+         punctuation is seasoning — all of it in one flat array so picking is a
+         single random index. */
+      var POOL = [].concat(HAN, HAN, HAN, DEV, DEV, ALNUM, CODE);
       var paper = [10, 11, 10], accent = [198, 242, 78], ink = [244, 246, 242];
       var headA = 0.92, trailA = 0.55;
 
@@ -87,7 +128,11 @@
         canvas.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-        cell = Math.max(17, Math.min(30, W / 62));
+        /* Narrow cells, so a wide screen carries well over a hundred columns.
+           The floor is where it is because the Han has to stay legible: below
+           about thirteen pixels a character with fifteen strokes in it is a
+           smudge, and a smudge is not a character falling. */
+        cell = Math.max(13, Math.min(19, W / 112));
         rows = Math.ceil(H / cell) + 2;
         var n = Math.ceil(W / cell);
 
@@ -124,12 +169,12 @@
            and stubs on a slow one, which is exactly backwards. Shorter half
            life as the rain thins, so the screen is clear by the time the name
            has to stand on its own. */
-        var tau = 0.12 + dens * 0.62;                  // seconds to fade out
+        var tau = 0.14 + dens * 1.45;                  // seconds to fade out
         var fade = 1 - Math.exp(-dt / tau);
         ctx.fillStyle = 'rgba(' + paper.join(',') + ',' + fade.toFixed(4) + ')';
         ctx.fillRect(0, 0, W, H);
 
-        ctx.font = "400 " + (cell * 0.86).toFixed(1) + "px 'Rozha', serif";
+        ctx.font = "400 " + (cell * 0.86).toFixed(1) + "px " + FACE;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'alphabetic';
 
@@ -140,7 +185,7 @@
           var row = Math.floor(y[i]);
           if (row !== at[i] && row >= 0) {
             at[i] = row;
-            var g = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+            var g = POOL[(Math.random() * POOL.length) | 0];
             var px = i * cell + cell / 2;
             var py = row * cell + cell * 0.82;
 
@@ -149,7 +194,7 @@
             ctx.fillStyle = 'rgba(' + ink.join(',') + ',' + headA + ')';
             ctx.fillText(g, px, py);
             ctx.fillStyle = 'rgba(' + accent.join(',') + ',' + trailA + ')';
-            ctx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], px, py - cell);
+            ctx.fillText(POOL[(Math.random() * POOL.length) | 0], px, py - cell);
           }
 
           if (row > rows) {
@@ -184,8 +229,10 @@
       };
     },
 
-    /** The same alphabet, for the loader's scramble — one character set for
-     *  the rain and the resolve is what ties them together. */
-    glyphs: GLYPHS
+    /** The Devanagari the loader's scramble cycles through. Only that part of
+     *  the rain's alphabet: a syllable of the name resolving through Han and
+     *  brackets would be a different idea, and the giant type is also the one
+     *  place a missing glyph would be impossible to miss. */
+    glyphs: DEV
   };
 })();

@@ -259,7 +259,10 @@
     try {
       Promise.all([
         f.load('400 116px Rozha', dev),
-        f.load('800 88px Fraunces', lat)
+        f.load('800 88px Fraunces', lat),
+        // the rain draws its Latin and its punctuation in this one, and a
+        // canvas does not honour font-display either
+        f.load('400 20px GeistMono', '01AB{}')
       ]).then(go, go);
     } catch (e) { go(); }
 
@@ -351,9 +354,10 @@
 
       /* Phase 1 — the field fills with rain, and the name resolves out of it.
 
-         Each syllable cycles through the rain's own alphabet before locking to
-         its real glyph. Using the same character set for both is the whole
-         trick: the type does not arrive over the rain, it settles out of it.
+         Each syllable cycles through the Devanagari the rain is also falling
+         in before locking to its real glyph. Sharing the characters is the
+         whole trick: the type does not arrive over the rain, it settles out
+         of it.
          A small rise underneath, in percent of a cell that is now most of the
          screen — 18 was tuned against a much shorter cell and became a drop of
          fifty pixels, enough to put the second row over the footer. */
