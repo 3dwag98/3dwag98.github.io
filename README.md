@@ -23,6 +23,7 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        theme.js       # dark/light toggle + the cg:theme event
 │   │        life.js        # Conway's Game of Life + its tutorial
 │   │        typography-loader.js  # चिंतामणी गावडे → CHINTAMANI GAWADE
+│   │        code-rain.js   # the field the name resolves out of
 │   │        favicon.js     # the animated tab mark
 │   ├── fonts/              # self-hosted woff2 — no external font request
 │   ├── plates/             # generated line-work, twelve plates
@@ -270,13 +271,25 @@ so the eye reads one continuous event rather than two states cross-dissolving.
 The offsets between groups are what make the change travel along the name
 instead of arriving everywhere at once.
 
-**There is no wave.** There were two, and both were wrong in the same way: a
+The name arrives out of a field of code rain — `assets/js/code-rain.js`,
+columns of Devanagari falling with a bright head and a fading trail — and each
+syllable cycles through that same alphabet before locking to its real glyph.
+Using one character set for the rain and the resolve is the whole trick: the
+type does not arrive over the rain, it settles out of it.
+
+Devanagari rather than katakana because the name is Devanagari. The form is
+what makes it read as code rain — falling columns, a bright head, a trail — not
+the particular script, and borrowing the alphabet of a film would have made it
+a costume.
+
+**There was a wave before this, twice, and both were wrong the same way:** a
 gradient band first, then a WebGL fluid with a noise-warped front. A gradient
 can only ever be a rectangle sliding across, and the shader — domain-warped
 fbm, ragged leading edge, the lot — still read as a scan passing over the type,
 because that is what a bright thing crossing a screen looks like no matter how
-organically its edge is drawn. The sequence says the same thing more clearly
-with nothing on top of it.
+organically its edge is drawn. Rain does not have that problem: it is many
+small things rather than one big one, it is persistent rather than passing, and
+it becomes the type instead of sweeping over it.
 
 **The glyphs stay live text rather than extracted paths.** Devanagari needs
 real shaping — चिं puts its i-matra before the consonant and its anusvara above
@@ -328,6 +341,35 @@ One CSS custom property drives both axes of the cell, so the ratio between them
 It is `min(9.4vw, 14vh)`, because the binding constraint changes with the
 window: on a wide short one it is the height, since two rows of this have to
 clear the footer, and on a narrow tall one it is the width.
+
+### The rain
+
+Two things in it are worth copying.
+
+**The trail is not drawn.** Each frame paints a translucent sheet of the paper
+colour over the whole canvas, and each column draws one glyph when it steps to
+a new row. Everything already on screen dims a little every frame, which is the
+trail — sixty-odd draws a frame instead of well over a thousand.
+
+**That sheet is a decay over time, not a fixed alpha per frame.** A fixed alpha
+ties trail length to frame rate: identical code gives long tails on a fast
+machine and stubs on a slow one, which is exactly backwards. `1 - exp(-dt/tau)`
+holds the look steady wherever it runs.
+
+Thinning out is done by not restarting columns, never by cutting one mid-fall —
+a trail that vanishes reads as a dropped frame, a column that finishes and does
+not come back reads as rain stopping. And the glyph weight is picked by
+comparing the luminance of `--paper` and `--ink`: the same alpha does not read
+the same on both grounds, since light glyphs on dark are points of light while
+dark glyphs on light are a page of noise.
+
+Two bugs it had first, both invisible without measuring: columns seeded above
+the top edge at a random height up to a full screen never arrive inside the
+life of a loader, so the field has to be seeded *down the screen* instead; and
+the scramble has to draw from characters that fit — a cell whose Devanagari is
+the wider of its two scripts has no slack, and a fat glyph dropped into it sits
+on the syllable next door. The alphabet is measured once at a reference size
+and scaled per cell, since width scales with font size.
 
 ### Timing
 
