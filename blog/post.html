@@ -59,12 +59,30 @@
   <div class="wrap">
     <a class="article__back label" href="./">&larr; All blogs</a>
 
-    <h1 class="article__title" data-post-title>Loading&hellip;</h1>
+    <!-- The title and the body carry a placeholder in the shape of what is
+         being fetched, in the markup rather than written by post.js, so the
+         page has that shape from its first paint. post.js replaces both. -->
+    <h1 class="article__title" data-post-title aria-busy="true">
+      <span class="skel" aria-hidden="true"><span class="skel__bar skel__head"></span></span>
+      <span class="vh">Loading the entry</span>
+      <noscript>Blogs</noscript>
+    </h1>
     <div class="article__meta" data-post-meta></div>
     <div class="article__chips" data-post-tags></div>
 
     <div class="article__layout">
-      <article class="prose" data-post-body><p>Fetching the entry&hellip;</p></article>
+      <article class="prose" data-post-body aria-busy="true">
+        <span class="skel" aria-hidden="true">
+          <span class="skel__bar skel__line skel__line--a"></span>
+          <span class="skel__bar skel__line skel__line--b"></span>
+          <span class="skel__bar skel__line skel__line--a"></span>
+          <span class="skel__bar skel__line skel__line--c"></span>
+          <span class="skel__bar skel__line skel__line--b"></span>
+          <span class="skel__bar skel__line skel__line--a"></span>
+          <span class="skel__bar skel__line skel__line--c"></span>
+        </span>
+        <noscript><p class="blogs__empty">The entries are built from <b>posts.json</b> at runtime, so this list needs JavaScript. <a class="lbl lbl--acc" href="https://github.com/3dwag98/3dwag98.github.io/tree/main/blog/posts">Read them on GitHub &rarr;</a></p></noscript>
+      </article>
       <aside class="toc" data-post-toc></aside>
     </div>
 

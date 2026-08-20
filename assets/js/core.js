@@ -25,7 +25,13 @@
   var hasST = hasGsap && !!ST;
   var motion = hasGsap && !reduced;
 
-  if (hasST) gsap.registerPlugin(ST);
+  if (hasST) {
+    gsap.registerPlugin(ST);
+    /* A phone hiding or showing its address bar resizes the viewport, and a
+       refresh in the middle of a scroll re-measures every pinned scene and
+       jumps the page. The height changes, the layout does not. */
+    ST.config({ ignoreMobileResize: true });
+  }
   if (hasGsap && window.SplitText) gsap.registerPlugin(window.SplitText);
 
   /* Scenes that are pinned, stacked or crossfaded only lay out correctly while
@@ -42,9 +48,18 @@
   function initLenis() {
     if (reduced || !window.Lenis) return null;
 
+    /* lerp, not duration + easing. Those two are alternatives inside Lenis,
+       and the duration path restarts its ease from zero on every wheel event:
+       under continuous input — a trackpad, a free-spinning wheel — that is a
+       new curve sixty times a second, and it reads as the small stutter it
+       is. lerp is an exponential approach to wherever the target has got to,
+       normalised against the frame time, so a continuous gesture stays one
+       continuous movement and a slow frame does not shorten the glide.
+
+       0.085 rather than the 0.1 default: a little longer on the tail, which
+       suits a page whose scenes are nearly all scrubbed. */
     var l = new window.Lenis({
-      duration: 1.15,
-      easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      lerp: 0.085,
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 1.7
@@ -471,6 +486,114 @@
     gsap.to(bar, { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.3 } });
   }
 
+  /**
+   * A hint that the page goes on, shown only when the page has gone quiet.
+   *
+   * Built here rather than put in every document: it belongs to the same
+   * family as the progress bar, it has nothing to say without a runtime, and
+   * four copies of the same markup is four places to forget.
+   *
+   * When it shows is the whole design. Permanently on, it is furniture the
+   * eye stops seeing, and it sits over the page for the entire visit; on for
+   * three seconds and gone forever, it is a splash. So it comes back whenever
+   * the page has been still for a while and there is somewhere left to go —
+   * which is when a visitor is either reading or stuck, and only one of those
+   * needs telling. It leaves the moment the page moves.
+   *
+   * It is also a button. Something that appears when nothing is happening
+   * ought to do the thing it is suggesting, and on a laptop with no obvious
+   * gesture that is the whole difference between a hint and an instruction.
+   */
+  var STEADY = 2600;               // how long still counts as steady
+  var FOOT = 160;                  // no hint this close to the end
+
+  function initSteady() {
+    if (document.querySelector('.hint')) return;
+
+    var el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'hint';
+    el.setAttribute('aria-label', 'Scroll down');
+    // starts invisible, so it starts out of the tab order and off the tree
+    el.setAttribute('aria-hidden', 'true');
+    el.tabIndex = -1;
+    el.innerHTML = '<span class="hint__rail"><i></i></span><span class="lbl hint__lbl">Scroll</span>';
+    document.body.appendChild(el);
+
+    var timer = 0, shown = false;
+
+    /* A page may carry its own cue — the home hero has one in its foot, as
+       part of that composition. Two of them saying the same thing at once is
+       one too many, so this one waits until the page's own has scrolled off. */
+    var cues = Array.prototype.slice.call(document.querySelectorAll('[data-cue]'));
+
+    function cued() {
+      return cues.some(function (c) {
+        var r = c.getBoundingClientRect();
+        return r.bottom > 0 && r.top < window.innerHeight;
+      });
+    }
+
+    function room() {
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight || 0) - window.innerHeight;
+      if (max <= FOOT || cued()) return false;
+      return (window.scrollY || doc.scrollTop || 0) < max - FOOT;
+    }
+
+    function show(on) {
+      if (on === shown) return;
+      shown = on;
+      el.classList.toggle('is-on', on);
+      // out of the tab order and off the accessibility tree while invisible,
+      // so it is never a control a keyboard lands on and cannot see
+      el.setAttribute('aria-hidden', on ? 'false' : 'true');
+      el.tabIndex = on ? 0 : -1;
+    }
+
+    // armed even with nothing to scroll yet, because it re-checks when it
+    // fires: the blog pages are their own short shell until the fetch lands
+    function arm() {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(function () { timer = 0; show(room()); }, STEADY);
+    }
+
+    function settle() {          // the page moved: hide, and start counting again
+      show(false);
+      arm();
+    }
+
+    /* A page that grows on its own — an archive rendering, a post arriving,
+       a pinned scene being measured — has not been touched, so this only
+       starts the clock when nothing else is going to. Growth that hid the
+       hint or pushed its moment back meant the home page, which re-measures
+       for as long as its scenes are settling, never showed one at all. */
+    function grew() {
+      if (shown || timer) return;
+      arm();
+    }
+
+    el.addEventListener('click', function () {
+      show(false);
+      scrollTo((window.scrollY || 0) + window.innerHeight * 0.9);
+    });
+
+    window.addEventListener('scroll', settle, { passive: true });
+    window.addEventListener('resize', settle);
+
+    if (window.ResizeObserver) {
+      var tall = 0;
+      new window.ResizeObserver(function () {
+        var h = document.documentElement.scrollHeight;
+        if (h === tall) return;
+        tall = h;
+        grew();
+      }).observe(document.body);
+    }
+
+    arm();
+  }
+
   function initAnchors() {
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a[href^="#"]');
@@ -513,6 +636,7 @@
     window.CG.lenis = lenis;
 
     initAnchors();
+    initSteady();
     initNavBar();
     initCursor();
     initMagnets();

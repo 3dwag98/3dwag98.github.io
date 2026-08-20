@@ -84,7 +84,18 @@
   </section>
 
   <section class="wrap arch-list">
-    <div data-log-list><p class="blogs__empty">Reading the index&hellip;</p></div>
+    <div data-log-list aria-busy="true">
+      <!-- Entry-shaped placeholders, in the markup rather than written by
+           blog.js, so they are on screen from the first paint instead of
+           waiting for a script to arrive and say the page is working. -->
+      <div class="skel" aria-hidden="true">
+        <div class="skel__row"><span class="skel__bar skel__no"></span><span><span class="skel__bar skel__title"></span><span class="skel__bar skel__sum"></span></span><span class="skel__bar skel__meta"></span></div>
+        <div class="skel__row"><span class="skel__bar skel__no"></span><span><span class="skel__bar skel__title"></span><span class="skel__bar skel__sum"></span></span><span class="skel__bar skel__meta"></span></div>
+        <div class="skel__row"><span class="skel__bar skel__no"></span><span><span class="skel__bar skel__title"></span><span class="skel__bar skel__sum"></span></span><span class="skel__bar skel__meta"></span></div>
+        <div class="skel__row"><span class="skel__bar skel__no"></span><span><span class="skel__bar skel__title"></span><span class="skel__bar skel__sum"></span></span><span class="skel__bar skel__meta"></span></div>
+      </div>
+      <noscript><p class="blogs__empty">The entries are built from <b>posts.json</b> at runtime, so this list needs JavaScript. <a class="lbl lbl--acc" href="https://github.com/3dwag98/3dwag98.github.io/tree/main/blog/posts">Read them on GitHub &rarr;</a></p></noscript>
+    </div>
   </section>
 </main>
 

@@ -80,5 +80,35 @@
       '</a>';
   }
 
-  window.CGPosts = { load: load, rowHTML: rowHTML, dateLabel: dateLabel, readingTime: readingTime, esc: esc };
+  /* ── loading state ─────────────────────────────────────────────────── */
+
+  /** N entry-shaped placeholders. Built here rather than written into each
+   *  document because all three places that show entries fetch them the same
+   *  way, and a placeholder that drifts out of step with the row it stands in
+   *  for is worse than none. */
+  function skeletonHTML(n) {
+    var row =
+      '<div class="skel__row">' +
+        '<span class="skel__bar skel__no"></span>' +
+        '<span>' +
+          '<span class="skel__bar skel__title"></span>' +
+          '<span class="skel__bar skel__sum"></span>' +
+        '</span>' +
+        '<span class="skel__bar skel__meta"></span>' +
+      '</div>';
+    return '<div class="skel" aria-hidden="true">' + new Array(Math.max(1, n | 0) + 1).join(row) + '</div>';
+  }
+
+  /** Puts the placeholder up and hands back the function that takes it down.
+   *  aria-busy rather than a live region: a screen reader should be told the
+   *  container is filling, not read a description of grey bars. */
+  function pending(el, n) {
+    if (!el) return function () {};
+    el.setAttribute('aria-busy', 'true');
+    el.innerHTML = skeletonHTML(n);
+    return function () { el.removeAttribute('aria-busy'); };
+  }
+
+  window.CGPosts = { load: load, rowHTML: rowHTML, dateLabel: dateLabel, readingTime: readingTime,
+                     esc: esc, skeletonHTML: skeletonHTML, pending: pending };
 })();

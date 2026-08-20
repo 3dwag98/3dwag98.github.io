@@ -442,6 +442,142 @@ body::after { mix-blend-mode: screen; opacity: 0.13; }
   z-index: 95; will-change: transform;
 }
 
+/* ---------- loading state ----------------------------------------------
+   The archive, the reader and the home teaser all have to fetch posts.json
+   before they have anything to say. What stood here was a sentence — "Reading
+   the index…" — which tells a visitor the page is working but not what is
+   coming, and then replaces itself with something a completely different
+   height, so the page jumps.
+
+   Bars in the shape of the thing being fetched fix both: the row that arrives
+   lands where its placeholder was, and the shape itself says "a list of
+   entries" before a single word of one exists. */
+
+/* display: block because it is a <span> inside the article title and the
+   prose — neither of which will take a <div> — and an inline box would give
+   the bars no height and the sweep nothing to run across. */
+.skel { display: none; --skel: 1.05rem; }
+/* Only with a runtime. Nothing fills these in without one, and grey bars that
+   never resolve read as a page that broke rather than one that is loading —
+   the <noscript> beside them says what is actually going on. */
+html.js .skel { display: block; }
+.skel[hidden] { display: none; }
+
+/* Off screen, still read aloud. The bars themselves are aria-hidden, so
+   without this the heading is an empty element until the fetch lands. */
+.vh {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+
+.skel__bar {
+  display: block; height: var(--skel);
+  border-radius: 2px;
+  background: var(--line);
+  /* Never the accent, and never a pulse of it. This is the page admitting it
+     has nothing yet; it should sit under the reading colour, not compete with
+     the entries about to replace it. */
+  opacity: 0.85;
+}
+
+/* The sweep is one gradient moving across, on the container rather than on
+   every bar, so a row of them reads as one surface catching light instead of
+   four things blinking out of step. */
+html.motion .skel {
+  -webkit-mask-image: linear-gradient(100deg, #000 38%, rgba(0, 0, 0, 0.45) 50%, #000 62%);
+          mask-image: linear-gradient(100deg, #000 38%, rgba(0, 0, 0, 0.45) 50%, #000 62%);
+  -webkit-mask-size: 260% 100%;
+          mask-size: 260% 100%;
+  animation: skel-sweep 1.6s linear infinite;
+}
+
+@keyframes skel-sweep {
+  from { -webkit-mask-position: 160% 0; mask-position: 160% 0; }
+  to   { -webkit-mask-position: -60% 0; mask-position: -60% 0; }
+}
+
+/* An entry-shaped row: the number, the title, its summary, the meta. Same
+   grid as .entry, so the real rows drop straight into these positions. */
+.skel__row {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.55rem;
+  padding: clamp(1.2rem, 2.8vw, 2.1rem) 0;
+  border-top: 1px solid var(--line);
+}
+
+.skel__row:last-child { border-bottom: 1px solid var(--line); }
+
+@media (min-width: 860px) {
+  .skel__row { grid-template-columns: 3.5rem minmax(0, 1fr) auto; gap: 2.5rem; align-items: start; }
+}
+
+.skel__no { width: 1.6rem; height: 0.7rem; }
+.skel__title { height: clamp(1.35rem, 2.5vw, 2rem); width: min(100%, 26ch); }
+.skel__sum { margin-top: 0.6rem; height: 0.8rem; width: min(100%, 48ch); }
+.skel__meta { width: 7rem; height: 0.7rem; }
+
+/* And an article: the title, its meta, then paragraphs. The widths taper the
+   way a last line of a paragraph does, so it reads as prose rather than as a
+   block of identical bars. */
+.skel__head { height: clamp(2rem, 5vw, 3.4rem); width: min(100%, 18ch); margin-bottom: 1.1rem; }
+.skel__line { height: 0.9rem; margin-bottom: 0.75rem; }
+.skel__line--a { width: 96%; }
+.skel__line--b { width: 88%; }
+.skel__line--c { width: 61%; margin-bottom: 2rem; }
+
+/* ---------- the steady-state scroll hint -------------------------------- */
+
+/* Shown by core.js once the page has been still for a moment and there is
+   still somewhere to go. Pinned to the bottom edge rather than to the hero,
+   because it comes back further down the page as well. */
+.hint {
+  position: fixed; z-index: 90;
+  left: 50%; bottom: clamp(1.1rem, 3vh, 2.2rem);
+  display: flex; flex-direction: column; align-items: center; gap: 0.55rem;
+  padding: 0.6rem 0.9rem 0.5rem;
+  background: none; border: 0; color: var(--mute);
+  cursor: pointer;
+  opacity: 0; transform: translate(-50%, 0.75rem);
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), color 0.3s ease;
+}
+
+.hint.is-on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.hint:hover, .hint:focus-visible { color: var(--accent); }
+
+/* The rail is the hint. A dash falls down it and starts again, which says
+   "this way" without an arrow, and reads at any size. */
+.hint__rail {
+  position: relative; display: block;
+  width: 1px; height: 2.1rem;
+  background: currentColor; opacity: 0.5;
+  overflow: hidden;
+}
+
+.hint__rail i {
+  position: absolute; left: 0; top: 0;
+  width: 1px; height: 45%;
+  background: var(--accent);
+}
+
+html.motion .hint.is-on .hint__rail i { animation: hint-fall 1.9s var(--ease) infinite; }
+
+@keyframes hint-fall {
+  0%   { transform: translateY(-100%); }
+  60%  { transform: translateY(220%); }
+  100% { transform: translateY(220%); }
+}
+
+.hint__lbl { letter-spacing: 0.2em; color: inherit; }
+
+/* The label stays on a phone. It was dropped once for room, which left a
+   one-pixel hairline as the entire hint — invisible at arm's length, and the
+   small screen is where a visitor most needs telling. */
+@media (max-width: 560px) {
+  .hint { padding: 0.5rem 0.75rem; gap: 0.45rem; }
+  .hint__rail { height: 1.7rem; }
+}
+
 .loader, .curtain { display: none; }
 html.js .curtain { display: grid; }
 
@@ -492,8 +628,11 @@ html.js .loader {
   will-change: transform;
 }
 
-/* the second word starts a new line */
+/* Where a line may break. There is one of these before every syllable but
+   the first, and the loader turns on the ones it wants once it has worked out
+   how many lines the name takes at this window size. */
 .tl__break { flex-basis: 100%; height: 0; }
+.tl__break--off { display: none; }
 
 .tl__cell { will-change: transform, opacity; }
 
@@ -511,7 +650,7 @@ html.js .loader {
   /* Taller than VBH/UNIT times the width unit, so width is what governs the
      glyph scale everywhere — otherwise height quietly caps it below the room
      available and the unit stops controlling the size. */
-  height: calc(3 * var(--tl-u));
+  height: calc(3 * var(--tl-u));   /* the 3 is ROW_H in typography-loader.js */
   overflow: visible;
 }
 

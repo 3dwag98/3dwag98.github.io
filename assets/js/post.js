@@ -191,11 +191,14 @@
   }
 
   function fail(message) {
-    if (els.title) els.title.textContent = 'Not found';
+    if (els.title) { els.title.removeAttribute('aria-busy'); els.title.textContent = 'Not found'; }
     if (els.meta) els.meta.innerHTML = '<span>404</span>';
     if (els.toc) els.toc.remove();
     if (els.nav) els.nav.remove();
-    if (els.body) els.body.innerHTML = '<p>' + esc(message) + '</p><p><a href="./">Back to the archive &rarr;</a></p>';
+    if (els.body) {
+      els.body.removeAttribute('aria-busy');
+      els.body.innerHTML = '<p>' + esc(message) + '</p><p><a href="./">Back to the archive &rarr;</a></p>';
+    }
     document.title = 'Not found · Blogs';
   }
 
@@ -229,7 +232,10 @@
           var desc = document.querySelector('meta[name="description"]');
           if (desc && summary) desc.setAttribute('content', summary);
 
-          if (els.title) els.title.textContent = title;
+          if (els.title) {
+            els.title.removeAttribute('aria-busy');   // and the placeholder in it
+            els.title.textContent = title;
+          }
 
           if (els.meta) {
             els.meta.innerHTML =
@@ -244,6 +250,7 @@
             }).join('');
           }
 
+          els.body.removeAttribute('aria-busy');
           els.body.innerHTML = sanitize(toHTML(parsed.body, post.format));
           decorate(els.body);
           neighbours(posts, i);

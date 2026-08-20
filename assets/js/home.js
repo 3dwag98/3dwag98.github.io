@@ -384,7 +384,11 @@
             trigger: roles[i + 1],
             start: 'top bottom',
             end: 'top top',
-            scrub: true,
+            /* A catch-up, like every other scene here. scrub: true pins the
+               tween to the raw scroll position, which under smoothed scroll
+               is the one thing on the page moving without any easing at all —
+               next to its neighbours it read as the harder of the two. */
+            scrub: 0.6,
             invalidateOnRefresh: true
           }
         });
@@ -490,11 +494,13 @@
     window.CGPosts.load('blog/')
       .then(function (posts) {
         if (!posts.length) throw new Error('empty');
+        list.removeAttribute('aria-busy');    // the placeholder rows go with it
         list.innerHTML = posts.slice(0, limit).map(window.CGPosts.rowHTML).join('');
         if (CG.reveal) CG.reveal(list);
         if (ST) ST.refresh();
       })
       .catch(function () {
+        list.removeAttribute('aria-busy');
         list.innerHTML = '<p class="blogs__empty">The index could not be read here. ' +
           '<a class="lbl lbl--acc" href="blog/">Open the archive &rarr;</a></p>';
       });
