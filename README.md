@@ -544,6 +544,33 @@ settling, never showed a hint at all. And a page may carry **its own cue**: the
 home hero has one in its foot, marked `data-cue`, and this one waits until that
 has scrolled off rather than saying the same thing twice.
 
+#### Making it visible
+
+The first version was too faint to do its job on a phone, and measuring said
+why in three parts rather than one.
+
+The rail was a one-pixel line at half opacity: **2.2:1** against the page, under
+the 3:1 a non-text cue needs, and it was the thing a visitor was being asked to
+notice. Two pixels at 0.7 takes it to 6:1 on a phone and 3.3:1 on a desktop.
+
+The dash was **parked off the end of the rail for 40% of every cycle** — three
+quarters of a second at a time with nothing on screen but the faint half. It
+now fades out at the bottom and in again at the top, and is on the rail for
+about two thirds of the cycle.
+
+And the label was eleven muted pixels at the bottom edge of a small screen. On a
+phone it is set in the reading colour and a size up: **5.7:1 → 11.6:1** in dark,
+5.6:1 → 9.9:1 in light.
+
+Two things followed from making it legible. It needed **its own ground**, because
+a chip that reads is a chip that covers the sentence behind it — the same scrim
+the nav uses, but solid rather than blurred: a pill this size that blurs the
+words behind it reads as a smudge on the page rather than something sitting on
+it. And on a phone it moved **out of the centre and into the right gutter**: a
+phone's measure is the whole screen, so a chip in the middle of it lands square
+on the line being read, while the text is left-aligned and the right edge is
+where the rag already is.
+
 ## The loading state
 
 The archive, the reader and the home teaser all fetch `posts.json` before they
