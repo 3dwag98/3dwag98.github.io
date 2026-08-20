@@ -67,9 +67,13 @@ function extract(raw, format) {
   return { meta: m ? parseMeta(m[1]) : {}, body: raw.replace(/<!--[\s\S]*?-->/g, '') };
 }
 
+/* Prose only: what a reader actually reads, which decides the reading time
+   and the fallback summary. Markdown gets its tags stripped too — an entry
+   with an inline SVG diagram was counting every attribute as a word, and two
+   diagrams put three minutes on the estimate. */
 const plain = (body, format) =>
   (format === 'md'
-    ? body.replace(/```[\s\S]*?```/g, ' ').replace(/[#>*_`\-|]/g, ' ')
+    ? body.replace(/```[\s\S]*?```/g, ' ').replace(/<[^>]+>/g, ' ').replace(/[#>*_`\-|]/g, ' ')
     : body.replace(/<[^>]+>/g, ' ')
   ).replace(/\s+/g, ' ').trim();
 
