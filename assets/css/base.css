@@ -534,7 +534,7 @@ html.motion .skel {
   position: fixed; z-index: 90;
   left: 50%; bottom: clamp(1.1rem, 3vh, 2.2rem);
   display: flex; flex-direction: column; align-items: center; gap: 0.55rem;
-  padding: 0.6rem 0.9rem 0.5rem;
+  padding: 0.65rem 1.15rem 0.55rem;
   background: none; border: 0; color: var(--mute);
   cursor: pointer;
   opacity: 0; transform: translate(-50%, 0.75rem);
@@ -545,37 +545,70 @@ html.motion .skel {
 .hint.is-on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 .hint:hover, .hint:focus-visible { color: var(--accent); }
 
+/* It floats over whatever happens to be at the bottom of the page, which on a
+   phone is usually body text — the label was landing on a sentence and taking
+   the sentence with it. So it carries its own ground.
+
+   Nearly solid, and no backdrop blur, which is where this differs from the
+   nav. The nav is a full-width bar and a hard edge across the screen would be
+   heavy, so it blurs; a pill this size that blurs the words behind it reads as
+   a smudge on the page rather than a chip sitting on it. */
+.hint::before {
+  content: '';
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 96%, transparent);
+  border: 1px solid var(--line);
+}
+
 /* The rail is the hint. A dash falls down it and starts again, which says
-   "this way" without an arrow, and reads at any size. */
+   "this way" without an arrow, and reads at any size.
+
+   Two pixels wide at 0.7, not one at 0.5. The hairline it started as measured
+   **2.2:1** against the page — under the 3:1 a non-text cue needs, and the
+   thing a visitor was being asked to notice. */
 .hint__rail {
   position: relative; display: block;
-  width: 1px; height: 2.1rem;
-  background: currentColor; opacity: 0.5;
+  width: 2px; height: 2.1rem; border-radius: 1px;
+  background: currentColor; opacity: 0.7;
   overflow: hidden;
 }
 
 .hint__rail i {
   position: absolute; left: 0; top: 0;
-  width: 1px; height: 45%;
+  width: 2px; height: 50%; border-radius: 1px;
   background: var(--accent);
 }
 
-html.motion .hint.is-on .hint__rail i { animation: hint-fall 1.9s var(--ease) infinite; }
+html.motion .hint.is-on .hint__rail i { animation: hint-fall 1.7s linear infinite; }
 
+/* It fades out at the bottom and in again at the top rather than parking off
+   the end. The first version rested for 40% of every cycle, which left the
+   rail alone on screen for three quarters of a second at a time — and the
+   rail is the faint half. Now the dash is gone for a tenth of the cycle. */
 @keyframes hint-fall {
-  0%   { transform: translateY(-100%); }
-  60%  { transform: translateY(220%); }
-  100% { transform: translateY(220%); }
+  0%        { transform: translateY(-110%); opacity: 0; }
+  18%       { opacity: 1; }
+  88%, 100% { transform: translateY(215%); opacity: 0; }
 }
 
 .hint__lbl { letter-spacing: 0.2em; color: inherit; }
 
-/* The label stays on a phone. It was dropped once for room, which left a
-   one-pixel hairline as the entire hint — invisible at arm's length, and the
-   small screen is where a visitor most needs telling. */
+/* A phone gets more of everything. The label stays — it was dropped once for
+   room, which left the hairline as the entire hint — and it is set in the
+   reading colour rather than the muted one, because eleven muted pixels at
+   the bottom edge of a small screen is exactly where this went unnoticed. */
 @media (max-width: 560px) {
-  .hint { padding: 0.5rem 0.75rem; gap: 0.45rem; }
-  .hint__rail { height: 1.7rem; }
+  .hint { padding: 0.6rem 1rem 0.5rem; gap: 0.5rem; color: var(--ink-2); }
+  .hint__rail { height: 2rem; }
+  .hint__lbl { font-size: 0.75rem; letter-spacing: 0.22em; }
+
+  /* Out of the middle of the column and into the gutter. A phone's measure is
+     the whole screen, so a chip in the centre of it lands square on the line
+     someone is reading; the text is left-aligned, so the right edge is where
+     the rag already is and where the eye is not returning to. */
+  .hint { left: auto; right: var(--pad); transform: translate(0, 0.75rem); }
+  .hint.is-on { transform: translate(0, 0); }
 }
 
 .loader, .curtain { display: none; }
