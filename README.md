@@ -721,6 +721,12 @@ several needed their alpha and density raised once the ground changed colour.
   does not animate them. It runs at 10fps, pauses while the tab is hidden, follows the theme, and
   draws a single static frame under reduced motion. The inline SVG in each page's `<link>` stays
   as the no-JS mark.
+- **Cloudflare Web Analytics** is the only third party on the page: a versionless beacon at the
+  end of every `<body>`, cookieless, with no fingerprinting and nothing stored on the visitor's
+  machine. It carries no `integrity` hash, unlike everything else here — Cloudflare rolls that
+  file, so a pinned hash would break the day they ship a change — and no fallback, because a
+  blocked beacon should do nothing at all. That case is tested: with the request aborted, every
+  page still renders, lays out and finishes its loading states.
 - Libraries load from jsdelivr at pinned versions — GSAP 3.15.0, Lenis 1.3.26, marked 18.0.10,
   DOMPurify 3.4.13, Prism 1.30.0 — each with an `integrity` hash computed from the published npm
   tarball. A short inline guard after the CDN tags checks for each global and pulls the matching
