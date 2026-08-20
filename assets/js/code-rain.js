@@ -1,23 +1,26 @@
 /* ============================================================================
    code-rain.js — the field the name comes out of.
 
-   Columns of Devanagari falling down the screen, which the loader then pulls
-   the name out of: each syllable cycles through the same character set before
-   locking to its real glyph, so the type reads as something the rain resolved
-   into rather than something laid on top of it.
+   Columns of Devanagari, letters, digits and punctuation falling down the
+   screen, which the loader then pulls the name out of: each syllable cycles
+   through the Devanagari before locking to its real glyph, so the type reads
+   as something the rain resolved into rather than something laid on top of it.
 
-   Devanagari rather than katakana because the name is Devanagari. The form is
-   what makes it read as code rain — falling columns, a bright head, a trail
-   behind it — not the particular script, and borrowing the alphabet of a film
-   would have made it a costume.
+   Devanagari rather than katakana because the name is Devanagari. The falling
+   column is what makes it read as code rain, not the particular script, and
+   borrowing the alphabet of a film would have made it a costume.
+
+   Columns come in five sizes and are laid out by walking the width, each
+   taking the room its own size asks for. Bigger ones are brighter and cover
+   more ground per second, so the size difference reads as distance.
 
    Two things worth knowing:
 
    1. The trail is not drawn. Each frame paints a translucent sheet of the
       paper colour over everything, and each column draws one glyph when it
       steps to a new row. Everything already on screen dims a little every
-      frame, which is the trail — sixty-odd draws a frame instead of well over
-      a thousand.
+      frame, which is the trail — a hundred draws a frame instead of many
+      thousands.
 
    2. Thinning out is done by not restarting columns, never by cutting one
       mid-fall. A trail that vanishes reads as a dropped frame; a column that
@@ -36,37 +39,13 @@
   var DEV = ('अआइईउऊएऐओऔकखगघङचछजझटठडढणतथदधनपफबभमयरलवशषसह' +
              '०१२३४५६७८९').split('');
 
-  /* Chinese, chosen for sense rather than at random: data, flow, code,
-     network, system, process, cache, queue, thread, request, response. A
-     stranger reads them as texture either way, and someone who reads Chinese
-     finds the subject of the site rather than a keyboard mash. */
-  var HAN = ('数据流码网络系统程序算法结构安全时间' +
-             '空间转换信号输入输出状态连接请求响应' +
-             '服务器存储缓存队列线程进程内核编译执行').split('');
-
   /* The punctuation a language is actually made of, and the digits and letters
      between them. */
   var CODE = '{}[]()<>/\\|;:=+-*&^%$#@!?_~.,\'"`'.split('');
   var ALNUM = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
 
-  /* Rozha carries the Devanagari and GeistMono the Latin and the punctuation.
-     The Chinese comes from whatever the system has: a CJK face is several
-     megabytes and no loading screen is worth that, and there is no subsetting
-     step in this repo to cut one down.
-
-     Every platform that matters ships one — Windows, macOS, iOS, Android,
-     ChromeOS — so the gap is a bare Linux desktop, where Chromium draws its
-     hex boxes instead. In a field of falling code that reads as more code
-     rather than as breakage, which is the one place it is survivable.
-
-     There is no feature test here on purpose, and it is worth writing down
-     why, because it looks like an omission. Chromium's tofu is a box holding
-     the character's own hex digits, so every missing codepoint renders
-     differently and comparing one against another proves nothing; and its
-     advance is exactly 1em, the same as a real Han glyph, so measuring widths
-     proves nothing either. Both were tried. A test that cannot be made
-     reliable is worse than none, because its failure mode is dropping the
-     Chinese on a machine that could have shown it. */
+  /* Rozha carries the Devanagari, GeistMono the Latin and the punctuation.
+     Both are already loaded for the page, so the field costs no extra bytes. */
   var FACE = "'Rozha', 'GeistMono', ui-monospace, monospace";
 
   function rgb(hex, fallback) {
@@ -82,6 +61,14 @@
     return (v && v.trim()) || fallback;
   }
 
+  /* Five sizes rather than a continuous range, because the font has to be set
+     on the context once per size per frame and a continuous range would mean
+     setting it once per column. Bigger columns are brighter and, since speed
+     is counted in rows and their rows are taller, faster — so size reads as
+     distance rather than as a glyph that happens to be large. */
+  var SIZES = [0.78, 0.90, 1.0, 1.16, 1.38];
+  var DEPTH = [0.55, 0.72, 0.86, 1.0, 1.0];     // brightness, by the same index
+
   window.CGRain = {
     /** Returns a handle, or null when there is no 2D context — the loader
      *  then simply runs without rain rather than failing. */
@@ -90,14 +77,12 @@
       var ctx = canvas.getContext && canvas.getContext('2d');
       if (!ctx) return null;
 
-      var W = 0, H = 0, dpr = 1, cell = 0, rows = 0;
-      var y = [], v = [], on = [], at = [];
+      var W = 0, H = 0, dpr = 1, cell = 0;
+      var cols = [], fonts = [];
 
-      /* Weighted by repetition rather than by a table of probabilities: the
-         Han and the Devanagari are what the field should read as, and the
-         punctuation is seasoning — all of it in one flat array so picking is a
-         single random index. */
-      var POOL = [].concat(HAN, HAN, HAN, DEV, DEV, ALNUM, CODE);
+      /* Weighted by repetition rather than by a table of probabilities, all of
+         it in one flat array so picking is a single random index. */
+      var POOL = [].concat(DEV, DEV, ALNUM, CODE, CODE);
       var paper = [10, 11, 10], accent = [198, 242, 78], ink = [244, 246, 242];
       var headA = 0.92, trailA = 0.55;
 
@@ -128,24 +113,41 @@
         canvas.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-        /* Narrow cells, so a wide screen carries well over a hundred columns.
-           The floor is where it is because the Han has to stay legible: below
-           about thirteen pixels a character with fifteen strokes in it is a
-           smudge, and a smudge is not a character falling. */
-        cell = Math.max(13, Math.min(19, W / 112));
-        rows = Math.ceil(H / cell) + 2;
-        var n = Math.ceil(W / cell);
+        cell = Math.max(13, Math.min(18, W / 104));
 
-        y.length = v.length = on.length = at.length = 0;
-        for (var i = 0; i < n; i++) {
-          /* Spread down the screen, not stacked above it. Starting every
-             column above the top edge means the first second is spent waiting
-             for rain to arrive — and a column seeded forty rows up never
-             arrives at all inside the life of a loader. */
-          y[i] = Math.random() * rows;
-          v[i] = 11 + Math.random() * 17;         // rows a second
-          on[i] = true;
-          at[i] = -999;
+        fonts.length = 0;
+        for (var b = 0; b < SIZES.length; b++) {
+          fonts.push('400 ' + (cell * SIZES[b] * 0.86).toFixed(1) + 'px ' + FACE);
+        }
+
+        /* Laid out by walking across the screen and giving each column the
+           width its own size asks for, rather than dropping varied sizes onto
+           a fixed pitch — on a fixed pitch the large ones sit on their
+           neighbours and the small ones leave holes. */
+        cols.length = 0;
+        var x = 0;
+        while (x < W) {
+          var bi = (Math.random() * SIZES.length) | 0;
+          var w = cell * SIZES[bi];
+          cols.push({
+            b: bi,
+            x: x + w / 2,
+            h: w,                                  // rows are as tall as they are wide
+            n: Math.ceil(H / w) + 2,
+            /* Spread down the screen, not stacked above it. Starting every
+               column above the top edge means the first second is spent
+               waiting for rain to arrive — and a column seeded forty rows up
+               never arrives at all inside the life of a loader. */
+            y: Math.random() * (H / w),
+            v: 11 + Math.random() * 17,            // rows a second
+            on: true,
+            at: -999
+          });
+          /* Advanced by slightly less than the column's own width, so the
+             field packs tighter than a strict tiling would. Latin and
+             punctuation are much narrower than the full-width glyphs this
+             started out with, and at a strict tiling that shows up as gaps. */
+          x += w * 0.87;
         }
 
         ctx.fillStyle = 'rgb(' + paper.join(',') + ')';
@@ -174,36 +176,43 @@
         ctx.fillStyle = 'rgba(' + paper.join(',') + ',' + fade.toFixed(4) + ')';
         ctx.fillRect(0, 0, W, H);
 
-        ctx.font = "400 " + (cell * 0.86).toFixed(1) + "px " + FACE;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'alphabetic';
 
-        for (var i = 0; i < y.length; i++) {
-          if (!on[i]) continue;
-          y[i] += v[i] * dt;
+        /* Grouped by size, so the font is set five times a frame rather than
+           once per column. Setting ctx.font is the expensive call in here;
+           everything else is a fill. */
+        for (var b = 0; b < SIZES.length; b++) {
+          ctx.font = fonts[b];
+          var head = 'rgba(' + ink.join(',') + ',' + (headA * DEPTH[b]).toFixed(3) + ')';
+          var tail = 'rgba(' + accent.join(',') + ',' + (trailA * DEPTH[b]).toFixed(3) + ')';
 
-          var row = Math.floor(y[i]);
-          if (row !== at[i] && row >= 0) {
-            at[i] = row;
-            var g = POOL[(Math.random() * POOL.length) | 0];
-            var px = i * cell + cell / 2;
-            var py = row * cell + cell * 0.82;
+          for (var i = 0; i < cols.length; i++) {
+            var c = cols[i];
+            if (c.b !== b || !c.on) continue;
+            c.y += c.v * dt;
 
-            // the head is nearly white, and the glyph behind it is the accent;
-            // everything older is whatever the fade has left of it
-            ctx.fillStyle = 'rgba(' + ink.join(',') + ',' + headA + ')';
-            ctx.fillText(g, px, py);
-            ctx.fillStyle = 'rgba(' + accent.join(',') + ',' + trailA + ')';
-            ctx.fillText(POOL[(Math.random() * POOL.length) | 0], px, py - cell);
-          }
+            var row = Math.floor(c.y);
+            if (row !== c.at && row >= 0) {
+              c.at = row;
+              var py = row * c.h + c.h * 0.82;
 
-          if (row > rows) {
-            // off the bottom: restart just above the top, and only if there is
-            // still rain to be had
-            y[i] = -Math.random() * 6;
-            at[i] = -999;
-            v[i] = 11 + Math.random() * 17;
-            on[i] = Math.random() < dens;
+              // the head is nearly white, the glyph behind it is the accent,
+              // and everything older is whatever the fade has left of it
+              ctx.fillStyle = head;
+              ctx.fillText(POOL[(Math.random() * POOL.length) | 0], c.x, py);
+              ctx.fillStyle = tail;
+              ctx.fillText(POOL[(Math.random() * POOL.length) | 0], c.x, py - c.h);
+            }
+
+            if (row > c.n) {
+              // off the bottom: restart just above the top, and only if there
+              // is still rain to be had
+              c.y = -Math.random() * 6;
+              c.at = -999;
+              c.v = 11 + Math.random() * 17;
+              c.on = Math.random() < dens;
+            }
           }
         }
 
