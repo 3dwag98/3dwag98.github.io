@@ -164,13 +164,53 @@
    * sizes free: a group set larger simply measures wider and gets a wider
    * cell, with no second scale factor to keep in step.
    */
+  /* Widths of the whole scramble alphabet, measured once at a reference size.
+     Width scales with font size, so one pass over the alphabet serves every
+     cell rather than one pass per cell — and it has to be measured at all,
+     because a random glyph wider than the cell was sized for pushes straight
+     into the neighbouring syllable. */
+  var REF = 100;
+
+  function poolWidths(cell, pool) {
+    var ns = 'http://www.w3.org/2000/svg';
+    var probe = document.createElementNS(ns, 'text');
+    probe.setAttribute('class', 'tl__dev');
+    probe.setAttribute('x', '0');
+    probe.setAttribute('y', '0');
+    probe.setAttribute('visibility', 'hidden');
+    probe.style.fontSize = REF + 'px';
+    cell.svg.appendChild(probe);
+
+    var out = [];
+    try {
+      for (var i = 0; i < pool.length; i++) {
+        probe.textContent = pool[i];
+        out.push({ g: pool[i], w: probe.getComputedTextLength() });
+      }
+    } catch (e) { out = []; }
+    cell.svg.removeChild(probe);
+    return out;
+  }
+
   function fit(cells) {
-    cells.forEach(function (c) {
+    var pool = (window.CGRain && window.CGRain.glyphs) || [];
+    var widths = (pool.length && cells[0]) ? poolWidths(cells[0], pool) : [];
+
+    cells.forEach(function (c, i) {
+      /* Measure the glyph this cell will settle on, not whatever the scramble
+         is showing at this instant — the late re-fit can land mid-resolve, and
+         sizing a cell to a character it is only passing through would undo the
+         whole point of measuring. */
+      var showing = c.dev.textContent;
+      var real = GROUPS[i].dev;
+      if (showing !== real) c.dev.textContent = real;
+
       var dw, lw;
       try {
         dw = c.dev.getComputedTextLength();
         lw = c.lat.getComputedTextLength();
-      } catch (e) { return; }                 // not rendered yet; keep the guess
+      } catch (e) { dw = 0; }                 // not rendered yet; keep the guess
+      if (showing !== real) c.dev.textContent = showing;
       if (!dw || !lw) return;
 
       var vw = Math.round(Math.max(dw, lw) * BEARING);
@@ -178,6 +218,19 @@
       c.cell.style.setProperty('--tl-w', (vw / UNIT).toFixed(3));
       c.dev.setAttribute('x', String(vw / 2));
       c.lat.setAttribute('x', String(vw / 2));
+
+      /* The characters this cell may cycle through: the ones no wider than
+         what it was measured to hold. A cell whose Devanagari is the wider of
+         its two scripts has no slack at all, and a fat glyph dropped into it
+         sits on the syllable next door. */
+      if (widths.length) {
+        var room = Math.max(dw, lw) * REF / (DEV_SIZE * GROUPS[i].s);
+        var ok = widths.filter(function (x) { return x.w <= room; });
+        if (ok.length < 8) {                    // nothing fits: take the slimmest
+          ok = widths.slice().sort(function (a, b) { return a.w - b.w; }).slice(0, 8);
+        }
+        c.pool = ok.map(function (x) { return x.g; });
+      }
     });
   }
 
@@ -274,7 +327,19 @@
          visitor sees is already correctly spaced rather than snapping into
          place a moment later. */
       var tl = gsap.timeline({ paused: true, defaults: { ease: 'none' } });
-      whenFonts(function () { fit(cells); tl.play(); });
+
+      /* The rain is mounted with the timeline rather than on load, because a
+         canvas does not honour font-display: it draws whatever is available
+         the instant it is asked, and asking before Rozha is in gets a screen
+         of fallback glyphs. */
+      var rainEl = root.querySelector('[data-tl-rain]');
+      var rain = null;
+      whenFonts(function () {
+        fit(cells);
+        if (window.CGRain && rainEl) rain = window.CGRain.mount(rainEl);
+        if (!rain && rainEl) rainEl.style.display = 'none';
+        tl.play();
+      });
 
       /* If the ceiling won that race the cells were measured against the
          fallback face, which is the whole bug this is here to prevent. Fitting
@@ -284,15 +349,58 @@
         document.fonts.ready.then(function () { fit(cells); }, function () {});
       }
 
-      /* Phase 1 — the Devanagari arrives and breathes. */
-      /* A small rise, in percent of a cell that is now most of the screen —
-         18 was tuned against a much shorter cell and became a drop of fifty
-         pixels, enough to put the second row over the footer on a short
-         window before it climbed back. */
+      /* Phase 1 — the field fills with rain, and the name resolves out of it.
+
+         Each syllable cycles through the rain's own alphabet before locking to
+         its real glyph. Using the same character set for both is the whole
+         trick: the type does not arrive over the rain, it settles out of it.
+         A small rise underneath, in percent of a cell that is now most of the
+         screen — 18 was tuned against a much shorter cell and became a drop of
+         fifty pixels, enough to put the second row over the footer. */
+      var POOL = (window.CGRain && window.CGRain.glyphs) || ['0', '1'];
+      var SCRAMBLE = 0.38;             // how long a syllable stays undecided
+      var LOCK_STEP = 0.105;           // between one syllable locking and the next
+
       gsap.set(cells.map(function (c) { return c.cell; }), { opacity: 0, yPercent: 7 });
-      tl.to(cells.map(function (c) { return c.cell; }), {
-        opacity: 1, yPercent: 0, duration: 0.5, ease: 'expo.out', stagger: 0.045
-      }, 0);
+
+      if (rainEl) {
+        var field = { d: 0 };
+        gsap.set(rainEl, { opacity: 0 });
+        tl.to(rainEl, { opacity: 1, duration: 0.28 }, 0)
+          .to(field, {
+            d: 1, duration: 0.5, ease: 'power2.out',
+            onUpdate: function () { if (rain) rain.set(field.d); }
+          }, 0)
+          // it thins from the moment the last syllable is certain of itself
+          .to(field, {
+            d: 0, duration: 0.75, ease: 'power2.in',
+            onUpdate: function () { if (rain) rain.set(field.d); }
+          }, 1.05)
+          .to(rainEl, { opacity: 0, duration: 0.5 }, 1.35);
+      }
+
+      cells.forEach(function (c, i) {
+        var from = 0.3 + i * LOCK_STEP;
+        var flick = { t: 0 };
+
+        tl.to(c.cell, { opacity: 1, yPercent: 0, duration: 0.3, ease: 'power2.out' }, from);
+
+        /* Throttled: a new glyph every frame is a blur, and it also means
+           seven text nodes rewritten sixty times a second for no gain. */
+        tl.to(flick, {
+          t: SCRAMBLE, duration: SCRAMBLE, ease: 'none',
+          onUpdate: function () {
+            var step = Math.floor(flick.t / 0.055);
+            if (step === c.step) return;
+            c.step = step;
+            var pool = c.pool || POOL;
+            c.dev.textContent = pool[(Math.random() * pool.length) | 0];
+          }
+        }, from);
+
+        // and it settles on the one it was always going to be
+        tl.call(function () { c.dev.textContent = GROUPS[i].dev; }, null, from + SCRAMBLE);
+      });
 
       // the counter runs underneath the whole thing
       tl.to(count, {
@@ -301,9 +409,13 @@
       }, 0);
 
       /* Phase 2 — each group in turn: distort, swap, settle. The offsets are
-         what make it read as a change travelling along the name. */
+         what make it read as a change travelling along the name. It starts as
+         the last syllable locks, so the two runs overlap by a hair rather than
+         queueing, which is most of what keeps the whole entry under five
+         seconds. */
+      var MORPH = 0.3 + (cells.length - 1) * LOCK_STEP + SCRAMBLE + 0.08;
       cells.forEach(function (c, i) {
-        var at = 0.58 + i * 0.19;                  // when this group's turn comes
+        var at = MORPH + i * 0.16;                 // when this group's turn comes
         var f = fx[i];
         var strength = { v: 0 };
 
@@ -356,7 +468,7 @@
       /* Phase 3 — the groups close up into one word and swell past
          comfortable. Until now they have been spaced as separate syllables;
          CHINTAMANI GAWADE only reads as a name once the gaps go. */
-      var last = 0.58 + (cells.length - 1) * 0.19 + 0.5;
+      var last = MORPH + (cells.length - 1) * 0.16 + 0.5;
       var stage = root.querySelector('[data-tl-stage]');
 
       /* Pulling the cells together with a negative margin rather than tweening
@@ -457,11 +569,16 @@
          carries the whole loader off. */
       if (sheet) {
         gsap.set(sheet, { scaleY: 0, transformOrigin: '50% 100%' });
-        tl.to(sheet, { scaleY: 1, duration: 0.5, ease: 'power3.inOut' }, last + 1.05)
-          .to(root, { yPercent: -100, duration: 0.7, ease: 'expo.inOut' }, last + 1.45);
+        tl.to(sheet, { scaleY: 1, duration: 0.5, ease: 'power3.inOut' }, last + 0.72)
+          .to(root, { yPercent: -100, duration: 0.7, ease: 'expo.inOut' }, last + 1.12);
       } else {
         tl.to(root, { yPercent: -100, duration: 0.7, ease: 'expo.inOut' }, last + 1.1);
       }
+
+      /* Cleanup goes in the timeline, not on onComplete: core.js replaces that
+         callback with its own handover, and a renderer left running after the
+         loader is gone is a rAF that never stops. */
+      tl.call(function () { if (rain) rain.stop(); }, null, last + 1.9);
 
       return tl;
     }

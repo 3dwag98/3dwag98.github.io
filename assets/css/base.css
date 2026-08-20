@@ -464,7 +464,16 @@ html.js .loader {
 
 .tl__defs { position: absolute; width: 0; height: 0; pointer-events: none; }
 
+/* The rain sits behind the type, and paints its own paper ground — the trails
+   are made by sheeting that colour over the canvas every frame. */
+.tl__rain {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+}
+
 .tl__stage {
+  position: relative; z-index: 1;
   /* One unit drives both axes, so the ratio between them — and therefore
      which of the two governs the glyph scale — cannot drift apart. */
   /* Both axes, because the binding constraint changes with the window: on a
