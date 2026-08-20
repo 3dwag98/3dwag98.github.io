@@ -621,6 +621,16 @@ html.js .curtain { display: grid; }
 
 .curtain__p { background: var(--ink); transform: scaleY(0); transform-origin: 50% 100%; will-change: transform; }
 
+/* Held down on arrival, set by the document head before first paint, so a
+   page reached through a transition does not flash into view under the
+   curtain that is about to lift off it. core.js takes it from here. */
+html.crossing .curtain__p { transform: scaleY(1); transform-origin: 50% 0%; }
+
+/* The arrivals where the intro is not going to run — a second visit in the
+   same tab, or a URL naming a section. Decided in the document head so the
+   cover never paints; core.js removes the element a moment later. */
+html.js.no-intro .loader { display: none; }
+
 html.js .loader {
   position: fixed; inset: 0; z-index: 9995;
   background: var(--paper); display: grid; place-items: center;

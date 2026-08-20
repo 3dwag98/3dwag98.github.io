@@ -23,6 +23,22 @@
     d.classList.add('js');
     try { if (localStorage.getItem('cg-theme') === 'light') d.setAttribute('data-theme', 'light'); } catch (e) {}
     try { if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion'); } catch (e) { d.classList.add('motion'); }
+
+    /* Arrived through a page transition? The curtain that wiped the last page
+       out is still down, and holding it there before first paint is what
+       stops the new page flashing into view underneath it. core.js lifts it.
+       The flag is read once and cleared, so a navigation that never completes
+       cannot leave the next visit covered. */
+    var crossing = false;
+    try {
+      crossing = sessionStorage.getItem('cg:cross') === '1';
+      if (crossing) sessionStorage.removeItem('cg:cross');
+    } catch (e) {}
+    if (crossing) {
+      d.classList.add('crossing');
+      // and if core.js never runs, take it down anyway
+      window.__cgCrossWatchdog = setTimeout(function () { d.classList.remove('crossing'); }, 2500);
+    }
   })();
   window.Prism = window.Prism || {};
   window.Prism.manual = true;   /* content is injected, so highlight on demand */
@@ -44,6 +60,7 @@
     <span class="nav__mark">Chintamani Gawade</span>
   </a>
   <div class="nav__links">
+    <a href="../#quote" class="nav__sm">Principle</a>
     <a href="../#work">Practice</a>
     <a href="../#guide" class="nav__sm">Field guide</a>
     <a href="./" aria-current="page">Blogs</a>
@@ -140,5 +157,13 @@
 <script src="../assets/js/core.js"></script>
 <script src="../assets/js/posts.js"></script>
 <script src="../assets/js/post.js"></script>
+
+<!-- Cloudflare Web Analytics — cookieless, no fingerprinting, nothing stored
+     on the visitor's machine, which is why it is here rather than a tag
+     manager. No SRI hash: the beacon is versionless and Cloudflare rolls it,
+     so a pinned hash would break the day they ship a change. type="module"
+     defers it by default, so it never blocks the page. -->
+<script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f0fe9858476c4810bfba3d028e0054c9"}'></script>
+<!-- End Cloudflare Web Analytics -->
 </body>
 </html>
