@@ -29,11 +29,11 @@
       <category>observability</category>
     </item>
     <item>
-      <title>Designing for failure — cache-aside, breakers and the authorization hot path</title>
+      <title>Designing for failure — failure modes, degradation and what resilience costs</title>
       <link>https://3dwag98.github.io/blog/post.html?p=designing-for-failure</link>
       <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=designing-for-failure</guid>
       <pubDate>Sun, 02 Aug 2026 09:00:00 GMT</pubDate>
-      <description>What it actually takes to put a cache and a circuit breaker in front of an authorization check without turning a slow dependency into an outage.</description>
+      <description>Failure is not one thing, and neither is the answer to it. A working method for deciding what a service does when the truth is unavailable — worked through the authorization hot path, and honest about what each mechanism costs.</description>
       <category>distributed-systems</category>
       <category>resilience</category>
       <category>redis</category>

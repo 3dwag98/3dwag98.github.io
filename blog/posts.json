@@ -13,7 +13,7 @@
         "kubernetes"
       ],
       "format": "md",
-      "readingTime": "5 min read"
+      "readingTime": "4 min read"
     },
     {
       "slug": "tracing-a-slow-page",
@@ -31,9 +31,9 @@
     },
     {
       "slug": "designing-for-failure",
-      "title": "Designing for failure — cache-aside, breakers and the authorization hot path",
+      "title": "Designing for failure — failure modes, degradation and what resilience costs",
       "date": "2026-08-02",
-      "summary": "What it actually takes to put a cache and a circuit breaker in front of an authorization check without turning a slow dependency into an outage.",
+      "summary": "Failure is not one thing, and neither is the answer to it. A working method for deciding what a service does when the truth is unavailable — worked through the authorization hot path, and honest about what each mechanism costs.",
       "tags": [
         "distributed-systems",
         "resilience",
@@ -41,7 +41,7 @@
         "spring-boot"
       ],
       "format": "md",
-      "readingTime": "4 min read"
+      "readingTime": "15 min read"
     },
     {
       "slug": "caching-papers",
@@ -54,7 +54,7 @@
         "distributed-systems"
       ],
       "format": "md",
-      "readingTime": "12 min read"
+      "readingTime": "7 min read"
     },
     {
       "slug": "publishing-a-note",
