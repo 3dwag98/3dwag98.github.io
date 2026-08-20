@@ -118,13 +118,58 @@
     return curtain ? curtain.querySelectorAll('.curtain__p') : [];
   }
 
+  /* The intro is an introduction, and a visitor is introduced once.
+
+     It used to run on every arrival at this page, which on this site means
+     every time someone comes back from a blog entry — five seconds in front
+     of a page they had already seen, to reach a section they had already
+     asked for. Once per tab now, and never when the URL names a place: a link
+     to #work is a request for that section, not for the intro. */
+  var INTRO = 'cg:intro';
+
+  function seenIntro() {
+    try { return window.sessionStorage.getItem(INTRO) === '1'; } catch (e) { return false; }
+  }
+
+  /**
+   * The curtain, on arrival.
+   *
+   * A transition that wipes the old page out and then simply shows the next
+   * one is half a transition: you watch a considered movement and then the
+   * page cuts. This lifts the curtain the document head is holding down, in
+   * the same direction the outgoing wipe was travelling — it grew from the
+   * bottom of the screen, so this one keeps going and clears off the top, and
+   * the two pages read as one movement.
+   */
+  var CROSS = 'cg:cross';
+
+  function curtainIn() {
+    var d = document.documentElement;
+    var p = panels();
+    var crossed = d.classList.contains('crossing');
+
+    if (window.__cgCrossWatchdog) {
+      window.clearTimeout(window.__cgCrossWatchdog);
+      window.__cgCrossWatchdog = 0;
+    }
+
+    if (!p.length || !motion || !gsap.set) { d.classList.remove('crossing'); return; }
+
+    if (!crossed) { gsap.set(p, { scaleY: 0, transformOrigin: '50% 0%' }); return; }
+
+    // the inline transform first, so dropping the class cannot make it jump
+    gsap.set(p, { scaleY: 1, transformOrigin: '50% 0%' });
+    d.classList.remove('crossing');
+    gsap.to(p, { scaleY: 0, duration: 0.6, ease: 'expo.inOut', stagger: 0.05 });
+  }
+
   function initLoader(done) {
     var loader = document.querySelector('.loader');
     var p = panels();
 
-    if (!loader || !motion) {
+    if (!loader || !motion || seenIntro() || hashTarget()) {
       if (loader) loader.remove();
-      if (p.length) gsap.set && gsap.set(p, { scaleY: 0 });
+      curtainIn();
       document.documentElement.classList.remove('is-loading');
       done();
       return;
@@ -142,7 +187,7 @@
     if (!seq) {                       // module missing or it declined to build
       loader.remove();
       document.documentElement.classList.remove('is-loading');
-      if (p.length) gsap.set(p, { scaleY: 0 });
+      curtainIn();
       if (lenis) lenis.start();
       done();
       return;
@@ -152,6 +197,8 @@
        restarting Lenis have to happen together — the failure this guards
        against is the page being unlocked while Lenis is still stopped, which
        looks exactly like a frozen scroll. */
+    try { window.sessionStorage.setItem(INTRO, '1'); } catch (e) {}
+
     var handed = false;
     function hand() {
       if (handed) return;
@@ -159,7 +206,13 @@
       window.clearTimeout(failsafe);
       loader.remove();
       document.documentElement.classList.remove('is-loading');
-      if (lenis) { lenis.start(); lenis.scrollTo(0, { immediate: true }); }
+      if (lenis) lenis.start();
+      // the top, unless the URL asked for somewhere — landing() does that,
+      // after the scenes below have been built and measured
+      if (!hashTarget()) {
+        if (lenis) lenis.scrollTo(0, { immediate: true });
+        else window.scrollTo(0, 0);
+      }
       done();
     }
 
@@ -177,7 +230,10 @@
 
     seq.eventCallback('onComplete', hand);
 
-    // the curtain panels belong to page transitions; keep them parked
+    /* The curtain panels belong to page transitions; keep them parked. No
+       lift here even if one is held down — the loader covers the whole screen
+       above it, so there would be nothing to see. */
+    document.documentElement.classList.remove('crossing');
     if (p.length) gsap.set(p, { scaleY: 0, transformOrigin: '50% 0%' });
   }
 
@@ -204,7 +260,11 @@
           duration: 0.6,
           ease: 'expo.inOut',
           stagger: 0.05,
-          onComplete: function () { window.location.href = href; }
+          onComplete: function () {
+            // tells the next page the curtain is already down over it
+            try { window.sessionStorage.setItem(CROSS, '1'); } catch (e) {}
+            window.location.href = href;
+          }
         });
     });
 
@@ -594,6 +654,101 @@
     arm();
   }
 
+  /* ── where a link into the page lands ──────────────────────────────── */
+
+  /**
+   * The y a link to `el` should scroll to.
+   *
+   * A scrollytelling section is not a place, it is a range. Its top is the
+   * first frame of a scene that has not started yet, and for a pinned one that
+   * frame is deliberately empty: #quote is more than three viewports tall and
+   * opens on nothing at all, so Principle in the nav landed on a blank screen.
+   *
+   * `data-anchor` is how far into a section a link should go, as a fraction of
+   * the distance that section travels past the top of the screen. Without it
+   * the section's own top is the right answer, and this is what Lenis would
+   * have worked out from the element itself — scroll-margin and the root's
+   * scroll-padding included, which is what keeps the fixed nav off the
+   * heading it just scrolled to.
+   */
+  function anchorY(el) {
+    var pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+    var top = el.getBoundingClientRect().top +
+              (window.scrollY || window.pageYOffset || 0) - margin - pad;
+
+    var frac = parseFloat(el.getAttribute('data-anchor'));
+    if (frac > 0) {
+      // how far it scrolls past the top of the screen, which for a pinned
+      // section is the length of its pin
+      var run = Math.max(0, el.offsetHeight - window.innerHeight);
+      top += run * Math.min(1, frac);
+    }
+    return Math.max(0, Math.round(top));
+  }
+
+  /** What the URL hash points at, or null. getElementById rather than a
+   *  selector: an id that is not a valid selector would throw. */
+  function hashTarget() {
+    var id = (window.location.hash || '').slice(1);
+    if (!id) return null;
+    try { return document.getElementById(decodeURIComponent(id)); } catch (e) { return null; }
+  }
+
+  /**
+   * Honour the hash the page was opened with, once the page is actually
+   * built.
+   *
+   * The browser's own hash scroll happens far too early to be right: before
+   * the pinned scenes have added their spacing, before the fonts have settled
+   * the measure, and while the intro still has the page locked. Arriving at
+   * #contact from a blog entry landed at the top of the home page because of
+   * it. This is the scroll that counts.
+   *
+   * It runs again on every ScrollTrigger refresh, because the page keeps
+   * moving under it for a while after load: the fonts settle the measure, the
+   * blog teaser replaces its placeholder rows with real ones, a pinned scene
+   * is re-measured. Each of those shifts everything below it, and #contact —
+   * which is the very bottom of the page — moved a hundred pixels between the
+   * first landing and the last.
+   *
+   * It stands down on the first thing the visitor does, and in any case once
+   * the page has had long enough to settle. Deciding that by comparing the
+   * scroll position against where it was sent does not work: with smooth
+   * scrolling the position is not readable straight afterwards, and a target
+   * near the bottom of a page that is still growing gets clamped, so the
+   * request and the result differ for reasons that have nothing to do with
+   * the visitor. A gesture is unambiguous.
+   */
+  var SETTLE = 8000;                    // as long as the loader's own failsafe
+  var landUntil = 0;
+
+  function landing() {
+    if (Date.now() > landUntil) return;
+    var el = hashTarget();
+    if (!el) return;
+
+    var y = anchorY(el);
+    if (lenis) {
+      /* Lenis caches the page's dimensions and re-measures on a debounced
+         observer, so on load its idea of the end of the page is whatever it
+         was before the pinned scenes added their spacing — it clamped a
+         target near the bottom to a limit seven thousand pixels short. This
+         is the one call that has to be measuring the page as it is now. */
+      lenis.resize();
+      lenis.scrollTo(y, { immediate: true });
+    } else {
+      window.scrollTo(0, y);
+    }
+  }
+
+  function watchTakeover() {
+    landUntil = Date.now() + SETTLE;
+    ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(function (t) {
+      window.addEventListener(t, function () { landUntil = 0; }, { passive: true, once: true });
+    });
+  }
+
   function initAnchors() {
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a[href^="#"]');
@@ -603,7 +758,7 @@
       var el = document.querySelector(id);
       if (!el) return;
       e.preventDefault();
-      scrollTo(el, { offset: 0 });
+      scrollTo(anchorY(el));
       history.replaceState(null, '', id);
     });
   }
@@ -635,6 +790,7 @@
     lenis = initLenis();
     window.CG.lenis = lenis;
 
+    watchTakeover();
     initAnchors();
     initSteady();
     initNavBar();
@@ -650,7 +806,11 @@
     initLoader(function () {
       ready.forEach(function (fn) { try { fn(); } catch (err) { console.error(err); } });
       if (hasST) ST.refresh();
+      landing();
     });
+
+    // every re-measure is a chance for the anchor to have moved
+    if (hasST) ST.addEventListener('refresh', landing);
 
     if (document.fonts && document.fonts.ready && hasST) {
       document.fonts.ready.then(function () { ST.refresh(); });

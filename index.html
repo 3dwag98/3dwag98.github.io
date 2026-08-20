@@ -32,21 +32,52 @@
      so switching never flashes the other theme. */
   (function () {
     var d = document.documentElement;
-    d.classList.add('js', 'is-loading');
+    d.classList.add('js');
     try { if (localStorage.getItem('cg-theme') === 'light') d.setAttribute('data-theme', 'light'); } catch (e) {}
     /* Pinned and stacked scenes need the motion runtime to lay out. Guess here
        so there is no reflow; core.js corrects it if GSAP never arrives. */
     try { if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion'); } catch (e) { d.classList.add('motion'); }
-    /* Last resort, for the case where core.js never runs at all: unlock the
-       page and take the cover off, because clearing the lock alone would leave
-       a visitor scrolling behind a screen that still covers everything.
-       core.js cancels this the moment it takes the loader over, so it never
-       races a sequence that is working. */
-    window.__cgLoaderWatchdog = setTimeout(function () {
-      d.classList.remove('is-loading');
-      var l = document.querySelector('.loader');
-      if (l) l.style.display = 'none';
-    }, 8000);
+
+    /* Arrived through a page transition? The curtain that wiped the last page
+       out is still down, and holding it there before first paint is what
+       stops the new page flashing into view underneath it. core.js lifts it.
+       The flag is read once and cleared, so a navigation that never completes
+       cannot leave the next visit covered. */
+    var crossing = false;
+    try {
+      crossing = sessionStorage.getItem('cg:cross') === '1';
+      if (crossing) sessionStorage.removeItem('cg:cross');
+    } catch (e) {}
+    if (crossing) {
+      d.classList.add('crossing');
+      // and if core.js never runs, take it down anyway
+      window.__cgCrossWatchdog = setTimeout(function () { d.classList.remove('crossing'); }, 2500);
+    }
+
+    /* Whether the intro is going to run at all: once per tab, and never when
+       the URL names a place. The same rule core.js applies in initLoader() —
+       decided here as well because otherwise the loader paints, and the page
+       locks its scroll, for the moment before core.js gets to say it is not
+       needed. Arriving at #contact from a blog entry is the case that made
+       this worth doing twice. */
+    var intro = true;
+    try { intro = sessionStorage.getItem('cg:intro') !== '1'; } catch (e) {}
+    if (location.hash.length > 1) intro = false;
+
+    if (!intro) { d.classList.add('no-intro'); }
+    else {
+      d.classList.add('is-loading');
+      /* Last resort, for the case where core.js never runs at all: unlock the
+         page and take the cover off, because clearing the lock alone would
+         leave a visitor scrolling behind a screen that still covers
+         everything. core.js cancels this the moment it takes the loader over,
+         so it never races a sequence that is working. */
+      window.__cgLoaderWatchdog = setTimeout(function () {
+        d.classList.remove('is-loading');
+        var l = document.querySelector('.loader');
+        if (l) l.style.display = 'none';
+      }, 8000);
+    }
   })();
 </script>
 <style>html.is-loading { overflow: hidden; }</style>
@@ -196,7 +227,11 @@
   </figure>
 
   <!-- ═══ quote ══════════════════════════════════════════════════════════ -->
-  <section class="quote" id="quote">
+  <!-- data-anchor: this scene is more than three viewports tall and opens on
+       an empty frame, so a link to it has to land where it reads. 0.58 is
+       where both lines and the network are fully drawn, just before the first
+       of them dims. See anchorY() in core.js. -->
+  <section class="quote" id="quote" data-anchor="0.58">
     <div class="quote__pin">
       <div class="quote__mark">
         <span class="lbl">II &mdash; Operating principle</span>

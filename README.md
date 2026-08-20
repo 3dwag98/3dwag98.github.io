@@ -522,6 +522,64 @@ showing its address bar resizes the viewport, and a refresh mid-scroll
 re-measures every pinned scene and jumps the page — the height changes, the
 layout does not.
 
+### Where a link lands
+
+A scrollytelling section is not a place, it is a range. Its top is the first
+frame of a scene that has not started, and for a pinned one that frame is
+deliberately empty — **#quote is more than three viewports tall and opens on
+nothing at all**, so Principle in the nav landed on a blank screen.
+
+`data-anchor` on a section says how far into it a link should go, as a fraction
+of the distance that section travels past the top of the screen. `anchorY()` in
+`core.js` works the rest out the way Lenis would have from the element itself,
+scroll-margin and the root's scroll-padding included. Without the attribute
+nothing changes, so it only exists where it is needed: the quote's 0.58 is
+where both lines and the network are drawn and before the first of them dims.
+
+**A hash in the URL is honoured after the page is built, not before.** The
+browser's own hash scroll happens before the pinned scenes have added their
+spacing, before the fonts have settled the measure, and while the intro still
+has the page locked — arriving at `#contact` from a blog entry landed at the
+top of the home page because of it. `landing()` runs when the scenes are
+measured and again on **every** ScrollTrigger refresh, because the page keeps
+moving underneath for a while: the fonts settle, the blog teaser swaps its
+placeholder rows for real ones, a scene is re-measured. Between the first
+landing and the last, `#contact` moved a hundred pixels.
+
+Two things it learned the hard way. Lenis **caches the page dimensions** and
+re-measures on a debounced observer, so on load its idea of the end of the page
+is whatever it was before the pins added their spacing — it clamped a target
+near the bottom to a limit seven thousand pixels short, and `lenis.resize()`
+before the scroll is what fixes it. And deciding "the visitor has taken over"
+by comparing the scroll position against where it was sent **does not work**:
+with smooth scrolling the position is not readable straight afterwards, and a
+clamped target differs from its request for reasons that have nothing to do
+with anyone. A gesture — wheel, touch, key, pointer — is unambiguous.
+
+### Arriving
+
+The intro is an introduction, and a visitor is introduced once. It used to run
+on every arrival at the home page, which on this site means every time someone
+comes back from a blog entry: **five seconds in front of a page they had
+already seen**, to reach a section they had already asked for. It now plays
+once per tab, and never when the URL names a place — a link to `#work` is a
+request for that section, not for the intro.
+
+That decision is made twice, in `core.js` and again in the document head,
+because the head is the only place early enough to stop the loader painting and
+the page locking its scroll for the moment before `core.js` gets to say it is
+not needed.
+
+**The curtain is lifted, not cut.** A transition that wipes the old page out and
+then simply shows the next one is half a transition: you watch a considered
+movement and then the page jumps. The outgoing wipe leaves a flag; the arriving
+document's head reads it before first paint and holds the curtain down, and
+`core.js` lifts it in the same direction the wipe was travelling — it grew from
+the bottom of the screen, so this one keeps going and clears off the top. The
+flag is read once and cleared, and the head sets its own watchdog, so a
+navigation that never completes cannot leave a page stuck behind a black
+screen.
+
 ### The steady-state hint
 
 A hint near the bottom edge that says the page goes on, built by `core.js` on
