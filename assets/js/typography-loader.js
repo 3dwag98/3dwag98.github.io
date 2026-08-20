@@ -1,9 +1,10 @@
 /* ============================================================================
    typography-loader.js — चिंतामणी गावडे → CHINTAMANI GAWADE
 
-   Giant Devanagari, a liquid wave that sweeps across it, and each syllable
-   group pulled apart and reformed as Latin as the wave passes over it. Not a
-   crossfade: a group only changes while the liquid is actually on it.
+   Giant Devanagari, each syllable group pulled apart and reformed as Latin in
+   turn, so the change travels along the name rather than arriving everywhere
+   at once. Not a crossfade: a group is torn to the point of illegibility and
+   hands over inside its own distortion.
 
    Two decisions worth knowing about before reading the code:
 
@@ -16,12 +17,15 @@
       morphing with masks/opacity instead of forcing a bad path morph."
 
    2. The swap is hidden inside the distortion. Each group is displaced hard
-      enough to be illegible at the wave's peak, and that is the frame where
-      Devanagari hands over to Latin, so the eye reads one continuous liquid
+      enough to be illegible at the peak, and that is the frame where the
+      Devanagari hands over to the Latin, so the eye reads one continuous
       event rather than two states cross-dissolving.
 
-   The wave itself is WebGL (liquid-wave.js); the per-glyph tearing stays on
-   feTurbulence + feDisplacementMap, whose scale GSAP animates per group.
+   The tearing is feTurbulence + feDisplacementMap, one pair per group, whose
+   scale GSAP animates. There was a wave layer over this at one point, drawn
+   first as a gradient band and then as a WebGL fluid; both read as a scan
+   passing over the type, and the sequence says the same thing more clearly
+   without anything on top of it.
 
    Reduced motion never reaches here at all — core.js drops the loader before
    this runs, which gets those visitors to the page faster than any still
@@ -38,18 +42,37 @@
      reads GA + WA + WA + DE = GAWAWADE. */
   /* `w` is a starting width in relative units, and only a starting one — fit()
      replaces it with what the two faces actually measure. It is kept so there
-     is something sane on screen if measurement is impossible. */
+     is something sane on screen if measurement is impossible.
+
+     `s` is the group's size, and it is the one number here that is pure art
+     direction. Setting every syllable at the same size is the safe choice and
+     a flat one; letting them differ gives the name a rhythm, and it costs
+     nothing structurally because the widths are measured after the size is
+     applied. The long cluster is set smallest on purpose — MANI is four
+     letters against everyone else's two, so at equal size it dominates the
+     line it is on. */
   var GROUPS = [
-    { dev: 'चिं', lat: 'CH',   w: 2.1 },
-    { dev: 'ता',  lat: 'IN',   w: 1.9 },
-    { dev: 'म',   lat: 'TA',   w: 1.8 },
-    { dev: 'णी',  lat: 'MANI', w: 3.6 },
-    { dev: 'गा',  lat: 'GA',   w: 2.1 },
-    { dev: 'व',   lat: 'WA',   w: 2.4 },
-    { dev: 'डे',  lat: 'DE',   w: 2.0 }
+    { dev: 'चिं', lat: 'CH',   w: 2.1, s: 1.15 },
+    { dev: 'ता',  lat: 'IN',   w: 1.9, s: 0.90 },
+    { dev: 'म',   lat: 'TA',   w: 1.8, s: 1.26 },
+    { dev: 'णी',  lat: 'MANI', w: 3.6, s: 0.84 },
+    { dev: 'गा',  lat: 'GA',   w: 2.1, s: 1.18 },
+    { dev: 'व',   lat: 'WA',   w: 2.4, s: 0.92 },
+    { dev: 'डे',  lat: 'DE',   w: 2.0, s: 1.24 }
   ];
 
   var UNIT = 60;                   // viewBox units per width unit
+
+  /* The viewBox is taller than the type needs, and the baseline sits low in
+     it, because the sizes differ: a group set at 1.26 has to have somewhere to
+     put its ascenders and its matras without climbing into the row above.
+     Every cell keeps the same box and the same baseline, so however much the
+     sizes vary the glyphs still sit on one line. */
+  var VBH = 174;
+  var BASE_Y = 137;
+
+  var DEV_SIZE = 116;              // viewBox units at size 1
+  var LAT_SIZE = 88;
 
   var WORD_BREAK = 4;              // groups 0..3 are the first word
 
@@ -80,26 +103,31 @@
          large the element gets. These are starting values; fit() replaces them
          with what the two scripts actually measure once the fonts are in. */
       var vw = Math.round(g.w * UNIT);
-      svg.setAttribute('viewBox', '0 0 ' + vw + ' 150');
+      svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + VBH);
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       cell.style.setProperty('--tl-w', String(g.w));
 
       var group = document.createElementNS(ns, 'g');
       group.setAttribute('filter', 'url(#tl-liquid-' + i + ')');
 
+      /* Inline, because the class rule would win over a presentation
+         attribute. Both scripts of a group carry the same factor, so a group
+         is one size whichever script is showing. */
       var dev = document.createElementNS(ns, 'text');
       dev.setAttribute('class', 'tl__dev');
       dev.setAttribute('x', String(vw / 2));
-      dev.setAttribute('y', '112');
+      dev.setAttribute('y', String(BASE_Y));
       dev.setAttribute('text-anchor', 'middle');
+      dev.style.fontSize = (DEV_SIZE * g.s).toFixed(1) + 'px';
       dev.textContent = g.dev;
 
       var lat = document.createElementNS(ns, 'text');
       lat.setAttribute('class', 'tl__lat');
       lat.setAttribute('x', String(vw / 2));
-      lat.setAttribute('y', '112');
+      lat.setAttribute('y', String(BASE_Y));
       lat.setAttribute('text-anchor', 'middle');
       lat.setAttribute('opacity', '0');
+      lat.style.fontSize = (LAT_SIZE * g.s).toFixed(1) + 'px';
       lat.textContent = g.lat;
 
       group.appendChild(dev);
@@ -130,9 +158,11 @@
    *
    * The cell is sized to whichever script needs more room — usually the Latin,
    * though not for every group — so the width never changes mid-morph and the
-   * row does not reflow under the wave. Keeping the viewBox and the cell in step also keeps the
-   * scale identical across all seven, which is what stops one syllable
-   * rendering fractionally larger than the rest.
+   * row does not reflow while the groups are turning over.
+   *
+   * Measuring after the per-group size is applied is what makes the uneven
+   * sizes free: a group set larger simply measures wider and gets a wider
+   * cell, with no second scale factor to keep in step.
    */
   function fit(cells) {
     cells.forEach(function (c) {
@@ -144,7 +174,7 @@
       if (!dw || !lw) return;
 
       var vw = Math.round(Math.max(dw, lw) * BEARING);
-      c.svg.setAttribute('viewBox', '0 0 ' + vw + ' 150');
+      c.svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + VBH);
       c.cell.style.setProperty('--tl-w', (vw / UNIT).toFixed(3));
       c.dev.setAttribute('x', String(vw / 2));
       c.lat.setAttribute('x', String(vw / 2));
@@ -235,7 +265,6 @@
       if (!cells || !cells.length) return null;
 
       var fx = filters(root);
-      var wave = root.querySelector('[data-tl-wave]');
       var sheet = root.querySelector('[data-tl-sheet]');
       var pct = root.querySelector('[data-tl-pct]');
 
@@ -256,7 +285,11 @@
       }
 
       /* Phase 1 — the Devanagari arrives and breathes. */
-      gsap.set(cells.map(function (c) { return c.cell; }), { opacity: 0, yPercent: 18 });
+      /* A small rise, in percent of a cell that is now most of the screen —
+         18 was tuned against a much shorter cell and became a drop of fifty
+         pixels, enough to put the second row over the footer on a short
+         window before it climbed back. */
+      gsap.set(cells.map(function (c) { return c.cell; }), { opacity: 0, yPercent: 7 });
       tl.to(cells.map(function (c) { return c.cell; }), {
         opacity: 1, yPercent: 0, duration: 0.5, ease: 'expo.out', stagger: 0.045
       }, 0);
@@ -267,30 +300,10 @@
         onUpdate: function () { if (pct) pct.textContent = String(Math.round(count.v)).padStart(3, '0'); }
       }, 0);
 
-      /* Phase 2 — the wave crosses. It is a WebGL layer rather than a sliding
-         gradient: a gradient is a rectangle however it is dressed, which is
-         what made the old one read as a scan. Here the front is warped by the
-         same noise that moves the body, so it arrives as a ragged tongue. The
-         timeline drives one number and the shader derives the rest. */
-      var liquid = (window.CGWave && wave) ? window.CGWave.mount(wave) : null;
-
-      if (liquid) {
-        var head = { p: 0 };
-        gsap.set(wave, { opacity: 0 });
-        tl.to(wave, { opacity: 1, duration: 0.24 }, 0.4)
-          .to(head, {
-            p: 1, duration: 1.62, ease: 'power1.inOut',
-            onUpdate: function () { liquid.set(head.p); }
-          }, 0.46)
-          .to(wave, { opacity: 0, duration: 0.3 }, 2.05);
-      } else if (wave) {
-        wave.style.display = 'none';       // no WebGL: the morphs still run
-      }
-
-      /* Phase 3 — the wave passes over each group in turn, and only while it
-         is on a group does that group distort, swap and settle. */
+      /* Phase 2 — each group in turn: distort, swap, settle. The offsets are
+         what make it read as a change travelling along the name. */
       cells.forEach(function (c, i) {
-        var at = 0.58 + i * 0.19;                  // when the wave arrives here
+        var at = 0.58 + i * 0.19;                  // when this group's turn comes
         var f = fx[i];
         var strength = { v: 0 };
 
@@ -319,7 +332,7 @@
           }, at);
         }
 
-        // the glyph is pulled about while the liquid is on it
+        // the glyph is pulled apart, hard enough to stop being legible
         tl.to(c.wrap, {
           scaleX: 1.5, scaleY: 0.7, rotate: i % 2 ? 2.4 : -2.4,
           duration: 0.16, ease: 'power2.in', transformOrigin: '50% 60%'
@@ -340,7 +353,7 @@
           .to(c.cell, { y: 0, duration: 0.4, ease: 'elastic.out(1, 0.6)' }, at + 0.3);
       });
 
-      /* Phase 4 — the groups close up into one word and swell past
+      /* Phase 3 — the groups close up into one word and swell past
          comfortable. Until now they have been spaced as separate syllables;
          CHINTAMANI GAWADE only reads as a name once the gaps go. */
       var last = 0.58 + (cells.length - 1) * 0.19 + 0.5;
@@ -359,14 +372,22 @@
 
       /** Where a cell's Latin actually paints. The Latin, not whatever is
        *  showing right now: the close-up has to be safe for the widest of the
-       *  two scripts, which is the one left on screen when it finishes. */
+       *  two scripts, which is the one left on screen when it finishes.
+       *
+       *  getBBox rather than getComputedTextLength, because the two are not
+       *  the same number: the Latin is set with negative tracking, so its
+       *  advance width is narrower than the box it paints into, and closing
+       *  the gap by advance width alone left the glyphs touching. */
       function ink(c) {
         var box = c.cell.getBoundingClientRect();
         var vb = parseFloat((c.svg.getAttribute('viewBox') || '').split(' ')[2]) || 1;
-        var scale = Math.min(box.width / vb, c.svg.getBoundingClientRect().height / 150);
-        var half = 0;
-        try { half = c.lat.getComputedTextLength() * scale / 2; } catch (e) { half = box.width / 2; }
+        var scale = Math.min(box.width / vb, c.svg.getBoundingClientRect().height / VBH);
         var mid = box.left + box.width / 2;
+        var half;
+        try {
+          var b = c.lat.getBBox();
+          half = Math.max(b.width, c.dev.getBBox().width) * scale / 2;
+        } catch (e) { half = box.width / 2; }
         return { left: mid - half, right: mid + half };
       }
 
@@ -400,8 +421,12 @@
       /* How far the name can swell before it runs out of screen. A fixed 1.24
          forced the type to start small enough that the end state still fit,
          which on a phone left it looking timid the whole way through. Working
-         it out from the widest row instead lets the name start as large as the
-         viewport allows and still finish filling it. */
+         it out from what is left over instead lets the name start as large as
+         the viewport allows and still finish filling it.
+
+         Both axes: the swell scales the stage, so it grows the stack of rows
+         as well as each row, and the footer is what it runs into first on a
+         wide short window. */
       function swell() {
         var t = Math.abs(tighten());
         var widest = 0;
@@ -410,8 +435,16 @@
           var z = r[r.length - 1].cell.getBoundingClientRect();
           widest = Math.max(widest, (z.right - a.left) - 2 * t * r.length);
         });
-        if (!widest) return 1.24;
-        return Math.min(1.24, (window.innerWidth * 0.96) / widest);
+
+        var box = stage.getBoundingClientRect();
+        var foot = root.querySelector('.loader__foot');
+        var floor = foot ? foot.getBoundingClientRect().top : window.innerHeight;
+        /* The stage grows about its own centre, so the room below is what
+           separates its centre from the footer. */
+        var room = box.height ? ((floor - 16) - (box.top + box.height / 2)) * 2 / box.height : 1.24;
+
+        var byWidth = widest ? (window.innerWidth * 0.96) / widest : 1.24;
+        return Math.max(1, Math.min(1.24, byWidth, room));
       }
 
       tl.to(cells.map(function (c) { return c.cell; }), {
@@ -420,8 +453,8 @@
       }, last)
         .to(stage, { scale: swell, duration: 0.55, ease: 'power3.inOut' }, last);
 
-      /* Phase 5 — hold the finished name, then the liquid takes the screen
-         and is itself the reveal. */
+      /* Phase 4 — hold the finished name, then a sheet of accent rises and
+         carries the whole loader off. */
       if (sheet) {
         gsap.set(sheet, { scaleY: 0, transformOrigin: '50% 100%' });
         tl.to(sheet, { scaleY: 1, duration: 0.5, ease: 'power3.inOut' }, last + 1.05)
@@ -429,11 +462,6 @@
       } else {
         tl.to(root, { yPercent: -100, duration: 0.7, ease: 'expo.inOut' }, last + 1.1);
       }
-
-      /* Cleanup goes in the timeline, not on onComplete: core.js replaces that
-         callback with its own handover, and a renderer left running after the
-         loader is gone is a rAF that never stops. */
-      tl.call(function () { if (liquid) liquid.stop(); }, null, last + 2.3);
 
       return tl;
     }

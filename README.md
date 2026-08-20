@@ -23,7 +23,6 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        theme.js       # dark/light toggle + the cg:theme event
 │   │        life.js        # Conway's Game of Life + its tutorial
 │   │        typography-loader.js  # चिंतामणी गावडे → CHINTAMANI GAWADE
-│   │        liquid-wave.js  # the WebGL wave the loader morphs under
 │   │        favicon.js     # the animated tab mark
 │   ├── fonts/              # self-hosted woff2 — no external font request
 │   ├── plates/             # generated line-work, twelve plates
@@ -263,49 +262,91 @@ motion starts paused with the button reading Play.
 
 ## The loader
 
-चिंतामणी गावडे becomes CHINTAMANI GAWADE, one syllable group at a time, as a liquid front crosses
-the screen. Two files, deliberately split:
+चिंतामणी गावडे becomes CHINTAMANI GAWADE, one syllable group at a time, in
+`assets/js/typography-loader.js`. Each group gets its own `feTurbulence` +
+`feDisplacementMap` pair so it can be torn independently, and hands over from
+Devanagari to Latin at the peak of that distortion — where nothing is legible,
+so the eye reads one continuous event rather than two states cross-dissolving.
+The offsets between groups are what make the change travel along the name
+instead of arriving everywhere at once.
 
-- `assets/js/liquid-wave.js` is the wave, and only the wave — a WebGL fragment shader drawing onto a
-  transparent canvas. Domain-warped fbm (an fbm of an fbm) gives the flow, the leading edge is
-  displaced by the same field that moves the body, and one GSAP tween drives one uniform while the
-  shader derives everything else. It exposes `window.CGWave.mount(canvas)` and nothing more.
-- `assets/js/typography-loader.js` is the type. The glyphs stay live SVG `<text>`, and each group
-  gets its own `feTurbulence` + `feDisplacementMap` pair so it can be torn independently as the wave
-  arrives over it. The Devanagari hands over to the Latin at the peak of that distortion, where
-  nothing is legible, so the eye reads one continuous liquid event rather than two states
-  cross-dissolving.
+**There is no wave.** There were two, and both were wrong in the same way: a
+gradient band first, then a WebGL fluid with a noise-warped front. A gradient
+can only ever be a rectangle sliding across, and the shader — domain-warped
+fbm, ragged leading edge, the lot — still read as a scan passing over the type,
+because that is what a bright thing crossing a screen looks like no matter how
+organically its edge is drawn. The sequence says the same thing more clearly
+with nothing on top of it.
 
-The wave is WebGL because the SVG version could not be anything else: `feDisplacementMap` only pushes
-pixels around inside a box, so its front was a rectangular band travelling left to right, and that
-reads as a scan. A shader can warp the boundary itself. The per-glyph tearing stays on SVG filters,
-because that part genuinely is a local distortion of a letterform and the filter does it well.
+**The glyphs stay live text rather than extracted paths.** Devanagari needs
+real shaping — चिं puts its i-matra before the consonant and its anusvara above
+— and the browser's shaper is the only thing here that gets that right. A
+build-time path extractor (opentype.js) does not shape Devanagari, so baking
+paths would have produced authentic-looking nonsense.
 
-**The glyphs stay live text rather than extracted paths.** Devanagari needs real shaping — चिं puts
-its i-matra before the consonant and its anusvara above — and the browser's shaper is the only thing
-here that gets that right. A build-time path extractor (opentype.js) does not shape Devanagari, so
-baking paths would have produced authentic-looking nonsense.
+### Everything is measured
 
-**Cells are measured, not guessed.** Each group's width comes from `getComputedTextLength()` on both
-scripts once the fonts are in, sized to whichever needs more room. Hand-tuned widths are only ever
-right for the face they were tuned against: carried over to Dela Gothic, which is 10–24% wider, every
-group overflowed its cell and sat on top of its neighbour. For the same reason the closing tighten
-takes a share of the space that is measurably between two glyphs rather than a flat slice of the
-viewport — a fixed fraction is far more than the gap on a phone and rather less than it on a wide
-screen. The final swell is worked out the same way, from what is actually left over, which is what
-lets the name start large enough to fill a phone and still finish filling it.
+The one thing worth copying from this file. Each group's width comes from
+`getBBox()` on both scripts once the fonts are in, sized to whichever needs
+more room. Hand-tuned widths are only ever right for the face they were tuned
+against: carried over to a wider Latin, every group overflowed its cell and sat
+on top of its neighbour. Measuring fixed that, and went on fixing it through a
+second font swap without a line changing.
 
-Measuring means waiting: the timeline is created paused and played once `document.fonts` resolves,
-with a 1.2s ceiling so a font that never arrives cannot strand the entry, and a second fit attached
-to `fonts.ready` in case that ceiling wins the race.
+The same applies to the numbers around it. The closing tighten takes a share of
+the space measurably between two glyphs rather than a flat slice of the
+viewport — a fixed fraction is far more than the gap on a phone and rather less
+than it on a wide screen. The final swell is computed from what is actually
+left over on both axes, which is what lets the name start large enough to fill
+a phone and still finish filling it without the bottom row reaching the footer.
 
-The shader renders below device resolution (0.65×) and runs three octaves rather than five. The field
-is soft enough that neither is visible, and together they took a software-rendered frame rate from 18
-to 40fps — a loader stuttering on a weak GPU is worse than a loader being slightly soft.
+Two traps in that measuring, both of which produced touching glyphs before they
+were found: `getComputedTextLength()` is the advance width, and with negative
+tracking the type paints wider than it advances, so the gap has to come from
+`getBBox()`; and a cell's entrance offset is a percentage of a cell that is now
+most of the screen, so a value tuned against a shorter cell became a fifty-pixel
+drop that put the second row over the footer before it climbed back.
 
-No WebGL, no `liquid-wave.js`, or a shader that will not compile: `mount()` returns null, the canvas
-is hidden and the morphs run without it. Reduced motion never reaches any of this — `core.js` drops
-the loader entirely, which gets those visitors to the page faster than a still version would.
+### Sizes
+
+Every syllable is set at its own size — the one number in the file that is pure
+art direction, and the reason the name has a rhythm rather than sitting flat.
+It costs nothing structurally because the widths are measured *after* the size
+is applied, so a larger group simply measures wider and gets a wider cell; there
+is no second scale factor to keep in step. The long cluster is set smallest on
+purpose: MANI is four letters against everyone else's two, and at equal size it
+dominates the line it is on.
+
+The viewBox is taller than the type needs and the baseline sits low in it, so a
+group set large has somewhere to put its ascenders and matras without climbing
+into the row above. Every cell keeps the same box and the same baseline, so
+however much the sizes vary the glyphs still sit on one line. The box height
+was set from measured ink extents, not guessed.
+
+One CSS custom property drives both axes of the cell, so the ratio between them
+— and therefore which of the two governs the glyph scale — cannot drift apart.
+It is `min(9.4vw, 14vh)`, because the binding constraint changes with the
+window: on a wide short one it is the height, since two rows of this have to
+clear the footer, and on a narrow tall one it is the width.
+
+### Timing
+
+The timeline is created paused and played once the two faces it needs resolve,
+with a 1.2s ceiling so a font that never arrives cannot strand the entry, plus a
+second fit on `fonts.ready` in case that ceiling wins the race. It asks for
+those two faces rather than `document.fonts.ready`, and passes the text: a face
+declared with a `unicode-range` is not fetched by `load()` probing with its
+default Latin string.
+
+The handover — remove the loader, unlock the page, restart Lenis — is one
+guarded function, because doing them separately left a window where the page was
+scrollable but Lenis was stopped, which is indistinguishable from a frozen
+scroll. `core.js` owns a fail-safe that calls it, and cancels the watchdog in
+the document head as soon as it takes the loader over, so that watchdog only
+fires when core.js never ran at all.
+
+Reduced motion never reaches any of this — `core.js` drops the loader before it
+runs, which gets those visitors to the page faster than a still version would.
 
 ## Fonts
 
