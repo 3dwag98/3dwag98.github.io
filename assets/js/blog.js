@@ -51,6 +51,7 @@
 
   function render() {
     if (CG.clearReveals) CG.clearReveals(list);
+    list.removeAttribute('aria-busy');      // whatever comes out of here is real
 
     var shown = state.all.filter(matches);
 
@@ -84,12 +85,14 @@
     .then(function (posts) {
       state.all = posts;
       if (!posts.length) {
+        list.removeAttribute('aria-busy');
         list.innerHTML = '<p class="blogs__empty">The archive is empty. First entry pending.</p>';
         return;
       }
       render();
     })
     .catch(function (err) {
+      list.removeAttribute('aria-busy');
       list.innerHTML = '<p class="blogs__empty">Could not read <b>posts.json</b> — ' + esc(err.message) +
         '. If you opened this file directly, serve the folder over HTTP instead.</p>';
     });

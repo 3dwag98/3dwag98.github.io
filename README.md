@@ -14,9 +14,10 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        home.css       # the portfolio scenes
 │   │        blog.css       # archive, reader, prose
 │   ├── js/   core.js       # Lenis + GSAP runtime: loader, curtain, cursor,
-│   │                       #   magnets, velocity skew, text splitting
+│   │                       #   magnets, velocity skew, text splitting,
+│   │                       #   the steady-state scroll hint
 │   │        home.js        # the scenes
-│   │        posts.js       # the posts.json contract (shared)
+│   │        posts.js       # the posts.json contract + loading skeleton
 │   │        blog.js        # archive: search + tag filter
 │   │        post.js        # reader: Markdown/HTML → prose
 │   │        gl.js          # the masthead's WebGL surface
@@ -339,7 +340,7 @@ line that compares it against a text measurement is silently comparing numbers
 on two different scales. That bug landed twice, once in the loader and once in
 the test that was meant to catch it.
 
-### Everything is measured### Everything is measured
+### Everything is measured
 
 The one thing worth copying from this file. Each group's width comes from
 `getBBox()` on both scripts once the fonts are in, sized to whichever needs
@@ -369,36 +370,90 @@ climbed back.
 
 ### Sizes
 
-Every syllable is set at its own size — the one number in the file that is pure
-art direction, and the reason the name has a rhythm rather than sitting flat.
-It costs nothing structurally because the widths are measured *after* the size
-is applied, so a larger group simply measures wider and gets a wider cell; there
-is no second scale factor to keep in step. The long cluster is set smallest on
-purpose: MANI is four letters against everyone else's two, and at equal size it
-dominates the line it is on.
+**The two scripts want opposite things, so they get opposite treatment.** The
+Devanagari is a run of separate syllables and reads better with a rhythm, so
+each one takes a random size on every load and the name never sets the same way
+twice. The Latin is one word and reads worse with one, so all seven are set at
+a single size — as large as the window will take.
 
-The four-letter cluster is set smallest, whichever one it is: at equal size it
-dominates the line it shares. That used to be MANI and is now CHIN, because the
-Latin split changed — it read CH · IN · TA · MANI, which does not line up with
-the Devanagari at all, and each group now morphs into the Latin that actually
-says it. The sizes had to move with the split rather than stay put.
+Random sizes cost nothing structurally, because the widths are measured *after*
+the size is applied: a larger group simply measures wider and gets a wider cell,
+with no second scale factor to keep in step. The ceiling on the range is not
+taste — the ink runs 1.19 em above the baseline and the baseline sits 126 units
+down a 172-unit box, so past about 1.32 a syllable climbs out of its own box.
 
-The viewBox is taller than the type needs and the baseline sits low in it, so a
+That box is taller than the type needs and the baseline sits low in it, so a
 group set large has somewhere to put its ascenders and matras without climbing
 into the row above. Every cell keeps the same box and the same baseline, so
-however much the sizes vary the glyphs still sit on one line. The box height
-comes from measured ink extents: across the seven runs the ink spans -398 to
-1190 font units, so at the largest size factor the box holds 1.5 em above the
-baseline and 0.5 below. The Devanagari's size is set against the Latin's by
-**body height rather than em** — these glyphs run about 0.77 em from headline to
-baseline where Playfair's caps are about 0.70, and matching ems sets the
-Devanagari far too large.
+however much the sizes vary the glyphs still sit on one line. The height comes
+from measured ink extents: across the seven runs the ink spans -398 to 1190 font
+units. The Devanagari's size is set against the Latin's by **body height rather
+than em** — these glyphs run about 0.77 em from headline to baseline where
+Playfair's caps are about 0.70, and matching ems sets the Devanagari far too
+large.
+
+The **scramble alphabet has to fit the same box**, and by measurement, not by
+assumption. The seven runs of the name span -398 to 1190 font units; the
+alphabet the scramble cycles through spans **-822 to 1436** — a third again as
+deep and a fifth again as tall. Nothing clips them, because the cells are
+`overflow: visible` so the displacement can spill, so a run that does not fit
+is kept out of that cell's pool instead. At the largest size five of the
+thirty-eight drop out; at the smallest, one.
+
+### Solving for the Latin
+
+**The Latin's size is not a number in the file — it is solved for against the
+window on every load.** A constant cannot be both very large and safe: it has to
+survive the worst window, which leaves every other window smaller than it needed
+to be. On a short wide one the height governs the scale and a third of the width
+goes unused, which is exactly the room a bigger Latin wants.
+
+The solve is a bisection on one question: *how large can the Latin be before the
+width starts governing?* Past that point a larger Latin buys nothing — the unit
+shrinks by as much as the type grows — and it costs the Devanagari, which
+shrinks with the unit. So that crossover is the answer, floored at the size
+where the Latin is as wide as the Devanagari in every cell (below which the
+English would be the smaller of the two) and capped where its capitals would
+paint out of the box. Measured across eight viewports it took the name from
+70–96% of the width to a steady **95–96% everywhere**.
+
+The ceiling comes from **canvas ink metrics**, not `getBBox()`. On a text node
+that returns the em box, which for this face runs 1.08 em above the baseline
+while every string here is capitals reaching 0.73 — sizing against it would give
+away a third of the height to ascenders nothing draws.
+
+**The name also chooses how many lines it takes.** Two rows is the designed
+shape, but on a phone four syllables across 390 pixels caps the type at about a
+fifth of what the screen would hold. So a break exists before every syllable,
+all off until the layout picks; the two-row and three-row shapes are both
+costed, and the taller one has to win by a clear margin to be taken. On a phone
+it does — CHINTA / MANI / GAWADE, at **half again the cap height**. GAWADE is
+never offered split: three syllables fit any width the four of CHINTAMANI do,
+and every way of breaking them strands one syllable on a line of its own.
 
 One CSS custom property drives both axes of the cell, so the ratio between them
 — and therefore which of the two governs the glyph scale — cannot drift apart.
-It is `min(9.4vw, 14vh)`, because the binding constraint changes with the
-window: on a wide short one it is the height, since two rows of this have to
-clear the footer, and on a narrow tall one it is the width.
+The layout writes it from what it measured, rather than leaving it to a clamp in
+the stylesheet, which could only ever be a guess at the same thing.
+
+### The vertical budget
+
+The stage centres in the room the loader's padding leaves above the footer,
+which means it runs out at the top and at the bottom **at different rates**:
+growing the stack by a pixel costs half a pixel at each edge, but only the
+bottom also carries the entrance. The cells ride in from 7% of their own height
+below where they settle, and a cell that clears the footer at rest does not
+necessarily clear it on the way in — at 1440×700 that was a 21-pixel dip against
+19 pixels of room. Both limits are computed; the smaller wins.
+
+**The close-up closes vertically as well as horizontally.** A cell is as tall as
+the Devanagari needs, a box more than twice the height of a capital, and the
+Latin sits on one baseline inside it using barely a third — which left the two
+lines floating apart with a band of empty screen between them, when the whole
+point of that phase is that they become one name. Each row now comes up by
+whatever is measurably dead above it, less the leading a display setting wants.
+A negative margin on a flex line carries every row after it, so the rows close
+cumulatively without any of them being told to.
 
 ### The rain
 
@@ -448,6 +503,78 @@ fires when core.js never ran at all.
 Reduced motion never reaches any of this — `core.js` drops the loader before it
 runs, which gets those visitors to the page faster than a still version would.
 
+## Scrolling
+
+Lenis runs on a **lerp, not a duration and an easing** — the two are
+alternatives inside it, and the duration path restarts its ease from zero on
+every wheel event. Under continuous input, a trackpad or a free-spinning wheel,
+that is a new curve sixty times a second, and it reads as the small stutter it
+is. A lerp is an exponential approach to wherever the target has got to,
+normalised against the frame time, so a continuous gesture stays one continuous
+movement and a slow frame does not shorten the glide.
+
+Every scrubbed scene has a numeric catch-up rather than `scrub: true`. A scene
+pinned to the raw scroll position is the one thing on the page moving with no
+easing at all, and next to its neighbours it reads as the harder of the two.
+
+`ScrollTrigger` is configured with `ignoreMobileResize`. A phone hiding or
+showing its address bar resizes the viewport, and a refresh mid-scroll
+re-measures every pinned scene and jumps the page — the height changes, the
+layout does not.
+
+### The steady-state hint
+
+A hint near the bottom edge that says the page goes on, built by `core.js` on
+every page rather than written into four documents. **When it shows is the whole
+design.** Permanently on, it is furniture the eye stops seeing and it sits over
+the page for the entire visit; on for three seconds and gone forever, it is a
+splash. So it comes back whenever the page has been still for a while and there
+is somewhere left to go — which is when a visitor is either reading or stuck,
+and only one of those needs telling. It leaves the moment the page moves, and
+never appears within 160 pixels of the end.
+
+It is also a button, because something that appears when nothing is happening
+ought to do the thing it is suggesting.
+
+Two details that took a second pass. A page that **grows on its own** — an
+archive rendering, a pinned scene being measured — has not been touched, so
+growth only starts the clock when nothing else is going to; treating it as
+activity meant the home page, which re-measures for as long as its scenes are
+settling, never showed a hint at all. And a page may carry **its own cue**: the
+home hero has one in its foot, marked `data-cue`, and this one waits until that
+has scrolled off rather than saying the same thing twice.
+
+## The loading state
+
+The archive, the reader and the home teaser all fetch `posts.json` before they
+have anything to show. What stood there was a sentence — "Reading the index…" —
+which tells a visitor the page is working but not what is coming, and then
+replaces itself with something a completely different height, so the page jumps.
+
+Bars in the shape of the thing being fetched fix both: the row that arrives
+lands where its placeholder was, and the shape itself says "a list of entries"
+before a single word of one exists. The archive skeleton shares `.entry`'s grid,
+so the real rows drop straight into those positions.
+
+They are **in the markup, not written by JavaScript**, so they are on screen
+from the first paint rather than waiting for a script to arrive and say the page
+is working. The sweep is one gradient mask moving across the container rather
+than an animation on each bar, so a row of them reads as one surface catching
+light instead of four things blinking out of step — and it is scoped under
+`html.motion`, so reduced motion gets the shape without the movement.
+
+The bars are never the accent colour and never pulse in it. This is the page
+admitting it has nothing yet; it should sit under the reading colour, not
+compete with the entries about to replace it.
+
+With **no JavaScript** the whole skeleton is hidden — it is scoped under
+`html.js` — and a `<noscript>` beside it says the entries are built from
+`posts.json` at runtime and links to them on GitHub. Grey bars that never
+resolve read as a page that broke, not one that is loading.
+
+`aria-busy` on the container rather than a live region: a screen reader should
+be told the container is filling, not read a description of grey bars.
+
 ## Fonts
 
 **Playfair Display** carries the Latin of the loader, subset to the eleven
@@ -494,7 +621,11 @@ several needed their alpha and density raised once the ground changed colour.
   renders in its final state, every plate is unclipped, the masthead ground is drawn once and
   held, the game starts paused, and the quote simply renders on the inverted ground.
 - With JavaScript off nothing is hidden — the portfolio and the blog chrome degrade to plain
-  scrolling documents (post bodies need JS, since they are fetched).
+  scrolling documents. What is fetched at runtime says so: the loading skeletons are scoped under
+  `html.js` and a `<noscript>` in their place links to the entries on GitHub.
+- The steady-state scroll hint leaves the tab order and the accessibility tree while it is
+  invisible, so it is never a control a keyboard lands on and cannot see. Under reduced motion it
+  still appears; only the dash falling down its rail is scoped under `html.motion`.
 - The custom cursor only appears for fine pointers; touch devices keep the native one. It hides
   the native cursor only once its own ring is on screen, so a failure leaves you with a pointer
   rather than none. The ring labels what it is over — `go`, `open`, `write`, `press`, `look`,

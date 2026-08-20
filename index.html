@@ -123,7 +123,9 @@
           <div><span class="lbl">Across</span><b>Services, data, interfaces</b></div>
         </div>
 
-        <p class="lbl mast__scroll">
+        <!-- data-cue: the page's own scroll cue. core.js keeps its steady-state
+             hint out of the way for as long as this one is on screen. -->
+        <p class="lbl mast__scroll" data-cue>
           <svg viewBox="0 0 11 18" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5.5 1v15M1 12l4.5 4.5L10 12"/></svg>
           Scroll
         </p>
@@ -574,7 +576,14 @@
         <path class="hook__line" d="M0 58 L640 58"/>
       </svg>
 
-      <div data-blogs="3"><p class="blogs__empty">Loading the index&hellip;</p></div>
+      <div data-blogs="3" aria-busy="true">
+        <div class="skel" aria-hidden="true">
+          <div class="skel__row"><span class="skel__bar skel__no"></span><span><span class="skel__bar skel__title"></span><span class="skel__bar skel__sum"></span></span><span class="skel__bar skel__meta"></span></div>
+          <div class="skel__row"><span class="skel__bar skel__no"></span><span><span class="skel__bar skel__title"></span><span class="skel__bar skel__sum"></span></span><span class="skel__bar skel__meta"></span></div>
+          <div class="skel__row"><span class="skel__bar skel__no"></span><span><span class="skel__bar skel__title"></span><span class="skel__bar skel__sum"></span></span><span class="skel__bar skel__meta"></span></div>
+        </div>
+        <noscript><p class="blogs__empty">The entries are built from <b>posts.json</b> at runtime, so this list needs JavaScript. <a class="lbl lbl--acc" href="https://github.com/3dwag98/3dwag98.github.io/tree/main/blog/posts">Read them on GitHub &rarr;</a></p></noscript>
+      </div>
     </div>
   </section>
 </main>
