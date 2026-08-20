@@ -24,6 +24,7 @@ served as static files by GitHub Pages. No build step, no framework, no npm inst
 │   │        life.js        # Conway's Game of Life + its tutorial
 │   │        typography-loader.js  # चिंतामणी गावडे → CHINTAMANI GAWADE
 │   │        code-rain.js   # the field the name resolves out of
+│   │        ams-glyphs.js  # GENERATED — AMS outlines for the loader
 │   │        favicon.js     # the animated tab mark
 │   ├── fonts/              # self-hosted woff2 — no external font request
 │   ├── plates/             # generated line-work, twelve plates
@@ -309,13 +310,36 @@ organically its edge is drawn. Rain does not have that problem: it is many
 small things rather than one big one, it is persistent rather than passing, and
 it becomes the type instead of sweeping over it.
 
-**The glyphs stay live text rather than extracted paths.** Devanagari needs
-real shaping — चिं puts its i-matra before the consonant and its anusvara above
-— and the browser's shaper is the only thing here that gets that right. A
-build-time path extractor (opentype.js) does not shape Devanagari, so baking
-paths would have produced authentic-looking nonsense.
+**The Devanagari is path data, not text.** It is set in AMS Chhatrapati, a
+legacy Marathi display face that carries **no Devanagari codepoints at all** —
+95 ASCII ones, with the shapes sitting on them. `चिंतामणी` does not render in
+it; the keystrokes that draw it are `ica/taamaNaI`, where `ि` comes first
+because legacy fonts take visual order and `a` is the stem that completes a
+consonant. Setting it as text would mean putting that string in the document
+and showing exactly it, at display size, on any load where the font failed.
 
-### Everything is measured
+`tools/ams-to-paths.py` lifts the outlines out of the font instead. The markup
+keeps the real name in its `aria-label`, there is no font file to fail, and the
+keystrokes exist only inside the generator's input. It is a TrueType `glyf`
+parser in about two hundred lines — quadratic contours to SVG paths, with the
+implied on-curve midpoints between consecutive off-curve points synthesised, or
+the curves cut corners.
+
+Composition is a plain sum of advances, which the generator earns the right to
+do by refusing to run on a font with `kern` or `GPOS`. Checked against the
+browser setting the same runs in the real font: **they agree to 0.03px at 110px
+type**, which is the rounding to whole font units and nothing else.
+
+Two things about those outlines that only measuring reveals. Their **ink
+overhangs their advance** — चिं advances 1060 units and paints 1264 — so a cell
+sized to the advance hands the difference to its neighbour; the generator emits
+an ink box per glyph for that reason. And `getBBox()` on a path returns **font
+units**, around a thousand where a cell is around a hundred and fifty, so any
+line that compares it against a text measurement is silently comparing numbers
+on two different scales. That bug landed twice, once in the loader and once in
+the test that was meant to catch it.
+
+### Everything is measured### Everything is measured
 
 The one thing worth copying from this file. Each group's width comes from
 `getBBox()` on both scripts once the fonts are in, sized to whichever needs
@@ -323,6 +347,10 @@ more room. Hand-tuned widths are only ever right for the face they were tuned
 against: carried over to a wider Latin, every group overflowed its cell and sat
 on top of its neighbour. Measuring fixed that, and went on fixing it through a
 second font swap without a line changing.
+
+The Devanagari no longer needs measuring at all — its width is the sum of the
+advances in its run, known before anything renders — so only the Latin waits on
+a font.
 
 The same applies to the numbers around it. The closing tighten takes a share of
 the space measurably between two glyphs rather than a flat slice of the
@@ -333,10 +361,11 @@ a phone and still finish filling it without the bottom row reaching the footer.
 
 Two traps in that measuring, both of which produced touching glyphs before they
 were found: `getComputedTextLength()` is the advance width, and with negative
-tracking the type paints wider than it advances, so the gap has to come from
-`getBBox()`; and a cell's entrance offset is a percentage of a cell that is now
-most of the screen, so a value tuned against a shorter cell became a fifty-pixel
-drop that put the second row over the footer before it climbed back.
+tracking the type paints wider than it advances, so both the cell size and the
+gap have to come from `getBBox()`; and a cell's entrance offset is a percentage
+of a cell that is now most of the screen, so a value tuned against a shorter
+cell became a fifty-pixel drop that put the second row over the footer before it
+climbed back.
 
 ### Sizes
 
@@ -348,11 +377,22 @@ is no second scale factor to keep in step. The long cluster is set smallest on
 purpose: MANI is four letters against everyone else's two, and at equal size it
 dominates the line it is on.
 
+The four-letter cluster is set smallest, whichever one it is: at equal size it
+dominates the line it shares. That used to be MANI and is now CHIN, because the
+Latin split changed — it read CH · IN · TA · MANI, which does not line up with
+the Devanagari at all, and each group now morphs into the Latin that actually
+says it. The sizes had to move with the split rather than stay put.
+
 The viewBox is taller than the type needs and the baseline sits low in it, so a
 group set large has somewhere to put its ascenders and matras without climbing
 into the row above. Every cell keeps the same box and the same baseline, so
 however much the sizes vary the glyphs still sit on one line. The box height
-was set from measured ink extents, not guessed.
+comes from measured ink extents: across the seven runs the ink spans -398 to
+1190 font units, so at the largest size factor the box holds 1.5 em above the
+baseline and 0.5 below. The Devanagari's size is set against the Latin's by
+**body height rather than em** — these glyphs run about 0.77 em from headline to
+baseline where Playfair's caps are about 0.70, and matching ems sets the
+Devanagari far too large.
 
 One CSS custom property drives both axes of the cell, so the ratio between them
 — and therefore which of the two governs the glyph scale — cannot drift apart.
@@ -410,15 +450,24 @@ runs, which gets those visitors to the page faster than a still version would.
 
 ## Fonts
 
-**Dela Gothic One** carries the Latin. **Baloo 2 at 700** carries the Devanagari — chosen because its
-heavy monoline weight matches Dela; the high-contrast alternatives fight it. Both are preloaded on the
-portfolio only and never requested by the blog.
+**Playfair Display** carries the Latin of the loader, subset to the eleven
+letters it ever shows — 2KB. Its didone thick/thin echoes the brush modulation
+of the Devanagari without competing with it. **Fraunces** carries every display
+size on the rest of the page, **Geist** sets running text and **GeistMono**
+every label. **Rozha One** is now used only by the code rain.
 
-**AMS Prashant is not what is running here.** It is not on npm or Google Fonts and could not be
-obtained. It is also a legacy non-Unicode font: it maps Devanagari shapes onto Latin codepoints, so
-`चिंतामणी` would not render in it at all — the source text would have to become ASCII that means
-nothing to a screen reader or a search engine. If the file turns up, wiring it in is a one-line
-change, but the encoding problem is worth deciding about first.
+**AMS Chhatrapati is not loaded as a font.** It is a legacy non-Unicode face and
+the loader uses outlines lifted out of it (see above), so nothing about it
+reaches the browser as a font file. Regenerate with:
+
+```
+python3 tools/ams-to-paths.py path/to/AMS_Chhatrapati.ttf assets/js/ams-glyphs.js
+```
+
+The generator refuses to run on a font with kerning, since it lays glyphs out by
+advance alone. **AMS Vedant** was tried and is not used: the same runs give ण**ा**
+rather than णी, so its key map differs, and its swashes need roughly double the
+vertical headroom, which forces the type smaller.
 
 ## The favicon
 

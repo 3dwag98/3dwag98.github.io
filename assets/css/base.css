@@ -14,6 +14,11 @@
    ========================================================================= */
 
 @font-face {
+  font-family: 'Playfair';
+  src: url('../fonts/playfair.woff2') format('woff2');
+  font-weight: 800; font-style: normal; font-display: block;
+}
+@font-face {
   font-family: 'Rozha';
   src: url('../fonts/rozha-devanagari.woff2') format('woff2');
   font-weight: 400; font-style: normal; font-display: block;
@@ -479,7 +484,7 @@ html.js .loader {
   /* Both axes, because the binding constraint changes with the window: on a
      wide short one it is the height — two rows of this have to clear the
      footer — and on a narrow tall one it is the width. */
-  --tl-u: clamp(1.5rem, min(9.4vw, 14vh), 8.6rem);
+  --tl-u: clamp(1.5rem, min(9vw, 13.2vh), 8.6rem);
   --tl-gap: clamp(0.1rem, 0.6vw, 0.6rem);
   display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline;
   gap: 0 var(--tl-gap);
@@ -510,13 +515,16 @@ html.js .loader {
   overflow: visible;
 }
 
-/* Size is set inline per group by typography-loader.js, in viewBox user units,
-   so each syllable can be set at its own size and still scale with the
-   element. Everything else about the two faces lives here. */
-.tl__dev { font-family: 'Rozha', serif; fill: var(--ink); }
+/* The Devanagari is path data, baked out of AMS Chhatrapati — a legacy face
+   that carries its shapes on ASCII codepoints, so it cannot be set as text
+   without putting the keystrokes in the document. There is no font to name
+   here and no size: the loader scales and places each path itself.
+
+   The Latin is set as text, at a size the loader writes inline per group. */
+.tl__dev { fill: var(--ink); }
 .tl__lat {
-  font-family: var(--serif); font-variation-settings: 'opsz' 144;
-  font-weight: 800; letter-spacing: -0.045em; fill: var(--accent);
+  font-family: 'Playfair', var(--serif);
+  font-weight: 800; letter-spacing: -0.03em; fill: var(--accent);
 }
 
 /* and the sheet it becomes, which is what wipes the page in */

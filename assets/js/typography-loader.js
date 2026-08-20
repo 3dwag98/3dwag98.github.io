@@ -35,46 +35,109 @@
 (function () {
   'use strict';
 
-  /* Seven groups. The brief's table splits ग and ा into separate units, but a
-     lone matra is not a thing that can stand on its own — and the brief's own
-     rule is to treat visually connected groups as one unit, so they are joined
-     here as गा. That also makes the Latin come out right: the split version
-     reads GA + WA + WA + DE = GAWAWADE. */
-  /* `w` is a starting width in relative units, and only a starting one — fit()
-     replaces it with what the two faces actually measure. It is kept so there
-     is something sane on screen if measurement is impossible.
+  /* Seven groups. `ams` is the run of AMS keystrokes that draws the syllable —
+     ि is typed before its consonant because legacy fonts take visual order,
+     and `a` is the stem that completes a consonant, so ता is `taa`. Those
+     keystrokes never reach the document: build() turns them into path data.
+
+     `lat` is the syllable, not an arbitrary slice of the name. It used to read
+     CH · IN · TA · MANI, which does not line up with the Devanagari at all;
+     each group now morphs into the Latin that actually says it.
+
+     `w` is a starting width in relative units, and only a starting one — fit()
+     replaces it with what the two faces measure.
 
      `s` is the group's size, and it is the one number here that is pure art
      direction. Setting every syllable at the same size is the safe choice and
      a flat one; letting them differ gives the name a rhythm, and it costs
      nothing structurally because the widths are measured after the size is
-     applied. The long cluster is set smallest on purpose — MANI is four
-     letters against everyone else's two, so at equal size it dominates the
-     line it is on. */
+     applied. The four-letter cluster is set smallest, whichever one it is:
+     at equal size it dominates the line it shares. That used to be MANI and
+     is now CHIN, so the sizes moved with the split rather than staying put. */
   var GROUPS = [
-    { dev: 'चिं', lat: 'CH',   w: 2.1, s: 1.15 },
-    { dev: 'ता',  lat: 'IN',   w: 1.9, s: 0.90 },
-    { dev: 'म',   lat: 'TA',   w: 1.8, s: 1.26 },
-    { dev: 'णी',  lat: 'MANI', w: 3.6, s: 0.84 },
-    { dev: 'गा',  lat: 'GA',   w: 2.1, s: 1.18 },
-    { dev: 'व',   lat: 'WA',   w: 2.4, s: 0.92 },
-    { dev: 'डे',  lat: 'DE',   w: 2.0, s: 1.24 }
+    { dev: 'चिं', ams: 'ica/', lat: 'CHIN', w: 2.1, s: 0.84 },
+    { dev: 'ता',  ams: 'taa',  lat: 'TA',   w: 1.9, s: 1.18 },
+    { dev: 'म',   ams: 'ma',   lat: 'MA',   w: 1.8, s: 0.92 },
+    { dev: 'णी',  ams: 'NaI',  lat: 'NI',   w: 3.6, s: 1.26 },
+    { dev: 'गा',  ams: 'gaa',  lat: 'GA',   w: 2.1, s: 1.15 },
+    { dev: 'व',   ams: 'va',   lat: 'WA',   w: 2.4, s: 0.90 },
+    { dev: 'डे',  ams: 'De',   lat: 'DE',   w: 2.0, s: 1.24 }
   ];
+
+  /* The alphabet the scramble cycles through, as AMS runs. Every consonant
+     carries its stem, so each one is a letter rather than a half form. */
+  var POOL_AMS = ('ka Ka ga Ga ca Ca ja Ja Ta Da Za Na da na fa ba Ba ma ya ' +
+                  'ra la va Sa sa ha Pa Qa Oa 0 1 2 3 4 5 6 7 8 9').split(' ');
 
   var UNIT = 60;                   // viewBox units per width unit
 
-  /* The viewBox is taller than the type needs, and the baseline sits low in
-     it, because the sizes differ: a group set at 1.26 has to have somewhere to
-     put its ascenders and its matras without climbing into the row above.
-     Every cell keeps the same box and the same baseline, so however much the
-     sizes vary the glyphs still sit on one line. */
-  var VBH = 174;
-  var BASE_Y = 137;
+  /* Measured from the outlines rather than guessed. Across the seven runs the
+     ink spans -398 to 1190 font units — 1.19 em above the baseline for the
+     tall चिं and णी, 0.4 em below for ता's descender — so at the largest size
+     factor the box has to hold 1.5 em above and 0.5 em below.
 
-  var DEV_SIZE = 116;              // viewBox units at size 1
+     DEV_SIZE is set against LAT_SIZE by body height rather than em: these
+     glyphs run about 0.77 em from headline to baseline where Playfair's caps
+     are about 0.70, so matching ems would have set the Devanagari far too
+     large. The previous pair was tuned for Rozha, whose proportions are not
+     these. */
+  var VBH = 172;
+  var BASE_Y = 126;
+
+  var DEV_SIZE = 80;               // viewBox units at size 1
   var LAT_SIZE = 88;
 
   var WORD_BREAK = 4;              // groups 0..3 are the first word
+
+  /* Shift every x in a path built only from M / L / Q / Z. The generator emits
+     nothing else, so a full path parser would be dead weight. */
+  function shift(d, dx) {
+    return d.replace(/([MLQ])([^MLQZ]*)/g, function (_, cmd, args) {
+      var n = args.trim().split(/[\s,]+/);
+      for (var i = 0; i < n.length; i += 2) n[i] = +n[i] + dx;
+      return cmd + n.join(' ');
+    });
+  }
+
+  /**
+   * An AMS run -> one path and its advance width, both in font units.
+   *
+   * Laying the glyphs out by advance alone is exact here: the font carries no
+   * kern table and no GPOS, which the generator checks and refuses to run
+   * without. Verified against the browser setting the same text in the real
+   * font — the two agree to 0.03px at 110px type, which is the rounding to
+   * whole font units and nothing else.
+   */
+  function ams(run) {
+    var G = window.CGAms && window.CGAms.g;
+    if (!G) return null;
+    var x = 0, out = [], x0 = Infinity, x1 = -Infinity;
+    for (var i = 0; i < run.length; i++) {
+      var g = G[run.charAt(i)];
+      if (!g) continue;
+      if (g.d) {
+        out.push(x ? shift(g.d, x) : g.d);
+        x0 = Math.min(x0, g.b[0] + x);
+        x1 = Math.max(x1, g.b[1] + x);
+      }
+      x += g.a;                       // matras have an advance of ~0 and overlay
+    }
+    if (x0 > x1) { x0 = 0; x1 = x; }
+    /* `w` is the ink, not the advance. These glyphs overhang: चिं advances
+       1060 units and paints 1264, and a cell sized to the advance hands the
+       difference to its neighbour. `mid` is where the ink is centred, which
+       is not the middle of the advance box either. */
+    return { d: out.join(''), w: x1 - x0, adv: x, mid: (x0 + x1) / 2 };
+  }
+
+  /** Where a run sits in a cell: centred on `cx`, sitting on the baseline, at
+   *  the group's own size. The negative y scale is the flip from font
+   *  coordinates, which count upwards, to SVG, which counts down. */
+  function place(cx, size, run) {
+    var k = size / (window.CGAms ? window.CGAms.em : 1000);
+    return 'translate(' + cx.toFixed(2) + ' ' + BASE_Y + ') scale(' +
+           k.toFixed(5) + ' ' + (-k).toFixed(5) + ') translate(' + (-run.mid).toFixed(1) + ' 0)';
+  }
 
   function build(root) {
     var stage = root.querySelector('[data-tl-stage]');
@@ -110,16 +173,20 @@
       var group = document.createElementNS(ns, 'g');
       group.setAttribute('filter', 'url(#tl-liquid-' + i + ')');
 
-      /* Inline, because the class rule would win over a presentation
-         attribute. Both scripts of a group carry the same factor, so a group
-         is one size whichever script is showing. */
-      var dev = document.createElementNS(ns, 'text');
+      /* The Devanagari is a path, not text. Its face is a legacy non-Unicode
+         one that carries the shapes on ASCII codepoints, so setting it as text
+         would mean putting `ica/taamaNaI` in the document and showing exactly
+         that at display size whenever the font failed to arrive. The outlines
+         are baked out of the font instead (tools/ams-to-paths.py), which keeps
+         the letterforms and leaves the markup alone — the stage still carries
+         the real name in its aria-label. */
+      var run = ams(g.ams);
+      var dev = document.createElementNS(ns, 'path');
       dev.setAttribute('class', 'tl__dev');
-      dev.setAttribute('x', String(vw / 2));
-      dev.setAttribute('y', String(BASE_Y));
-      dev.setAttribute('text-anchor', 'middle');
-      dev.style.fontSize = (DEV_SIZE * g.s).toFixed(1) + 'px';
-      dev.textContent = g.dev;
+      if (run) {
+        dev.setAttribute('d', run.d);
+        dev.setAttribute('transform', place(vw / 2, DEV_SIZE * g.s, run));
+      }
 
       var lat = document.createElementNS(ns, 'text');
       lat.setAttribute('class', 'tl__lat');
@@ -136,7 +203,8 @@
       cell.appendChild(svg);
       stage.appendChild(cell);
 
-      made.push({ cell: cell, svg: svg, wrap: group, dev: dev, lat: lat, i: i });
+      made.push({ cell: cell, svg: svg, wrap: group, dev: dev, lat: lat, i: i,
+                  run: run, size: DEV_SIZE * g.s });
     });
 
     return made;
@@ -164,72 +232,57 @@
    * sizes free: a group set larger simply measures wider and gets a wider
    * cell, with no second scale factor to keep in step.
    */
-  /* Widths of the whole scramble alphabet, measured once at a reference size.
-     Width scales with font size, so one pass over the alphabet serves every
-     cell rather than one pass per cell — and it has to be measured at all,
-     because a random glyph wider than the cell was sized for pushes straight
-     into the neighbouring syllable. */
-  var REF = 100;
-
-  function poolWidths(cell, pool) {
-    var ns = 'http://www.w3.org/2000/svg';
-    var probe = document.createElementNS(ns, 'text');
-    probe.setAttribute('class', 'tl__dev');
-    probe.setAttribute('x', '0');
-    probe.setAttribute('y', '0');
-    probe.setAttribute('visibility', 'hidden');
-    probe.style.fontSize = REF + 'px';
-    cell.svg.appendChild(probe);
-
-    var out = [];
-    try {
-      for (var i = 0; i < pool.length; i++) {
-        probe.textContent = pool[i];
-        out.push({ g: pool[i], w: probe.getComputedTextLength() });
-      }
-    } catch (e) { out = []; }
-    cell.svg.removeChild(probe);
-    return out;
-  }
-
+  /**
+   * Sizes every cell from what its two scripts actually take up.
+   *
+   * The Devanagari no longer needs measuring: its width is the sum of the
+   * advances in its run, which is known before anything renders. Only the
+   * Latin has to be measured, and only once its face has arrived.
+   *
+   * The widths in GROUPS are a guess, and a guess is all they can be — they
+   * were art-directed against one Latin face, and against a wider one every
+   * group overflowed its cell and sat on top of its neighbour.
+   */
   function fit(cells) {
-    var pool = (window.CGRain && window.CGRain.glyphs) || [];
-    var widths = (pool.length && cells[0]) ? poolWidths(cells[0], pool) : [];
+    var em = (window.CGAms && window.CGAms.em) || 1000;
+
+    /* The scramble alphabet, measured once. A cell may only cycle through the
+       runs that fit the room it was sized for: a group whose Devanagari is the
+       wider of its two scripts has no slack at all, and a fat glyph dropped
+       into it sits on the syllable next door. */
+    var alphabet = [];
+    if (window.CGAms) {
+      POOL_AMS.forEach(function (run) {
+        var a = ams(run);
+        if (a && a.d) alphabet.push(a);
+      });
+    }
 
     cells.forEach(function (c, i) {
-      /* Measure the glyph this cell will settle on, not whatever the scramble
-         is showing at this instant — the late re-fit can land mid-resolve, and
-         sizing a cell to a character it is only passing through would undo the
-         whole point of measuring. */
-      var showing = c.dev.textContent;
-      var real = GROUPS[i].dev;
-      if (showing !== real) c.dev.textContent = real;
+      /* getBBox, not getComputedTextLength: the latter is the advance, and the
+         Latin is set with negative tracking so it paints wider than it
+         advances. Sizing the cell to the advance left the glyphs touching
+         after the close-up. */
+      var lw;
+      try { lw = c.lat.getBBox().width || c.lat.getComputedTextLength(); }
+      catch (e) { return; }
+      if (!lw) return;
 
-      var dw, lw;
-      try {
-        dw = c.dev.getComputedTextLength();
-        lw = c.lat.getComputedTextLength();
-      } catch (e) { dw = 0; }                 // not rendered yet; keep the guess
-      if (showing !== real) c.dev.textContent = showing;
-      if (!dw || !lw) return;
+      var k = c.size / em;                     // font units -> viewBox units
+      var dw = c.run ? c.run.w * k : 0;
+      var room = Math.max(dw, lw);
 
-      var vw = Math.round(Math.max(dw, lw) * BEARING);
+      var vw = Math.round(room * BEARING);
       c.svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + VBH);
       c.cell.style.setProperty('--tl-w', (vw / UNIT).toFixed(3));
-      c.dev.setAttribute('x', String(vw / 2));
       c.lat.setAttribute('x', String(vw / 2));
+      if (c.run) c.dev.setAttribute('transform', place(vw / 2, c.size, c.run));
 
-      /* The characters this cell may cycle through: the ones no wider than
-         what it was measured to hold. A cell whose Devanagari is the wider of
-         its two scripts has no slack at all, and a fat glyph dropped into it
-         sits on the syllable next door. */
-      if (widths.length) {
-        var room = Math.max(dw, lw) * REF / (DEV_SIZE * GROUPS[i].s);
-        var ok = widths.filter(function (x) { return x.w <= room; });
-        if (ok.length < 8) {                    // nothing fits: take the slimmest
-          ok = widths.slice().sort(function (a, b) { return a.w - b.w; }).slice(0, 8);
-        }
-        c.pool = ok.map(function (x) { return x.g; });
+      c.cx = vw / 2;
+      c.room = room;
+      c.pool = alphabet.filter(function (a) { return a.w * k <= room; });
+      if (c.pool.length < 8) {                 // nothing fits: take the slimmest
+        c.pool = alphabet.slice().sort(function (x, y) { return x.w - y.w; }).slice(0, 8);
       }
     });
   }
@@ -253,15 +306,15 @@
     var f = document.fonts;
     if (!f || !f.load) { window.setTimeout(go, 60); return; }
 
-    var dev = GROUPS.map(function (g) { return g.dev; }).join('');
     var lat = GROUPS.map(function (g) { return g.lat; }).join('');
 
     try {
       Promise.all([
-        f.load('400 116px Rozha', dev),
-        f.load('800 88px Fraunces', lat),
-        // the rain draws its Latin and its punctuation in this one, and a
-        // canvas does not honour font-display either
+        // the Devanagari is path data and needs nothing; only the Latin does
+        f.load('800 88px Playfair', lat),
+        // the rain draws in these two, and a canvas does not honour
+        // font-display either
+        f.load('400 20px Rozha', 'कखग'),
         f.load('400 20px GeistMono', '01AB{}')
       ]).then(go, go);
     } catch (e) { go(); }
@@ -361,7 +414,6 @@
          A small rise underneath, in percent of a cell that is now most of the
          screen — 18 was tuned against a much shorter cell and became a drop of
          fifty pixels, enough to put the second row over the footer. */
-      var POOL = (window.CGRain && window.CGRain.glyphs) || ['0', '1'];
       var SCRAMBLE = 0.38;             // how long a syllable stays undecided
       var LOCK_STEP = 0.105;           // between one syllable locking and the next
 
@@ -397,13 +449,19 @@
             var step = Math.floor(flick.t / 0.055);
             if (step === c.step) return;
             c.step = step;
-            var pool = c.pool || POOL;
-            c.dev.textContent = pool[(Math.random() * pool.length) | 0];
+            if (!c.pool || !c.pool.length) return;
+            var a = c.pool[(Math.random() * c.pool.length) | 0];
+            c.dev.setAttribute('d', a.d);
+            c.dev.setAttribute('transform', place(c.cx, c.size, a));
           }
         }, from);
 
         // and it settles on the one it was always going to be
-        tl.call(function () { c.dev.textContent = GROUPS[i].dev; }, null, from + SCRAMBLE);
+        tl.call(function () {
+          if (!c.run) return;
+          c.dev.setAttribute('d', c.run.d);
+          c.dev.setAttribute('transform', place(c.cx, c.size, c.run));
+        }, null, from + SCRAMBLE);
       });
 
       // the counter runs underneath the whole thing
@@ -486,24 +544,20 @@
          flat fraction of the window instead is what put letters on top of
          each other. Function-based so it is read after fit() has run. */
 
-      /** Where a cell's Latin actually paints. The Latin, not whatever is
-       *  showing right now: the close-up has to be safe for the widest of the
-       *  two scripts, which is the one left on screen when it finishes.
+      /** Where a cell's content actually paints, in page pixels.
        *
-       *  getBBox rather than getComputedTextLength, because the two are not
-       *  the same number: the Latin is set with negative tracking, so its
-       *  advance width is narrower than the box it paints into, and closing
-       *  the gap by advance width alone left the glyphs touching. */
+       *  From the widths fit() already worked out, not from getBBox on the
+       *  path: a path's bbox comes back in its own user space, which for these
+       *  is font units — around a thousand where the cell is around a hundred
+       *  and fifty — so mixing the two silently compares numbers on different
+       *  scales. `room` is the wider of the two scripts, in viewBox units,
+       *  which is what the cell was sized around in the first place. */
       function ink(c) {
         var box = c.cell.getBoundingClientRect();
         var vb = parseFloat((c.svg.getAttribute('viewBox') || '').split(' ')[2]) || 1;
         var scale = Math.min(box.width / vb, c.svg.getBoundingClientRect().height / VBH);
         var mid = box.left + box.width / 2;
-        var half;
-        try {
-          var b = c.lat.getBBox();
-          half = Math.max(b.width, c.dev.getBBox().width) * scale / 2;
-        } catch (e) { half = box.width / 2; }
+        var half = (c.room ? c.room * scale : box.width) / 2;
         return { left: mid - half, right: mid + half };
       }
 
