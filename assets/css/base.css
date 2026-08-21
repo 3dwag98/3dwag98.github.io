@@ -380,6 +380,22 @@ body::after { mix-blend-mode: screen; opacity: 0.13; }
 
 .nav__id { display: inline-flex; align-items: baseline; }
 
+/* Held covered from the very first paint, on the one page that animates it.
+
+   The wordmark is real markup, so without this it renders normally for as long
+   as it takes the runtime to arrive — measured at half a second on a local
+   connection and longer on a real one — and then vanishes as the scene takes
+   over. That is the flash. Doing it in CSS means there is no frame in which it
+   was ever painted.
+
+   Scoped to html.js.motion, both of which the document head sets before first
+   paint, so no-JS and reduced motion show the wordmark plainly and nothing has
+   to undo this for them. inline-block because a clip needs a box. */
+html.js.motion .nav__mark--hold {
+  display: inline-block;
+  clip-path: inset(-20% 100% -20% 0%);
+}
+
 .nav__mark {
   font-family: var(--serif);
   font-variation-settings: 'opsz' 24;

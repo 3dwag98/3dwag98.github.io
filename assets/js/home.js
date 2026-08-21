@@ -541,10 +541,23 @@
   function heroMark() {
     var hero = document.querySelector('.mast__name');
     var mark = document.querySelector('.nav__mark');
-    if (!hero || !mark || !motion || !ST) return;
+
+    /* The stylesheet holds the wordmark covered before first paint, which only
+       one of these can then take over. Anything that stops that happening has
+       to give it back, or the header is left permanently blank. */
+    function release() { if (mark) mark.classList.remove('nav__mark--hold'); }
+
+    if (!hero || !mark || !motion || !ST) { release(); return; }
 
     var to = [mark.querySelector('[data-mark="a"]'), mark.querySelector('[data-mark="b"]')];
-    if (!to[0] || !to[1]) return;
+    if (!to[0] || !to[1]) { release(); return; }
+
+    /* A scene is taking it over, so the document head's fallback stands down —
+       left to fire it would strip the class and with it the box the clip needs. */
+    if (window.__cgMarkHold) {
+      window.clearTimeout(window.__cgMarkHold);
+      window.__cgMarkHold = 0;
+    }
 
     /* How far the exchange takes. Three quarters of a screen: long enough to
        read as a movement rather than a jump, short enough that the name is
@@ -589,6 +602,11 @@
    * the arrival matches because it is the same instruction the header uses.
    */
   function markTravel(hero, mark, to, span) {
+    /* This one hides the wordmark with opacity rather than a clip, so the
+       stylesheet's hold has to be released or it never comes back. */
+    mark.classList.remove('nav__mark--hold');
+    mark.style.clipPath = 'none';
+
     var fly = document.createElement('div');
     fly.className = 'mark-fly';
     fly.setAttribute('aria-hidden', 'true');
@@ -809,7 +827,8 @@
    * is.
    */
   function markWipe(hero, mark, span) {
-    mark.style.display = 'inline-block';        // a clip needs a box
+    // the box and the covered start both come from the stylesheet, so there is
+    // no frame between first paint and this running in which it was visible
     mark.style.willChange = 'clip-path';
 
     gsap.fromTo(mark,
@@ -838,7 +857,6 @@
    * first left, which is the point being made.
    */
   function markRise(hero, mark, span) {
-    mark.style.display = 'inline-block';
     mark.style.willChange = 'clip-path, transform';
 
     var tl = gsap.timeline({
