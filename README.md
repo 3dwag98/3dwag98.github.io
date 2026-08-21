@@ -580,6 +580,41 @@ flag is read once and cleared, and the head sets its own watchdog, so a
 navigation that never completes cannot leave a page stuck behind a black
 screen.
 
+### The name climbs into the header
+
+The hero sets the name at fifteen rem and the header sets it again at one, so at
+the top of the page it is the same two words twice on one screen. Rather than
+hide either, the hero's copy travels: it leaves the page, closes from two lines
+onto one, shrinks through the variable font's optical sizes and arrives exactly
+where the header's copy sits — which is what takes over, crisp, at the end.
+
+**Font size, not a scale transform.** Fraunces has a real optical-size axis, and
+144 is drawn differently from 24: thinner hairlines, tighter spacing, narrower
+counters. Scaling the display cut down to header size carries the display drawing
+with it and lands on something that is not the wordmark. Size, weight, tracking
+and `opsz` animate together, so the letterforms genuinely retune on the way up.
+
+A fixed stand-in does the travelling, not the `<h1>`. The heading stays in flow so
+the masthead's layout never moves, and the stand-in is free of the masks the
+entrance needed, of the section's overflow, and of the stacking context that would
+otherwise keep it underneath the header it is flying into. It is `aria-hidden`;
+the real heading and the real wordmark both stay where they were.
+
+Three things this cost:
+
+- **The second word is not given a path of its own.** Sent along a straight line
+  it cut the corner and crossed straight through the first — two lines closing
+  onto one is not two independent journeys. It homes on wherever the first word's
+  trailing edge has got to, sideways early and downward late.
+- **GSAP rounds pixel values on CSS properties it does not treat as transforms.**
+  `fontSize: 19.2` landed as `19px` and `letterSpacing: '-0.3456px'` as `0px`,
+  which is why the arrival was two pixels adrift and the tracking never left
+  `normal`. The numbers are interpolated by hand and the strings written directly.
+- **The landing is calibrated, not calculated.** The stand-in and the wordmark
+  inherit different line heights, so the same `top` puts their text two pixels
+  apart. The stand-in is put into its final state, measured, and the target moved
+  by the difference — measured offset is now 0.0px at every width and both themes.
+
 ### The steady-state hint
 
 A hint near the bottom edge that says the page goes on, built by `core.js` on
@@ -604,7 +639,15 @@ has scrolled off rather than saying the same thing twice.
 
 #### Making it visible
 
-The first version was too faint to do its job on a phone, and measuring said
+**When it shows was wrong before it was too faint.** The rule was "the page has
+not scrolled for a while" — which is exactly what reading a paragraph looks like,
+and what drawing on the game board looks like, so it kept turning up in the middle
+of both. It now waits on any input at all rather than only scrolling, stays away
+while the pointer is inside a `[data-quiet]` region, retires for the session once
+someone has scrolled more than a viewport and a bit, and never shows more than
+twice in a visit. A visitor doing anything is a visitor who does not need telling.
+
+The first version was also too faint to do its job on a phone, and measuring said
 why in three parts rather than one.
 
 The rail was a one-pixel line at half opacity: **2.2:1** against the page, under

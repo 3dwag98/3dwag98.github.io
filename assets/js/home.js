@@ -506,12 +506,256 @@
       });
   }
 
+  /* ── the name climbs into the header ───────────────────────────────── */
+
+  /** The tight box around an element's text, in viewport pixels. getBoundingClientRect
+   *  on the element gives the block, which for a display line is the full column
+   *  width; a Range gives the text itself, which is what has to line up. */
+  /** A CSS length in pixels. `normal` letter-spacing is zero. */
+  function px(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
+
+  function textBox(el) {
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    var b = r.getBoundingClientRect();
+    if (r.detach) r.detach();
+    return b;
+  }
+
+  /**
+   * The hero sets the name at fifteen rem and the header sets it again at one,
+   * so at the top of the page it is the same two words twice on one screen.
+   * Rather than hide either, the hero's copy travels: it leaves the page,
+   * closes from two lines onto one, shrinks through the variable font's
+   * optical sizes, and arrives exactly where the header's copy sits — which
+   * is what takes over, crisp, at the end.
+   *
+   * Font size rather than a scale transform. Fraunces is a variable face with
+   * a real optical-size axis, and 144 is drawn differently from 24 — thinner
+   * hairlines, tighter spacing, narrower counters. Scaling the display cut
+   * down to header size would carry the display drawing with it and land on
+   * something that is not the wordmark. Animating size, weight, tracking and
+   * `opsz` together means the letterforms genuinely retune on the way up, and
+   * the arrival matches because it is the same instruction the header uses.
+   */
+  function heroMark() {
+    var hero = document.querySelector('.mast__name');
+    var mark = document.querySelector('.nav__mark');
+    var nav = document.querySelector('.nav');
+    if (!hero || !mark || !nav || !motion) return;
+
+    var to = [mark.querySelector('[data-mark="a"]'), mark.querySelector('[data-mark="b"]')];
+    if (!to[0] || !to[1]) return;
+
+    var fly = document.createElement('div');
+    fly.className = 'mark-fly';
+    fly.setAttribute('aria-hidden', 'true');
+    var word = to.map(function (t) {
+      var s = document.createElement('span');
+      s.textContent = t.textContent;
+      fly.appendChild(s);
+      return s;
+    });
+    document.body.appendChild(fly);
+
+    gsap.set(fly, { autoAlpha: 0 });
+
+    /* Measured, never assumed: both ends are clamp()ed against the viewport
+       and the header's is a different weight and optical size again. Read
+       from the two elements that are actually on the page, on every refresh,
+       so a resize re-aims the flight rather than sending it to where the
+       header used to be. */
+    var plan = null;
+
+    function measure() {
+      var lines = hero.querySelectorAll('.ln__i');
+      if (lines.length !== 2) return null;
+
+      var hs = getComputedStyle(hero);
+      var y = window.scrollY || window.pageYOffset || 0;
+
+      return word.map(function (s, i) {
+        /* The line masks hold the entrance and move their contents vertically
+           while it plays, so the horizontal extent comes from the text and the
+           vertical from the mask, which never moves. */
+        var maskBox = lines[i].parentNode.getBoundingClientRect();
+        var textB = textBox(lines[i]);
+        var toB = textBox(to[i]);
+        var ts = getComputedStyle(to[i]);
+        return {
+          span: s,
+          from: { x: textB.left, y: maskBox.top + y, size: parseFloat(hs.fontSize) },
+          to: { x: toB.left, y: toB.top, size: parseFloat(ts.fontSize) },
+          // numbers, not strings: these are interpolated by hand below
+          fromVar: { weight: parseFloat(hs.fontWeight) || 400, track: px(hs.letterSpacing), opsz: 144 },
+          toVar: { weight: parseFloat(ts.fontWeight) || 400, track: px(ts.letterSpacing), opsz: 24 }
+        };
+      });
+    }
+
+    /* How far the flight takes. Three quarters of a screen: long enough to
+       read as a movement rather than a jump, short enough that the name is
+       home before the first section arrives. */
+    function span() { return Math.round(window.innerHeight * 0.75); }
+
+    var tl = null;
+
+    function build() {
+      plan = measure();
+      if (!plan) return;
+
+      if (tl) { tl.scrollTrigger && tl.scrollTrigger.kill(); tl.kill(); }
+
+      /* Land it by measurement, not by arithmetic.
+
+         The stand-in and the header's own wordmark sit in different places in
+         the document and inherit different line heights, so giving both the
+         same top puts their text two pixels apart — which is exactly the kind
+         of thing that reads as a flicker at the instant of the swap. Put the
+         stand-in into its final state, measure where its text actually falls,
+         and move the target by the difference. */
+      plan.forEach(function (p, i) {
+        p.span.style.fontSize = p.to.size + 'px';
+        p.span.style.letterSpacing = p.toVar.track + 'px';
+        p.span.style.fontWeight = p.toVar.weight;
+        p.span.style.fontVariationSettings = "'opsz' " + p.toVar.opsz;
+        gsap.set(p.span, { x: p.to.x, y: p.to.y });
+        var got = textBox(p.span), want = textBox(to[i]);
+        p.to.x += want.left - got.left;
+        p.to.y += want.top - got.top;
+      });
+
+      /* The space between the two words at rest, which is what the second one
+         keeps as it closes up behind the first. From the real wordmark's own
+         text, so it is the space the header actually sets. */
+      var gap = textBox(to[1]).left - textBox(to[0]).right;
+
+      tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: '.mast', start: 'top top', end: '+=' + span(),
+          scrub: 0.5, invalidateOnRefresh: true,
+          /* The heading hands over on the first pixel and takes itself back at
+             the top, so a visitor who never scrolls sees the real <h1>. And
+             the header takes its own wordmark back at the end — from the edge
+             callbacks as well as from progress, because the last onUpdate
+             before leaving the range is not guaranteed to carry a progress of
+             exactly 1. On a phone it arrived at 0.9948, which is a header that
+             never got its name back. */
+          onEnter: swap, onLeaveBack: unswap, onUpdate: track,
+          onLeave: function () { land(true); },
+          onEnterBack: function () { land(false); }
+        }
+      });
+
+      /* One proxy drives everything, and the type properties are written by
+         hand rather than tweened.
+
+         GSAP rounds pixel values on CSS properties it does not treat as
+         transforms: `fontSize: 19.2` landed as `19px` and
+         `letterSpacing: '-0.3456px'` as `0px`, which is why the arrival was
+         two pixels adrift and the tracking never left `normal`. Interpolating
+         the numbers here and writing the strings is exact, and it is one pass
+         over two elements per frame either way. */
+      var lead = plan[0], trail = plan[1];
+      var beat = { k: 0 };
+
+      function tween(p, k) {
+        var st = p.span.style;
+        st.fontSize = (p.from.size + (p.to.size - p.from.size) * k).toFixed(2) + 'px';
+        st.letterSpacing = (p.fromVar.track + (p.toVar.track - p.fromVar.track) * k).toFixed(3) + 'px';
+        st.fontWeight = Math.round(p.fromVar.weight + (p.toVar.weight - p.fromVar.weight) * k);
+        st.fontVariationSettings = "'opsz' " +
+          (p.fromVar.opsz + (p.toVar.opsz - p.fromVar.opsz) * k).toFixed(1);
+      }
+
+      function render() {
+        var k = beat.k;
+        var y = window.scrollY || window.pageYOffset || 0;
+
+        /* The lead goes straight to the header's own wordmark. Its start is
+           read live off the page, so however far the scrub is lagging at the
+           moment of the swap the stand-in is exactly where the heading is. */
+        tween(lead, k);
+        var top0 = lead.from.y - y;
+        gsap.set(lead.span, {
+          x: lead.from.x + (lead.to.x - lead.from.x) * k,
+          y: top0 + (lead.to.y - top0) * k
+        });
+
+        /* The trail is not given a path of its own. Sent along a straight line
+           it cut the corner and crossed through the lead — two lines closing
+           onto one is not two independent journeys. It homes on wherever the
+           lead's trailing edge has got to, sideways early and downward late,
+           holding a real line between them for as long as there are two. */
+        tween(trail, k);
+        var a = textBox(lead.span);
+        var tx = k < 0.4 ? k / 0.4 : 1;
+        var ty = k * k;
+        var size = parseFloat(trail.span.style.fontSize) || trail.from.size;
+        var g = gap * (size / trail.to.size);
+
+        // the span's own box is not its text box, so correct by the difference
+        var self = textBox(trail.span);
+        var slipX = self.left - (parseFloat(gsap.getProperty(trail.span, 'x')) || 0);
+        var slipY = self.top - (parseFloat(gsap.getProperty(trail.span, 'y')) || 0);
+
+        gsap.set(trail.span, {
+          x: (a.right + g) * tx + trail.from.x * (1 - tx) - slipX,
+          y: a.top + (trail.from.y - lead.from.y) * (size / trail.from.size) * (1 - ty) - slipY
+        });
+      }
+
+      tl.to(beat, { k: 1, duration: 1, ease: 'none', onUpdate: render });
+      render();
+    }
+
+    var flying = false;
+
+    function swap() {
+      if (flying) return;
+      flying = true;
+      gsap.set(hero, { autoAlpha: 0 });
+      gsap.set(mark, { autoAlpha: 0 });
+      gsap.set(fly, { autoAlpha: 1 });
+    }
+
+    function unswap() {
+      if (!flying) return;
+      flying = false;
+      gsap.set(hero, { autoAlpha: 1 });
+      gsap.set(fly, { autoAlpha: 0 });
+      gsap.set(mark, { autoAlpha: 0 });
+    }
+
+    /* At the end of the flight the header's own wordmark takes over. It is the
+       real one — inside the link, in the header's own layout — so it stays
+       right through every later resize without anything holding it in place. */
+    function land(done) {
+      gsap.set(mark, { autoAlpha: done ? 1 : 0 });
+      gsap.set(fly, { autoAlpha: done ? 0 : 1 });
+    }
+
+    function track(self) { land(self.progress > 0.995); }
+
+    // the entrance moves the lines it is measuring, so wait for it to finish
+    gsap.delayedCall(1.6, function () {
+      build();
+      ST.addEventListener('refreshInit', function () { gsap.set(fly, { autoAlpha: 0 }); });
+      ST.addEventListener('refresh', build);
+    });
+
+    // until then the header shows nothing, which is the point of the exercise
+    gsap.set(mark, { autoAlpha: 0 });
+  }
+
   /* ── go ────────────────────────────────────────────────────────────── */
 
   function boot() {
     surface();
     plates();
     masthead();
+    heroMark();
     statement();
     quote();
     work();

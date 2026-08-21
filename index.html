@@ -110,7 +110,10 @@
 
 <nav class="nav">
   <a class="nav__id" href="#top">
-    <span class="nav__mark">Chintamani Gawade</span>
+    <!-- Two spans, because the hero sets this name on two lines and the header
+         on one: home.js measures each word separately so the hero's copy has
+         somewhere exact to land. -->
+    <span class="nav__mark"><span data-mark="a">Chintamani</span> <span data-mark="b">Gawade</span></span>
   </a>
   <div class="nav__links">
     <a href="#quote" class="nav__sm">Principle</a>
@@ -139,7 +142,7 @@
             I engineer solutions at <em>scale</em> — the services, the data underneath them and
             the interfaces on top, for platforms that other teams build on.
           </p>
-          <h1 class="mast__name dsp" data-lines data-lines-now data-skew>Chintamani<br>Gawade</h1>
+          <h1 class="mast__name dsp" data-lines data-lines-now>Chintamani<br>Gawade</h1>
         </div>
 
         <figure class="plate plate--reveal mast__plate" data-parallax>
@@ -262,7 +265,9 @@
   </section>
 
   <!-- ═══ game ═══════════════════════════════════════════════════════════ -->
-  <section class="game life" id="life" data-life-root>
+  <!-- data-quiet: being still here means drawing on the board, not being
+       stuck, so the steady-state scroll hint stays away. -->
+  <section class="game life" id="life" data-life-root data-quiet>
     <div class="wrap game__grid">
       <div class="game__copy">
         <p class="lbl" data-r>III &mdash; Four rules</p>
