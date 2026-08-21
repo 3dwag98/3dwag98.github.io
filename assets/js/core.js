@@ -565,16 +565,19 @@
    * gesture that is the whole difference between a hint and an instruction.
    */
   /* How long the page has to sit completely untouched — not merely unscrolled.
-     2.6 seconds of no *scrolling* is what reading a paragraph looks like, and
+     A few seconds of no *scrolling* is what reading a paragraph looks like, and
      what drawing on the game board looks like, which is why the hint kept
-     turning up in the middle of both. */
-  var STEADY = 4500;
+     turning up in the middle of both.
+
+     Two lengths, because the question is different either side of the first
+     scroll. Someone who has not moved the page yet may not know it moves, and
+     is worth telling early. Someone who has moved it knows; the only thing
+     left worth saying is "there is more below this", and that is only worth
+     saying after a pause long enough to be a pause rather than a sentence. */
+  var STEADY_FIRST = 3500;
+  var STEADY_AFTER = 8000;
   var FOOT = 160;                  // no hint this close to the end
-  /* Once someone has scrolled this many viewports they have demonstrated they
-     can, and a hint telling them how is just something in the way. */
-  var LEARNED = 1.2;
-  var SHOWS = 2;                   // and never more than twice in one visit
-  var SCROLLED = 'cg:scrolled';    // remembered, so it does not start over per page
+  var SHOWS = 2;                   // and never more than twice on one page
 
   function initSteady() {
     if (document.querySelector('.hint')) return;
@@ -603,26 +606,17 @@
       });
     }
 
-    /* How far the visitor has scrolled in total, not how far down they are —
-       someone who has gone down and come back has still shown they know how.
-       Remembered for the session, so arriving at a second page does not start
-       the lesson over. */
-    var travelled = 0, was = window.scrollY || 0;
-    var learned = false;
-    try { learned = window.sessionStorage.getItem(SCROLLED) === '1'; } catch (e) {}
-
-    function count_travel() {
-      var y = window.scrollY || 0;
-      travelled += Math.abs(y - was);
-      was = y;
-      if (!learned && travelled > LEARNED * window.innerHeight) {
-        learned = true;
-        try { window.sessionStorage.setItem(SCROLLED, '1'); } catch (e) {}
-      }
-    }
+    /* Whether they have moved the page yet, which only sets how long the pause
+       has to be. It used to retire the hint outright, and for the whole
+       session — which on the home page made it unreachable at every scroll
+       position: the hero carries its own cue for most of the first screen, so
+       the hint defers until that has gone, and by then enough scrolling had
+       happened to retire it. Two rules that each look sensible, covering each
+       other exactly. */
+    var moved_page = false;
 
     function room() {
-      if (learned || quiet || count >= SHOWS) return false;
+      if (quiet || count >= SHOWS) return false;
       var doc = document.documentElement;
       var max = (doc.scrollHeight || 0) - window.innerHeight;
       if (max <= FOOT || cued()) return false;
@@ -653,7 +647,8 @@
     // fires: the blog pages are their own short shell until the fetch lands
     function arm() {
       window.clearTimeout(timer);
-      timer = window.setTimeout(function () { timer = 0; show(room()); }, STEADY);
+      timer = window.setTimeout(function () { timer = 0; show(room()); },
+                               moved_page ? STEADY_AFTER : STEADY_FIRST);
     }
 
     /* Any input at all, not just scrolling. The whole misjudgement in the
@@ -666,7 +661,7 @@
     }
 
     function moved() {           // the page itself moved
-      count_travel();
+      moved_page = true;
       settle();
     }
 

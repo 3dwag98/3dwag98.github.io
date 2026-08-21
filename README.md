@@ -666,10 +666,25 @@ has scrolled off rather than saying the same thing twice.
 **When it shows was wrong before it was too faint.** The rule was "the page has
 not scrolled for a while" — which is exactly what reading a paragraph looks like,
 and what drawing on the game board looks like, so it kept turning up in the middle
-of both. It now waits on any input at all rather than only scrolling, stays away
-while the pointer is inside a `[data-quiet]` region, retires for the session once
-someone has scrolled more than a viewport and a bit, and never shows more than
-twice in a visit. A visitor doing anything is a visitor who does not need telling.
+of both. It now waits on any input at all rather than only scrolling, and stays
+away while the pointer is inside a `[data-quiet]` region. A visitor doing anything
+is a visitor who does not need telling.
+
+The correction to that over-corrected, and the way it failed is worth keeping.
+Two more rules were added: defer while the page's own `[data-cue]` is on screen,
+and retire once someone has scrolled more than a viewport. Each is defensible;
+together they made the hint **unreachable on the home page at every scroll
+position**. The hero carries its own cue for most of the first screen, so the hint
+defers until that has gone — and getting past it is more than a viewport of
+scrolling, which retired it. Two sensible rules covering each other exactly.
+
+What replaced the retirement is a second, longer pause rather than an ending. The
+question is different either side of the first scroll: someone who has not moved
+the page may not know it moves, and is worth telling after **3.5s**; someone who
+has moved it knows, and the only thing left worth saying is "there is more below
+this", which is worth saying only after **8s** — long enough to be a pause rather
+than a sentence. Two showings per page view, and the count is per page rather than
+per session, so a second page is not silenced by the first.
 
 The first version was also too faint to do its job on a phone, and measuring said
 why in three parts rather than one.
