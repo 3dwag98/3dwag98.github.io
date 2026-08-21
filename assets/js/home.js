@@ -522,9 +522,16 @@
        rise    an exchange through one slot: the hero's copy climbs out behind
                the header while the header's copy comes up into place under it
 
+     wipe is what ships. It is the only one of the three that says what is
+     actually happening — the header has always had this name, and the hero is
+     simply no longer covering it — and the only one that costs the scroll
+     nothing: no stand-in element, no per-frame measuring, no handover to get
+     wrong. travel and rise are kept because the switch is one word and they
+     cost nothing while unused.
+
      Set here; the preview build flips it from sessionStorage so the three can
      be compared on the same page without a rebuild. */
-  var MARK_MODE = 'travel';
+  var MARK_MODE = 'wipe';
 
   function markMode() {
     try { return window.sessionStorage.getItem('cg:markMode') || MARK_MODE; }

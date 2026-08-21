@@ -589,9 +589,14 @@ stretch of scroll and all leaving the header holding its own real wordmark:
 
 | | what happens | costs |
 |---|---|---|
-| **travel** | the hero's copy leaves the page and flies into the header, closing from two lines onto one and retuning through the optical-size axis | a stand-in element and per-frame work |
-| **wipe** | nothing moves. The hero's copy scrolls away as ordinary content; the header's is uncovered left to right | nothing — no element, no scroll work |
-| **rise** | an exchange through one slot: the hero's copy climbs out behind the header as the header's comes up into place | two clipped tweens |
+| **wipe** *(shipped)* | nothing moves. The hero's copy scrolls away as ordinary content; the header's is uncovered left to right | nothing — no element, no scroll work |
+| travel | the hero's copy leaves the page and flies into the header, closing from two lines onto one and retuning through the optical-size axis | a stand-in element and per-frame work |
+| rise | an exchange through one slot: the hero's copy climbs out behind the header as the header's comes up into place | two clipped tweens |
+
+**wipe** ships because it is the only one that says what is actually happening —
+the header has always had this name, and the hero was simply covering it — and
+the only one that costs the scroll nothing. The other two are kept because the
+switch is one word and an unused branch costs nothing at runtime.
 
 `wipe` has one condition that is easy to get wrong. Run over the same stretch as
 the other two it uncovers a half-finished word next to the full-size one — the
