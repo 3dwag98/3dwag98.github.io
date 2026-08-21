@@ -64,6 +64,16 @@
     try { intro = sessionStorage.getItem('cg:intro') !== '1'; } catch (e) {}
     if (location.hash.length > 1) intro = false;
 
+    /* The stylesheet holds the header wordmark covered until a scene takes it
+       over. If core.js never arrives, nothing ever will — so hand it back.
+       Cancelled the moment the scene is running. Separate from the loader's
+       own watchdog because this one is needed on the arrivals where the intro
+       does not run at all. */
+    window.__cgMarkHold = setTimeout(function () {
+      var m = document.querySelector('.nav__mark--hold');
+      if (m) m.classList.remove('nav__mark--hold');
+    }, 6000);
+
     if (!intro) { d.classList.add('no-intro'); }
     else {
       d.classList.add('is-loading');
@@ -113,7 +123,7 @@
     <!-- Two spans, because the hero sets this name on two lines and the header
          on one: home.js measures each word separately so the hero's copy has
          somewhere exact to land. -->
-    <span class="nav__mark"><span data-mark="a">Chintamani</span> <span data-mark="b">Gawade</span></span>
+    <span class="nav__mark nav__mark--hold"><span data-mark="a">Chintamani</span> <span data-mark="b">Gawade</span></span>
   </a>
   <div class="nav__links">
     <a href="#quote" class="nav__sm">Principle</a>

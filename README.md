@@ -593,6 +593,21 @@ stretch of scroll and all leaving the header holding its own real wordmark:
 | travel | the hero's copy leaves the page and flies into the header, closing from two lines onto one and retuning through the optical-size axis | a stand-in element and per-frame work |
 | rise | an exchange through one slot: the hero's copy climbs out behind the header as the header's comes up into place | two clipped tweens |
 
+**The wordmark is held covered by the stylesheet, not by JavaScript.** It is real
+markup, so left to the runtime it renders normally for as long as the scripts
+take to arrive — measured at **512ms** on a local connection, and longer on a
+real one — and then vanishes as the scene takes over. That is a flash on every
+load and every refresh. `html.js.motion .nav__mark--hold` covers it before first
+paint, so there is no frame in which it was ever visible; the scene animates
+from exactly that state.
+
+Holding something in CSS means something must give it back. Reduced motion and
+no-JS never hold it at all, because the rule is scoped to two classes the
+document head sets. For the case where the head runs but `core.js` never
+arrives, the head arms a six-second fallback that strips the hold — cancelled
+the moment a scene takes over, since firing it later would remove the box the
+clip needs. Verified with `core.js`, `home.js` and GSAP each blocked in turn.
+
 **wipe** ships because it is the only one that says what is actually happening —
 the header has always had this name, and the hero was simply covering it — and
 the only one that costs the scroll nothing. The other two are kept because the
