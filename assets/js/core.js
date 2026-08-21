@@ -564,8 +564,17 @@
    * ought to do the thing it is suggesting, and on a laptop with no obvious
    * gesture that is the whole difference between a hint and an instruction.
    */
-  var STEADY = 2600;               // how long still counts as steady
+  /* How long the page has to sit completely untouched — not merely unscrolled.
+     2.6 seconds of no *scrolling* is what reading a paragraph looks like, and
+     what drawing on the game board looks like, which is why the hint kept
+     turning up in the middle of both. */
+  var STEADY = 4500;
   var FOOT = 160;                  // no hint this close to the end
+  /* Once someone has scrolled this many viewports they have demonstrated they
+     can, and a hint telling them how is just something in the way. */
+  var LEARNED = 1.2;
+  var SHOWS = 2;                   // and never more than twice in one visit
+  var SCROLLED = 'cg:scrolled';    // remembered, so it does not start over per page
 
   function initSteady() {
     if (document.querySelector('.hint')) return;
@@ -580,7 +589,7 @@
     el.innerHTML = '<span class="hint__rail"><i></i></span><span class="lbl hint__lbl">Scroll</span>';
     document.body.appendChild(el);
 
-    var timer = 0, shown = false;
+    var timer = 0, shown = false, count = 0, quiet = false;
 
     /* A page may carry its own cue — the home hero has one in its foot, as
        part of that composition. Two of them saying the same thing at once is
@@ -594,16 +603,45 @@
       });
     }
 
+    /* How far the visitor has scrolled in total, not how far down they are —
+       someone who has gone down and come back has still shown they know how.
+       Remembered for the session, so arriving at a second page does not start
+       the lesson over. */
+    var travelled = 0, was = window.scrollY || 0;
+    var learned = false;
+    try { learned = window.sessionStorage.getItem(SCROLLED) === '1'; } catch (e) {}
+
+    function count_travel() {
+      var y = window.scrollY || 0;
+      travelled += Math.abs(y - was);
+      was = y;
+      if (!learned && travelled > LEARNED * window.innerHeight) {
+        learned = true;
+        try { window.sessionStorage.setItem(SCROLLED, '1'); } catch (e) {}
+      }
+    }
+
     function room() {
+      if (learned || quiet || count >= SHOWS) return false;
       var doc = document.documentElement;
       var max = (doc.scrollHeight || 0) - window.innerHeight;
       if (max <= FOOT || cued()) return false;
       return (window.scrollY || doc.scrollTop || 0) < max - FOOT;
     }
 
+    /* Regions where being still is the point rather than a sign of being
+       stuck. Drawing a pattern on the game board is the case that made this
+       necessary: the pointer is busy, the page is not moving, and a hint
+       telling you to scroll is the last thing you want over it. */
+    Array.prototype.forEach.call(document.querySelectorAll('[data-quiet]'), function (z) {
+      z.addEventListener('pointerenter', function () { quiet = true; show(false); });
+      z.addEventListener('pointerleave', function () { quiet = false; });
+    });
+
     function show(on) {
       if (on === shown) return;
       shown = on;
+      if (on) count++;
       el.classList.toggle('is-on', on);
       // out of the tab order and off the accessibility tree while invisible,
       // so it is never a control a keyboard lands on and cannot see
@@ -618,9 +656,18 @@
       timer = window.setTimeout(function () { timer = 0; show(room()); }, STEADY);
     }
 
-    function settle() {          // the page moved: hide, and start counting again
+    /* Any input at all, not just scrolling. The whole misjudgement in the
+       first version was equating "not scrolling" with "stuck": reading is not
+       scrolling, and so is thinking with a hand on the mouse. A visitor doing
+       anything is a visitor who does not need telling. */
+    function settle() {
       show(false);
       arm();
+    }
+
+    function moved() {           // the page itself moved
+      count_travel();
+      settle();
     }
 
     /* A page that grows on its own — an archive rendering, a post arriving,
@@ -638,8 +685,11 @@
       scrollTo((window.scrollY || 0) + window.innerHeight * 0.9);
     });
 
-    window.addEventListener('scroll', settle, { passive: true });
+    window.addEventListener('scroll', moved, { passive: true });
     window.addEventListener('resize', settle);
+    ['pointermove', 'pointerdown', 'wheel', 'keydown', 'touchstart'].forEach(function (t) {
+      window.addEventListener(t, settle, { passive: true });
+    });
 
     if (window.ResizeObserver) {
       var tall = 0;

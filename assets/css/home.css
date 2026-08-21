@@ -54,6 +54,33 @@ html.js .plate--reveal { clip-path: inset(0 0 100% 0); }
 .mast__say em { font-style: italic; color: var(--accent); }
 
 .mast__name { font-size: clamp(2.8rem, 14vw, 15rem); }
+
+/* ── the name climbs into the header ──────────────────────────────────────
+   The hero sets the name at fifteen rem and the header sets it again at one,
+   so at the top of the page it is the same words twice on one screen. Rather
+   than hide either, the hero's copy travels into the header's place.
+
+   A fixed stand-in does the travelling, not the <h1>: the heading stays in
+   flow so the masthead's layout never moves, and the stand-in is free of the
+   masks the entrance needed, of the section's overflow, and of the stacking
+   context that would otherwise keep it underneath the header it is flying
+   into. It is aria-hidden — the real <h1> and the real wordmark both stay
+   where they were for anything that is not looking at pixels. */
+.mark-fly {
+  position: fixed; inset: 0; z-index: 91;
+  pointer-events: none;
+  contain: layout style;
+}
+
+.mark-fly span {
+  position: absolute; top: 0; left: 0;
+  display: block; white-space: nowrap;
+  transform-origin: left top;
+  font-family: var(--serif);
+  font-variant-numeric: lining-nums;
+  color: var(--ink);
+  will-change: transform, font-size;
+}
 .mast__name .ln__i-mask:last-child { margin-left: clamp(0px, 6vw, 7rem); }
 
 /* Once the plate takes a column, the name has to fit what is left of the
