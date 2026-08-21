@@ -506,7 +506,50 @@
       });
   }
 
-  /* ── the name climbs into the header ───────────────────────────────── */
+  /* ── the name and the header wordmark ──────────────────────────────── */
+
+  /* The hero sets the name at fifteen rem and the header sets it again at one,
+     so at the top of the page it is the same two words twice on one screen.
+     Three ways of resolving that, all scrubbed over the same stretch of scroll
+     and all leaving the header holding its own real wordmark at the end:
+
+       travel  the hero's copy leaves the page and flies into the header,
+               closing from two lines onto one and retuning through the
+               variable font's optical sizes on the way
+       wipe    nothing moves. The hero's copy scrolls away as ordinary page
+               content and the header's own copy is uncovered left to right,
+               as though it had been set there all along
+       rise    an exchange through one slot: the hero's copy climbs out behind
+               the header while the header's copy comes up into place under it
+
+     Set here; the preview build flips it from sessionStorage so the three can
+     be compared on the same page without a rebuild. */
+  var MARK_MODE = 'travel';
+
+  function markMode() {
+    try { return window.sessionStorage.getItem('cg:markMode') || MARK_MODE; }
+    catch (e) { return MARK_MODE; }
+  }
+
+  function heroMark() {
+    var hero = document.querySelector('.mast__name');
+    var mark = document.querySelector('.nav__mark');
+    if (!hero || !mark || !motion || !ST) return;
+
+    var to = [mark.querySelector('[data-mark="a"]'), mark.querySelector('[data-mark="b"]')];
+    if (!to[0] || !to[1]) return;
+
+    /* How far the exchange takes. Three quarters of a screen: long enough to
+       read as a movement rather than a jump, short enough that the name is
+       home before the first section arrives. */
+    var span = function () { return Math.round(window.innerHeight * 0.75); };
+    var mode = markMode();
+
+    if (mode === 'wipe') return markWipe(hero, mark, span);
+    if (mode === 'rise') return markRise(hero, mark, span);
+    return markTravel(hero, mark, to, span);
+  }
+
 
   /** The tight box around an element's text, in viewport pixels. getBoundingClientRect
    *  on the element gives the block, which for a display line is the full column
@@ -538,15 +581,7 @@
    * `opsz` together means the letterforms genuinely retune on the way up, and
    * the arrival matches because it is the same instruction the header uses.
    */
-  function heroMark() {
-    var hero = document.querySelector('.mast__name');
-    var mark = document.querySelector('.nav__mark');
-    var nav = document.querySelector('.nav');
-    if (!hero || !mark || !nav || !motion) return;
-
-    var to = [mark.querySelector('[data-mark="a"]'), mark.querySelector('[data-mark="b"]')];
-    if (!to[0] || !to[1]) return;
-
+  function markTravel(hero, mark, to, span) {
     var fly = document.createElement('div');
     fly.className = 'mark-fly';
     fly.setAttribute('aria-hidden', 'true');
@@ -592,11 +627,6 @@
         };
       });
     }
-
-    /* How far the flight takes. Three quarters of a screen: long enough to
-       read as a movement rather than a jump, short enough that the name is
-       home before the first section arrives. */
-    function span() { return Math.round(window.innerHeight * 0.75); }
 
     var tl = null;
 
@@ -747,6 +777,80 @@
 
     // until then the header shows nothing, which is the point of the exercise
     gsap.set(mark, { autoAlpha: 0 });
+  }
+
+
+
+  /**
+   * wipe — nothing moves.
+   *
+   * The hero's copy is left entirely alone: it scrolls off the way any other
+   * page content does. The header's own copy is uncovered left to right as it
+   * goes, so the name is never on screen twice and never appears to arrive
+   * from anywhere. The quietest of the three, and the only one that adds no
+   * element to the page and no work to the scroll.
+   *
+   * A clip rather than an opacity fade, because a wordmark fading up reads as
+   * a thing being switched on, where a wipe reads as type being set.
+   *
+   * Triggered off the heading leaving, not off a fraction of the masthead.
+   * Run over the same stretch as the other two it uncovered a half-finished
+   * word next to the full-size one — the duplication this exists to remove,
+   * with a rendering fault on top. The heading is nearly five hundred pixels
+   * tall, so the only honest moment to start is when its last line has gone
+   * past the top of the screen, and only the heading itself knows when that
+   * is.
+   */
+  function markWipe(hero, mark, span) {
+    mark.style.display = 'inline-block';        // a clip needs a box
+    mark.style.willChange = 'clip-path';
+
+    gsap.fromTo(mark,
+      { clipPath: 'inset(-20% 100% -20% 0%)' },
+      {
+        clipPath: 'inset(-20% 0% -20% 0%)',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: hero, start: 'bottom top+=72',
+          end: '+=' + Math.round(span() * 0.45),
+          scrub: 0.5, invalidateOnRefresh: true
+        }
+      });
+  }
+
+  /**
+   * rise — an exchange through one slot.
+   *
+   * The hero's copy climbs out of the page faster than the page carries it, so
+   * it leaves behind the header rather than with the scroll; the header's copy
+   * comes up into the space underneath at the same moment, clipped to its own
+   * box so it appears from under the bar rather than fading in over it.
+   *
+   * The two are deliberately not simultaneous. Overlapped completely they read
+   * as one thing passing another; offset, the second arrives *because* the
+   * first left, which is the point being made.
+   */
+  function markRise(hero, mark, span) {
+    mark.style.display = 'inline-block';
+    mark.style.willChange = 'clip-path, transform';
+
+    var tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: '.mast', start: 'top top', end: '+=' + span(),
+        scrub: 0.5, invalidateOnRefresh: true
+      }
+    });
+
+    /* Out through the top, at half again the speed of the page, fading as it
+       goes so it is gone before it would cross the header's own copy. */
+    tl.fromTo(hero, { yPercent: 0, opacity: 1 },
+      { yPercent: -55, opacity: 0, duration: 0.62, ease: 'power1.in' }, 0);
+
+    tl.fromTo(mark,
+      { clipPath: 'inset(0% -20% 100% -20%)', yPercent: 45 },
+      { clipPath: 'inset(0% -20% 0% -20%)', yPercent: 0, duration: 0.38,
+        ease: 'power2.out' }, 0.62);
   }
 
   /* ── go ────────────────────────────────────────────────────────────── */

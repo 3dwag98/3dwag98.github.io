@@ -580,13 +580,32 @@ flag is read once and cleared, and the head sets its own watchdog, so a
 navigation that never completes cannot leave a page stuck behind a black
 screen.
 
-### The name climbs into the header
+### The name and the header wordmark
 
 The hero sets the name at fifteen rem and the header sets it again at one, so at
-the top of the page it is the same two words twice on one screen. Rather than
-hide either, the hero's copy travels: it leaves the page, closes from two lines
-onto one, shrinks through the variable font's optical sizes and arrives exactly
-where the header's copy sits — which is what takes over, crisp, at the end.
+the top of the page it is the same two words twice on one screen. Three ways of
+resolving that, set by `MARK_MODE` in `home.js`, all scrubbed over the same
+stretch of scroll and all leaving the header holding its own real wordmark:
+
+| | what happens | costs |
+|---|---|---|
+| **travel** | the hero's copy leaves the page and flies into the header, closing from two lines onto one and retuning through the optical-size axis | a stand-in element and per-frame work |
+| **wipe** | nothing moves. The hero's copy scrolls away as ordinary content; the header's is uncovered left to right | nothing — no element, no scroll work |
+| **rise** | an exchange through one slot: the hero's copy climbs out behind the header as the header's comes up into place | two clipped tweens |
+
+`wipe` has one condition that is easy to get wrong. Run over the same stretch as
+the other two it uncovers a half-finished word next to the full-size one — the
+duplication it exists to remove, with a rendering fault on top. The heading is
+nearly five hundred pixels tall, so the only honest moment to start is when its
+last line has gone past the top of the screen, and only the heading knows when
+that is: the trigger is `bottom top+=72` on the heading itself, not a fraction
+of the masthead.
+
+#### travel
+
+The hero's copy leaves the page, closes from two lines onto one, shrinks through
+the variable font's optical sizes and arrives exactly where the header's copy
+sits — which is what takes over, crisp, at the end.
 
 **Font size, not a scale transform.** Fraunces has a real optical-size axis, and
 144 is drawn differently from 24: thinner hairlines, tighter spacing, narrower
