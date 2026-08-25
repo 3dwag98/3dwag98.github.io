@@ -2,6 +2,20 @@
   "$comment": "Index of every entry. Regenerate with: node tools/build-index.mjs",
   "posts": [
     {
+      "slug": "github-outage-august-2026",
+      "title": "Seven hours of GitHub — why fixing the cause did not end the outage",
+      "date": "2026-08-25",
+      "summary": "On 17 August 2026 GitHub was degraded for 7h 47m. One misconfigured autoscaling rule started it; retry logic — GitHub's own, plus a latent bug in VS Code — kept it going for four and a half hours after the cause was fixed. Every component and term explained from the ground up, then set against why Git is unusually hard to host at all.",
+      "tags": [
+        "incident-review",
+        "distributed-systems",
+        "kubernetes",
+        "git"
+      ],
+      "format": "md",
+      "readingTime": "26 min read"
+    },
+    {
       "slug": "four-banks",
       "title": "Built, shipped, still running",
       "date": "2026-08-19",

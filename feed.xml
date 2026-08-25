@@ -7,6 +7,17 @@
     <language>en</language>
     <atom:link href="https://3dwag98.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>Seven hours of GitHub — why fixing the cause did not end the outage</title>
+      <link>https://3dwag98.github.io/blog/post.html?p=github-outage-august-2026</link>
+      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=github-outage-august-2026</guid>
+      <pubDate>Tue, 25 Aug 2026 09:00:00 GMT</pubDate>
+      <description>On 17 August 2026 GitHub was degraded for 7h 47m. One misconfigured autoscaling rule started it; retry logic — GitHub's own, plus a latent bug in VS Code — kept it going for four and a half hours after the cause was fixed. Every component and term explained from the ground up, then set against why Git is unusually hard to host at all.</description>
+      <category>incident-review</category>
+      <category>distributed-systems</category>
+      <category>kubernetes</category>
+      <category>git</category>
+    </item>
+    <item>
       <title>Built, shipped, still running</title>
       <link>https://3dwag98.github.io/blog/post.html?p=four-banks</link>
       <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=four-banks</guid>
