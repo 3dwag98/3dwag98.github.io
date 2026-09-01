@@ -49,6 +49,20 @@
       }).join('');
   }
 
+  /* An empty result used to name an action it did not offer — "clear the filter"
+     with nothing to clear it by, leaving the reader to find the search box and
+     empty it themselves. It says which filter came up empty, and carries the
+     button that undoes it. */
+  function emptyHTML() {
+    var what = state.q
+      ? 'Nothing matches <b>' + esc(state.q) + '</b>'
+      : 'No entries tagged <b>' + esc(state.tag) + '</b>';
+    return '<div class="blogs__empty">' +
+      '<p>' + what + '.</p>' +
+      '<button class="chip" type="button" data-clear>Show all entries</button>' +
+      '</div>';
+  }
+
   function render() {
     if (CG.clearReveals) CG.clearReveals(list);
     list.removeAttribute('aria-busy');      // whatever comes out of here is real
@@ -57,7 +71,7 @@
 
     list.innerHTML = shown.length
       ? shown.map(window.CGPosts.rowHTML).join('')
-      : '<p class="blogs__empty">Nothing matches <b>' + esc(state.q || state.tag) + '</b>. Clear the filter to see everything.</p>';
+      : emptyHTML();
 
     if (shown.length && CG.reveal) CG.reveal(list);
     if (countEl) countEl.textContent = String(shown.length).padStart(2, '0');
@@ -80,6 +94,15 @@
       render();
     });
   }
+
+  list.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-clear]')) return;
+    state.q = ''; state.tag = '';
+    if (input) input.value = '';
+    syncURL();
+    render();
+    if (input) input.focus();
+  });
 
   window.CGPosts.load('')
     .then(function (posts) {

@@ -34,11 +34,21 @@
 .arch-list { padding-bottom: clamp(4rem, 12vh, 8rem); }
 
 .blogs__empty { padding-block: 2.5rem; border-top: 1px solid var(--line); color: var(--mute); }
+.blogs__empty p { margin: 0; }
 .blogs__empty b { color: var(--ink); font-weight: 500; }
+/* The way back out sits with the message, in the same chip language as the tag
+   filters above it — the control that got you here and the one that undoes it
+   should look like the same kind of thing. */
+.blogs__empty .chip { margin-top: 1.1rem; }
 
 /* ── article ───────────────────────────────────────────────────────────── */
 
-.article { padding-block: clamp(6.5rem, 15vh, 9.5rem) clamp(4rem, 12vh, 7rem); }
+/* One measure, shared by the prose and by the grid track it sits in. It is set
+   in rem rather than ch on purpose: `ch` is the width of a zero in the current
+   font, so with `font-display: swap` the column measured one width in the
+   fallback and another once Geist arrived, and the whole article reflowed
+   mid-read. 50.5rem is what 70ch resolved to once the real face had loaded. */
+.article { padding-block: clamp(6.5rem, 15vh, 9.5rem) clamp(4rem, 12vh, 7rem); --measure: 50.5rem; }
 
 .article__back { display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
 .article__back:hover { color: var(--accent); }
@@ -71,7 +81,17 @@
 .article__layout > * { min-width: 0; }
 
 @media (min-width: 1100px) {
-  .article__layout { grid-template-columns: minmax(0, 1fr) 230px; gap: 5rem; align-items: start; }
+  /* The text column is sized to the measure, not to `1fr`. As `1fr` it swallowed
+     every spare pixel while the prose inside it stopped at its own max-width,
+     which parked the contents rail against the far edge of the page with 358px
+     of nothing between it and the words it indexes. Sized to the measure, the
+     rail sits beside the article and the leftover becomes an outer margin —
+     which is the same left-ranged asymmetry the rest of the site is built on. */
+  .article__layout {
+    grid-template-columns: minmax(0, var(--measure)) 230px;
+    gap: clamp(3rem, 6vw, 7rem);
+    justify-content: start; align-items: start;
+  }
   .toc { position: sticky; top: 18vh; }
 }
 
@@ -81,6 +101,20 @@
 .toc a:hover { color: var(--ink); transform: translateX(3px); }
 .toc a.is-on { color: var(--accent); }
 .toc a[data-depth='3'] { padding-left: 0.9rem; font-size: 0.82rem; }
+
+/* Below the sidebar breakpoint the layout is one column and the aside follows
+   the article in source order, which put sixteen section links at the foot of
+   a thirty-thousand-pixel page — past the end of the thing they navigate, so
+   nobody would ever reach them. Ahead of the article they are a contents page,
+   which is what they were for. The rule is the top edge there, not the side. */
+@media (max-width: 1099px) {
+  .toc {
+    order: -1;
+    border-left: 0; padding-left: 0;
+    border-top: 1px solid var(--line); padding-top: 1.3rem;
+  }
+  .toc a { padding-block: 0.3rem; }
+}
 
 .article__nav { display: grid; grid-template-columns: 1fr; margin-top: clamp(3.5rem, 9vh, 6rem); border-top: 1px solid var(--line); }
 @media (min-width: 760px) { .article__nav { grid-template-columns: 1fr 1fr; } }
@@ -92,7 +126,11 @@
 
 /* ── prose ─────────────────────────────────────────────────────────────── */
 
-.prose { font-size: 1.09rem; line-height: 1.72; color: var(--ink-2); max-width: 70ch; }
+/* The sources list sets bare URLs as link text, and a URL has no spaces in it.
+   Left alone, one that is wider than the column does not wrap — it runs past
+   the edge and takes the whole document's scroll width with it, so the article
+   slides sideways under the thumb on a phone. */
+.prose { font-size: 1.09rem; line-height: 1.72; color: var(--ink-2); max-width: var(--measure); overflow-wrap: break-word; }
 .prose > * + * { margin-top: 1.3em; }
 
 .prose h2 {
@@ -225,9 +263,56 @@
   border-radius: 4px;
   background: var(--paper-2);
   overflow-x: auto;
+  overscroll-behavior-x: contain;  /* swiping a diagram to its end must not then drag the page */
 }
 
 .prose .diagram svg { width: 100%; min-width: 520px; height: auto; overflow: visible; display: block; }
+
+/* ── the scroll cue ────────────────────────────────────────────────────
+   A diagram is drawn at 800 units and floored at 520px so its 11px labels
+   stay readable, which means on a phone it is always wider than its box and
+   the right-hand third of every one of them is simply not on screen. Nothing
+   said so: scrollbars are zeroed globally in base.css, and on iOS and Android
+   they are overlays that only appear once you are already scrolling — so the
+   cue has to be part of the box.
+
+   Two shadows pinned to the box, and two panels of the box's own colour
+   pinned to the *content* (`local`) that cover them. At the left end the
+   left panel sits over the left shadow and hides it; scroll away and the
+   panel travels with the diagram, uncovering the shadow behind. So each edge
+   shows a shadow exactly when there is more diagram past it. No script, no
+   wrapper element, and it costs nothing on a desktop where it never triggers. */
+
+.prose figure.diagram, .prose pre {
+  background:
+    linear-gradient(to right, var(--paper-2) 38%, color-mix(in srgb, var(--paper-2), transparent 100%)) left center / 34px 100% no-repeat local,
+    linear-gradient(to left,  var(--paper-2) 38%, color-mix(in srgb, var(--paper-2), transparent 100%)) right center / 34px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--ink) 42%, transparent), color-mix(in srgb, var(--ink), transparent 100%)) left center / 22px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--ink) 42%, transparent), color-mix(in srgb, var(--ink), transparent 100%)) right center / 22px 100% no-repeat scroll,
+    var(--paper-2);
+}
+
+/* base.css zeroes every scrollbar on the site, which is right for the page and
+   wrong for a box whose whole point is that it scrolls. These two get one
+   back — thin, in the rule colour. Touch browsers still only flash it while
+   the finger is down, which is why the shadow above does the standing work. */
+.prose figure.diagram::-webkit-scrollbar, .prose pre::-webkit-scrollbar { height: 5px; }
+.prose figure.diagram::-webkit-scrollbar-thumb, .prose pre::-webkit-scrollbar-thumb {
+  background: var(--line); border-radius: 3px;
+}
+.prose figure.diagram, .prose pre { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+
+/* On a phone the figure gives up the page gutter and the rounded frame and
+   runs edge to edge, which is the cheapest 37px of diagram available — the
+   border would only be drawing a box around the screen anyway. */
+@media (max-width: 760px) {
+  .prose figure.diagram {
+    margin-inline: calc(var(--pad) * -1);
+    padding-inline: 0.85rem;
+    border-inline: 0;
+    border-radius: 0;
+  }
+}
 
 /* one visual language, driven by the theme tokens */
 .diagram .d-box        { fill: var(--paper); stroke: var(--line); stroke-width: 1; }

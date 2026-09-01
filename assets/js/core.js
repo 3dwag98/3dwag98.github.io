@@ -582,6 +582,14 @@
   function initSteady() {
     if (document.querySelector('.hint')) return;
 
+    /* Not on an entry. The hint answers "is there more below this?", and a
+       reader already has a better answer to that in the contents rail, which
+       lists what is left and marks where you are. What the chip did instead
+       was float over the paragraph being read — centred on the column on a
+       desktop, on the code blocks in the phone's gutter — so it was covering
+       the words while repeating something the page had already said. */
+    if (document.querySelector('.article')) return;
+
     var el = document.createElement('button');
     el.type = 'button';
     el.className = 'hint';

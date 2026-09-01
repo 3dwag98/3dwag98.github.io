@@ -211,6 +211,26 @@ The reader adds heading anchors, a table of contents that tracks scroll, code he
 copy button, Prism highlighting, lazy images and prev/next links. Everything is passed through
 DOMPurify before it touches the DOM.
 
+The contents list is an `<aside>` after the article in source order, which is what the sticky
+sidebar wants above 1100px. Below that the layout collapses to one column and source order is
+reading order, so it was landing sixteen section links at the foot of a thirty-thousand-pixel
+page — past the end of the thing they navigate, where nobody would ever reach them. It is
+`order: -1` there instead, ahead of the article, where the same list is a contents page. The rule
+that separates it moves from the side to the top edge to match.
+
+**One measure, shared by the prose and by the track it sits in.** The sidebar grid was
+`minmax(0, 1fr) 230px`, and `1fr` takes every spare pixel — but the prose inside it stops at its
+own max-width, so on a wide screen the column was 1088px holding an 809px paragraph. The contents
+rail ended up pinned to the far edge of the page with **358px of nothing** between it and the
+words it indexes: not a gutter, a hole. The track is sized to the measure now, and the leftover
+falls outside the grid as an outer margin, which is the same left-ranged asymmetry the rest of
+the site is built on. The rail sits beside the article, about 90px off it.
+
+The measure is `50.5rem`, not `70ch`, and the unit is the point. `ch` is the width of a zero in
+the current font, and the faces load with `font-display: swap` — so the column measured one width
+in the fallback and a different one the moment Geist arrived, and the article reflowed under
+someone already reading it. 50.5rem is what 70ch resolved to once the real face had landed.
+
 ### Diagrams inside an entry
 
 Inline SVG survives the sanitizer, so an entry can carry real diagrams. Wrap one in
@@ -229,6 +249,25 @@ Two traps, both of which cost me a debugging round:
 The figure scrolls horizontally on a narrow screen, and `.article__layout > * { min-width: 0 }`
 stops a wide diagram from stretching the prose column — grid items default to `min-width: auto`,
 which otherwise widens the whole article to fit the diagram.
+
+**Saying that it scrolls.** A diagram is drawn at 800 units and floored at `min-width: 520px` so
+its 11px labels stay readable, which means on a phone it is always wider than its box — the right
+third of every one is off screen. Nothing announced that: scrollbars are zeroed site-wide in
+`base.css`, and on iOS and Android they are overlays that only appear once you are already
+scrolling, so a reader who never tried had no way to learn there was more. The box now says it
+three ways. It runs edge to edge below 760px, giving up the page gutter and the rounded frame for
+37px of extra diagram and letting the drawing get cut by the screen edge rather than stopping
+politely inside a border. It gets its scrollbar back, thin and in the rule colour. And it carries
+a pair of scroll shadows: two shadows pinned to the box, and over them two panels of the box's own
+colour pinned to the *content* with `background-attachment: local`. At the left end the panel
+covers the left shadow; scroll away and the panel travels with the diagram and uncovers it. Each
+edge shows a shadow exactly when there is more diagram past it, with no script and no wrapper
+element, and it costs nothing on a desktop where the diagram fits and neither shadow ever shows.
+
+**Prose wraps its URLs.** `.prose` sets `overflow-wrap: break-word`. The sources list at the foot
+of an entry sets bare URLs as link text, and a URL has no spaces in it, so one longer than the
+column does not wrap — it runs past the edge and takes the document's whole scroll width with it.
+The symptom is not the link. It is that the entire article slides sideways under the thumb.
 
 ## The game
 
@@ -725,6 +764,32 @@ it. And on a phone it moved **out of the centre and into the right gutter**: a
 phone's measure is the whole screen, so a chip in the middle of it lands square
 on the line being read, while the text is left-aligned and the right edge is
 where the rag already is.
+
+Both of those were right and neither went far enough. The ground was 96% rather
+than solid, and at 96% the sentence underneath still read through the chip —
+faintly, but a floating control that leaks the words it is covering is worse
+than one that honestly covers them. It is opaque now.
+
+And it no longer mounts on an entry at all. The hint answers "is there more
+below this?", and a reader already has a better answer in the contents rail,
+which lists what is left and marks where you are. What the chip did on a post
+was float over the paragraph being read — centred on the column on a desktop,
+square on the code blocks in the phone's gutter — while repeating something the
+page had already said better. It still belongs on the home page, where the
+scroll is the composition, and on the archive.
+
+## The empty result
+
+Filtering the archive down to nothing used to print "Nothing matches **x**. Clear the filter to
+see everything." — which names an action and then does not offer it, leaving the reader to go
+back up the page and empty the search box themselves. Text that describes a control is not a
+control. It carries the button now, in the same chip language as the tag filters above it, on the
+grounds that the thing that got you here and the thing that undoes it should look like the same
+kind of object. Pressing it clears the search and the tag together, drops the query off the URL,
+and puts the cursor back in the search box.
+
+It also says which filter came up empty rather than guessing: a search reports the term, a tag
+reports the tag.
 
 ## The loading state
 

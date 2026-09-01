@@ -573,7 +573,10 @@ html.motion .skel {
   content: '';
   position: absolute; inset: 0; z-index: -1; pointer-events: none;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--paper) 96%, transparent);
+  /* Fully opaque, not 96%. At 96% the sentence underneath still read through
+     the chip — faintly, but a floating control that leaks the words it is
+     covering is worse than one that simply covers them. */
+  background: var(--paper);
   border: 1px solid var(--line);
 }
 
