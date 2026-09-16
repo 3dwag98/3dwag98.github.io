@@ -7,6 +7,17 @@
     <language>en</language>
     <atom:link href="https://3dwag98.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>A model that answers in types — TypeSafe's Jev, from the basics up</title>
+      <link>https://3dwag98.github.io/blog/post.html?p=typed-decisions</link>
+      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=typed-decisions</guid>
+      <pubDate>Wed, 16 Sep 2026 09:00:00 GMT</pubDate>
+      <description>TypeSafe AI shipped a model that does not write. It returns a typed value and a calibrated probability in 70 to 500 milliseconds, at $42 per billion input tokens. What that actually is, where it sits in a system design, and what it does to the infrastructure underneath — including which of the numbers are still the vendor's own.</description>
+      <category>ai-infrastructure</category>
+      <category>system-design</category>
+      <category>llm</category>
+      <category>calibration</category>
+    </item>
+    <item>
       <title>Seven hours of GitHub — why fixing the cause did not end the outage</title>
       <link>https://3dwag98.github.io/blog/post.html?p=github-outage-august-2026</link>
       <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=github-outage-august-2026</guid>
