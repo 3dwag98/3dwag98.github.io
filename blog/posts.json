@@ -2,6 +2,20 @@
   "$comment": "Index of every entry. Regenerate with: node tools/build-index.mjs",
   "posts": [
     {
+      "slug": "typed-decisions",
+      "title": "A model that answers in types — TypeSafe's Jev, from the basics up",
+      "date": "2026-09-16",
+      "summary": "TypeSafe AI shipped a model that does not write. It returns a typed value and a calibrated probability in 70 to 500 milliseconds, at $42 per billion input tokens. What that actually is, where it sits in a system design, and what it does to the infrastructure underneath — including which of the numbers are still the vendor's own.",
+      "tags": [
+        "ai-infrastructure",
+        "system-design",
+        "llm",
+        "calibration"
+      ],
+      "format": "md",
+      "readingTime": "30 min read"
+    },
+    {
       "slug": "github-outage-august-2026",
       "title": "Seven hours of GitHub — why fixing the cause did not end the outage",
       "date": "2026-08-25",
