@@ -96,6 +96,15 @@ the ones that would break the grammar at each step. You get syntactically valid 
 get a value from your enum unless the grammar was built to enforce that, you do not get a
 probability, and you still pay for every token on the way out.
 
+And the constraint is not free in accuracy either, which is the part that rarely gets said out
+loud. The evidence is mixed and task-dependent — some evaluations find schema-constrained
+decoding costs essentially nothing, while on hard document extraction others have measured a
+model's pass rate falling from 86.9% to 70.0% once a schema was imposed, with overall validity
+dropping alongside it. The suggested mechanism is unglamorous and plausible: holding the grammar
+in a valid state is work done with the same attention that was supposed to be reading the
+document. Either way, JSON mode is a tax paid to get a parseable answer out of a model that
+wanted to write prose.
+
 Jev's outputs are not generated text that happens to validate. There is no string being emitted
 at all. The answer *is* a value drawn from the option set you supplied, which means schema
 conformance is not a property the model achieves — it is a property of the output space.
@@ -234,6 +243,21 @@ you.
 </svg>
 </figure>
 
+The strongest evidence that this is a real problem, worth a company, comes from a competitor.
+OpenAI's own GPT-4 technical report shows the pre-trained model to be well calibrated — its
+stated confidence tracking its accuracy closely — and then shows the same model after
+post-training with that relationship visibly flattened. Alignment bought helpfulness and charged
+calibration for it. This is not buried in an appendix; it is a figure, before and after, side by
+side, published by the people who did it.
+
+Read against that, **RLCD is less a new frontier than an undo.** The property being sold here is
+one that pre-training already produces and preference optimization destroys, and a training
+method aimed at preserving it is a correction rather than an invention. That is not a criticism —
+a correction can be exactly what a market needs, and nobody else is selling one. But it reframes
+the pitch. The interesting claim is not that a model *can* be calibrated; we knew that. It is
+that someone finally optimized for keeping it that way instead of trading it away for
+agreeableness.
+
 Confidence, in the response, is a single number derived from the probability distribution: how
 concentrated the mass is on one outcome. Spread out means uncertain, concentrated means
 confident. The full `probabilities` array is returned as well, so if you would rather compute
@@ -268,6 +292,14 @@ When a model returns prose, your code has exactly one lever: use the answer, or 
 is not available, or is available only as a number the model wrote down about itself in the same
 breath as the answer — which is self-assessment, not measurement, and is exactly what an
 overconfident model is bad at.
+
+The literature on that workaround is bleak. Studies of *verbalized confidence* — asking a model
+in words how sure it is — find the numbers close to useless: models cluster near the top of the
+scale almost regardless of whether they are right, with reported confidence averaging around 94%
+across tasks in one evaluation. They are decisive in tone while being unsure in fact, which is
+the worst available combination for a caller trying to decide whether to act. A number computed
+from the output distribution is a different kind of object from a number the model wrote down
+about itself, and only the first one can be checked against outcomes.
 
 When every answer arrives with a calibrated probability, confidence becomes a **second axis** to
 design against. The decision and the certainty of the decision are separate inputs, and policy
@@ -462,8 +494,30 @@ structural — it is the length of the answer times the time per pass, and no am
 removes the dependency chain, because token *n+1* genuinely cannot start before token *n*
 exists.
 
+"No tokens, so it is faster" is where most coverage stops, and it is the symptom rather than the
+cause. The cause is **arithmetic intensity**, and it earns a paragraph because it is the part of
+this that is genuinely an infrastructure story rather than a modelling one.
+
+A forward pass has to move the model's weights out of memory and into the compute units. During
+generation it does that for every single token and gets one token of useful work back each
+time — billions of parameters streamed to produce a few bytes. The ratio of arithmetic to memory
+traffic is dreadful, so the accelerator spends almost all of its time waiting on memory instead
+of computing; decoding at small batch sizes is commonly described as running at under one percent
+of the hardware's compute capability. A GPU in that state is not busy. It is an extremely
+expensive memory bus.
+
+This is also why speculative decoding works, and the comparison clarifies what is going on.
+Drafting tokens with a small model and *verifying* a batch of them in one pass of the large one
+beats generating them one at a time — because the verification pass is compute-dense where the
+generation passes were not. The trick is not doing less work. It is doing the same work in a
+shape the hardware is good at.
+
 Jev's answers are not sequences. Every question's distribution is produced in a single pass, and
-questions do not depend on one another, so they resolve together.
+questions do not depend on one another, so they resolve together. In arithmetic-intensity terms
+that is the same move speculative decoding makes, taken to its conclusion: one compute-dense pass
+instead of a chain of memory-bound ones. The 40-to-200× figure is not, on this reading, a claim
+about a smarter model. It is what happens when you stop asking the hardware to do the thing it is
+worst at.
 
 <figure class="diagram">
 <svg viewBox="0 0 800 300" role="img" aria-label="Autoregressive decoding runs one forward pass per token in a chain, while parallel evaluation resolves every question in a single pass at once.">
@@ -620,6 +674,42 @@ money attached.
 Run it per question, not per model. Calibration is not a single global property — it holds better
 on some judgments than others, and the one that is weakest is rarely the one you expected.
 
+### The baseline nobody runs
+
+Which raises the question the launch material does not address, and it is the one to ask before
+taking on a new vendor dependency: **is this a frontier model, or a very good encoder with
+classification heads?**
+
+Nobody outside TypeSafe can answer it. There is no paper, no weights, no parameter count, no
+architecture description. But the shape of what is being described — fixed option sets, parallel
+independent heads over a shared encoding of the input, a distribution per head, no decoder, a
+32k context and a hard ceiling of 255 options — is also an exact description of a well-built
+multi-head classifier, which is a thing the field has known how to build since BERT. That is not
+an accusation of anything. A classifier trained superbly, on enormous data, with calibration as
+the optimization target, would be a genuinely valuable product. It does mean the word *frontier*
+is carrying weight the published evidence does not yet support.
+
+It also means the comparison table quietly omits two baselines, and both are available to you
+today with no waitlist:
+
+- **A cascade using the models you already have.** FrugalGPT demonstrated this in 2023 — cheap
+  model first, escalate when the answer is not confident enough — and reported cost reductions of
+  up to 98% against always calling the best API, at matched quality. The two-tier architecture
+  earlier in this post is not a Jev feature. It is a pattern that predates it by three years, and
+  the savings it reported are the same order as the ones being claimed now.
+- **A fine-tuned encoder on your own labels.** For a fixed taxonomy where you have labelled data,
+  a distilled encoder classifier runs one to two orders of magnitude faster than an LLM on the
+  same classification work, costs less per call than any hosted API, and — the part that matters
+  for a dependency — you own the weights. It cannot be deprecated, repriced, or quietly retrained
+  underneath you between Tuesday and Thursday.
+
+So the honest framing of the value here is not "faster than a frontier model". It is **the
+zero-label case**: classifier economics without having to collect a training set, fix a taxonomy
+up front, or run a training pipeline — and the questions change with a text edit instead of a
+retrain. That is a real product, and a substantial one. It is a narrower claim than the landing
+page makes, and it puts the comparison where it belongs: against the encoder you would otherwise
+have fine-tuned, not against the chat model you should never have been using for this.
+
 ### What the vendor's own numbers say about accuracy
 
 Worth putting plainly, because the speed and cost figures have crowded it out of most coverage.
@@ -651,6 +741,12 @@ decision without a person on the other side of the gate.
 - **"Can't hallucinate" means structurally valid, not correct.** A model forced to pick one of
   your three options will pick one even when the answer was a fourth. Always include the escape
   hatch, and alert on how often it wins.
+- **The calibration problem is self-inflicted.** OpenAI's own GPT-4 report shows pre-training
+  producing a calibrated model and post-training flattening it. RLCD reads as an undo rather than
+  a frontier — still worth paying for, because nobody else is selling one.
+- **Verbalized confidence is not a substitute.** Ask a model in words how sure it is and it
+  answers near the top of the scale almost regardless of whether it is right — around 94% on
+  average in one evaluation.
 - **The calibrated confidence is the actual product.** It gives your code a second axis, and
   moves the policy out of a prompt and into reviewable code.
 - **Calibration describes a population, never the answer in front of you.** Build routing on it;
@@ -667,6 +763,13 @@ decision without a person on the other side of the gate.
 - **Latency is structural, not tuned.** No decode chain means sub-second answers, nothing to
   stream, and judgments that fit inside a synchronous request — which deletes a lot of queue-and-
   callback scaffolding that only ever existed to hide slowness.
+- **The speed is an arithmetic-intensity story, not a cleverness story.** Autoregressive decode
+  streams every weight out of memory per token and runs at under one percent of the hardware's
+  compute capability. One parallel pass is compute-dense. It is the same insight speculative
+  decoding exploits, taken further.
+- **Ask what the baseline is before you sign up.** A FrugalGPT-style cascade over models you
+  already have reported up to 98% savings in 2023, and on a fixed taxonomy a fine-tuned encoder
+  beats both — with weights you own. The real claim here is the zero-label case, not raw speed.
 - **The scarce resource moved.** Calls are nearly free; the ~32k shared budget for state and
   questions is the constraint, so state selection and state caching are the new engineering work.
 - **Run your own calibration harness before your thresholds do anything.** Bucket by stated
@@ -693,3 +796,19 @@ accuracy table and the independent test figures:
 [Jev: TypeSafe's Decision Model, Speed and Cost Explained](https://www.orcarouter.ai/blog/jev-typesafe-system-one-what-we-know).
 Every benchmark number above is the vendor's unless named otherwise — that distinction is the
 most important thing in this post.*
+
+*The supporting literature, for the claims that are not TypeSafe's. The calibration figure is
+from OpenAI's GPT-4 Technical Report
+([arXiv:2303.08774](https://arxiv.org/abs/2303.08774)), which reports the pre-trained model as
+well calibrated and post-training as reducing it; the foundational treatment is Chuan Guo, Geoff
+Pleiss, Yu Sun and Kilian Weinberger, On Calibration of Modern Neural Networks, ICML 2017
+([arXiv:1706.04599](https://arxiv.org/abs/1706.04599)) — also the source of temperature scaling
+and expected calibration error. On verbalized confidence being unreliable: On Verbalized
+Confidence Scores for LLMs ([arXiv:2412.14737](https://arxiv.org/abs/2412.14737)). The
+structured-output accuracy figures come from evaluations of grammar-constrained decoding,
+including JSONSchemaBench ([arXiv:2501.10868](https://arxiv.org/abs/2501.10868)). The cascade
+baseline is Lingjiao Chen, Matei Zaharia and James Zou, FrugalGPT
+([arXiv:2305.05176](https://arxiv.org/abs/2305.05176)). The arithmetic-intensity account of why
+decoding is slow follows the speculative decoding literature — see Accelerating LLM Inference
+with Staged Speculative Decoding ([arXiv:2308.04623](https://arxiv.org/abs/2308.04623)) for the
+memory-bandwidth framing.*
