@@ -21,7 +21,8 @@
     tags: document.querySelector('[data-post-tags]'),
     body: document.querySelector('[data-post-body]'),
     toc: document.querySelector('[data-post-toc]'),
-    nav: document.querySelector('[data-post-nav]')
+    nav: document.querySelector('[data-post-nav]'),
+    support: document.querySelector('[data-post-support]')
   };
 
   var q = new URLSearchParams(window.location.search);
@@ -65,11 +66,75 @@
 
   /* ── render ────────────────────────────────────────────────────────── */
 
-  function toHTML(raw, format) {
+  function toHTML(raw, format, math) {
     if (format === 'html') return raw;
     if (!window.marked) return '<pre><code>' + esc(raw) + '</code></pre>';
     window.marked.setOptions({ gfm: true, breaks: false });
-    return window.marked.parse(raw);
+    return window.marked.parse(stashMath(raw, math));
+  }
+
+  /* ── math ──────────────────────────────────────────────────────────── */
+
+  /* LaTeX in a Markdown entry: $$…$$ or \[…\] for display, \(…\) inline —
+     never a single $, so a price in prose stays a price. The TeX is lifted
+     out before marked sees it (marked reads its underscores as emphasis),
+     parked as an empty element DOMPurify keeps, and typeset in place once
+     KaTeX arrives. KaTeX loads only for an entry that has math; until it
+     does, or if it never does, the TeX source shows in mono instead. */
+  var KATEX = {
+    js:  ['https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js',  'sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk'],
+    css: ['https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css', 'sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp']
+  };
+
+  function stashMath(src, math) {
+    // fenced and inline code are left exactly as written
+    return src.split(/(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`)/).map(function (part, i) {
+      if (i % 2) return part;
+      return part
+        .replace(/\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]/g, function (_, a, b) {
+          math.push({ tex: (a || b).trim(), display: true });
+          return '\n\n<div class="math math--display" data-math="' + (math.length - 1) + '"></div>\n\n';
+        })
+        .replace(/\\\(([\s\S]+?)\\\)/g, function (_, a) {
+          math.push({ tex: a.trim(), display: false });
+          return '<span class="math" data-math="' + (math.length - 1) + '"></span>';
+        });
+    }).join('');
+  }
+
+  function typeset(container, math) {
+    if (!math.length) return;
+    var nodes = container.querySelectorAll('[data-math]');
+
+    function each(fn) {
+      Array.prototype.forEach.call(nodes, function (el) {
+        var m = math[+el.getAttribute('data-math')];
+        if (m) fn(el, m);
+      });
+    }
+
+    each(function (el, m) { el.textContent = m.tex; });
+
+    function render() {
+      each(function (el, m) {
+        try {
+          window.katex.render(m.tex, el, { displayMode: m.display, throwOnError: false, output: 'htmlAndMathml' });
+          el.classList.add('is-set');
+        } catch (e) { /* the source stays legible */ }
+      });
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+    }
+
+    if (window.katex) return render();
+
+    var css = document.createElement('link');
+    css.rel = 'stylesheet'; css.href = KATEX.css[0]; css.integrity = KATEX.css[1]; css.crossOrigin = 'anonymous';
+    document.head.appendChild(css);
+
+    var js = document.createElement('script');
+    js.src = KATEX.js[0]; js.integrity = KATEX.js[1]; js.crossOrigin = 'anonymous'; js.referrerPolicy = 'no-referrer';
+    js.onload = render;
+    document.head.appendChild(js);
   }
 
   function sanitize(html) {
@@ -195,6 +260,7 @@
     if (els.meta) els.meta.innerHTML = '<span>404</span>';
     if (els.toc) els.toc.remove();
     if (els.nav) els.nav.remove();
+    if (els.support) els.support.remove();
     if (els.body) {
       els.body.removeAttribute('aria-busy');
       els.body.innerHTML = '<p>' + esc(message) + '</p><p><a href="./">Back to the archive &rarr;</a></p>';
@@ -251,9 +317,12 @@
           }
 
           els.body.removeAttribute('aria-busy');
-          els.body.innerHTML = sanitize(toHTML(parsed.body, post.format));
+          var math = [];
+          els.body.innerHTML = sanitize(toHTML(parsed.body, post.format, math));
           decorate(els.body);
+          typeset(els.body, math);
           neighbours(posts, i);
+          if (els.support) els.support.hidden = false;
 
           if (CG.revealLines) CG.revealLines(root);
           if (CG.reveal) CG.reveal(root);

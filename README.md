@@ -269,6 +269,22 @@ of an entry sets bare URLs as link text, and a URL has no spaces in it, so one l
 column does not wrap — it runs past the edge and takes the document's whole scroll width with it.
 The symptom is not the link. It is that the entire article slides sideways under the thumb.
 
+### Support
+
+Every entry ends with one quiet card — *Was this useful?* and a Buy Me a Coffee link — between the
+last paragraph and the newer/older links. The archive ends with the same card, the home page
+carries only its pill button under the address in the contact section, and the entry and archive
+footers repeat it as plain text. One per page at most, apart from the footer: no overlay, no
+floating widget, nothing sticky, nothing that moves.
+
+It is static markup in `post.html`, not Buy Me a Coffee's button script. That script
+`document.write`s itself into the page and pulls in a font of its own, so it could neither take
+the theme nor run after the entry has been injected; a plain link styled from the tokens does
+both, and costs nothing. The card sits on the prose measure so it reads as the entry's last word
+rather than as page chrome, takes the figures' 4px corner and the chips' pill, and below 640px
+drops its button under the sentence at full width. It carries `hidden` in the markup and
+`post.js` lifts it only once an entry has rendered, so a 404 never asks for anything.
+
 ## The game
 
 `assets/js/life.js` runs Conway's Game of Life under the quote, which is where the argument of the

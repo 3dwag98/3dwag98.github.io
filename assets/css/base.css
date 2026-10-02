@@ -812,6 +812,40 @@ html.js .loader {
 .chip:hover { color: var(--ink); border-color: var(--ink); }
 .chip.is-on { color: var(--on-accent); background: var(--accent); border-color: var(--accent); }
 
+/* ---------- support ----------------------------------------------------- */
+
+/* One quiet Buy Me a Coffee card, the same component wherever it appears: the
+   end of an entry and the foot of the archive. The home page carries only
+   its pill, in the contact section. Takes the figures' 4px corner and the
+   chips' pill, and says it once: no overlay, no sticky, nothing that moves. */
+.support {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.9rem 1.2rem; align-items: center;
+  max-width: var(--measure, 50.5rem);
+  padding: 1.3rem 1.4rem;
+  background: var(--paper-2);
+  border: 1px solid var(--line); border-left: 2px solid var(--accent); border-radius: 4px;
+}
+.support[hidden] { display: none; }
+.support--after { margin-top: clamp(2.5rem, 6vw, 4rem); }
+.support__cup { width: 30px; height: 30px; color: var(--accent); }
+.support__text { margin-top: 0.4rem; font-size: var(--t-sm); line-height: 1.55; color: var(--ink-2); }
+.support__btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.75rem 1.15rem; white-space: nowrap;
+  font-family: var(--mono); font-size: var(--t-lbl); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--accent); border-radius: 100px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.support__btn:hover, .support__btn:focus-visible { background: var(--accent); color: var(--on-accent); }
+
+/* Below 640px the button would squeeze the sentence to a few words a line, so
+   it drops under the text and takes the full width — a thumb-sized target. */
+@media (max-width: 639px) {
+  .support { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+  .support__btn { grid-column: 1 / -1; padding-block: 0.85rem; }
+}
+
 /* ---------- footer ------------------------------------------------------ */
 
 .foot { padding-block: clamp(4rem, 12vh, 8rem) clamp(1.5rem, 3vw, 2.5rem); }
@@ -847,6 +881,14 @@ html.js .loader {
   justify-content: space-between; align-items: baseline;
   margin-top: clamp(2.5rem, 6vw, 4rem);
 }
+
+/* The contact section's support link: the card's pill on its own, under the
+   address, so the two ways to reach out sit together. */
+.foot__actions { margin-top: clamp(1.4rem, 3vw, 2.2rem); }
+.support__cup--sm { width: 16px; height: 16px; color: currentColor; }
+
+.foot__coffee { color: var(--ink-2); transition: color 0.3s ease; }
+.foot__coffee:hover { color: var(--accent); }
 
 .foot__stamp b {
   font-family: var(--serif); font-variation-settings: 'opsz' 60;

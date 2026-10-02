@@ -116,6 +116,20 @@
   .toc a { padding-block: 0.3rem; }
 }
 
+/* Math. KaTeX typesets in the ink colour at a touch above body size so a
+   symbol does not read smaller than the words around it. Display equations
+   scroll sideways on a narrow screen instead of widening the column, and
+   until KaTeX lands the TeX source shows in mono. */
+.prose .katex { font-size: 1.08em; color: var(--ink); }
+.prose .math--display { margin-block: 1.7rem; padding-block: 0.3rem; overflow-x: auto; overflow-y: hidden; }
+.prose .math--display .katex-display { margin: 0; }
+@media (max-width: 520px) { .prose .math--display .katex { font-size: 0.82em; } }
+@media (max-width: 359px) { .prose .math--display .katex { font-size: 0.76em; } }
+.prose .math:not(.is-set) { font-family: var(--mono); font-size: 0.88em; color: var(--ink-2); }
+.prose .math--display:not(.is-set) { display: block; }
+
+.article .support { margin-top: clamp(3rem, 8vh, 5rem); }
+
 .article__nav { display: grid; grid-template-columns: 1fr; margin-top: clamp(3.5rem, 9vh, 6rem); border-top: 1px solid var(--line); }
 @media (min-width: 760px) { .article__nav { grid-template-columns: 1fr 1fr; } }
 

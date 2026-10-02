@@ -103,6 +103,19 @@
       <aside class="toc" data-post-toc></aside>
     </div>
 
+    <!-- Support. Static markup, not a widget: Buy Me a Coffee's own button
+         script document.writes itself in and loads a font of its own, so it
+         could neither take the theme nor run after the entry is injected.
+         Hidden until post.js has rendered an entry, so a 404 never asks. -->
+    <aside class="support" data-post-support hidden aria-labelledby="support-h">
+      <svg class="support__cup" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h17v8a7 7 0 0 1-7 7h-3a7 7 0 0 1-7-7v-8Z"/><path d="M22 14h2.5a3.5 3.5 0 0 1 0 7H22"/><path d="M11 3.5c-1 1.3 1 2.2 0 3.5M15.5 3.5c-1 1.3 1 2.2 0 3.5"/></svg>
+      <div class="support__body">
+        <p class="lbl lbl--ink" id="support-h">Was this useful?</p>
+        <p class="support__text">If this entry saved you some time, you can buy me a coffee. It goes straight into the next one.</p>
+      </div>
+      <a class="support__btn" href="https://www.buymeacoffee.com/gawdechintamani" target="_blank" rel="noopener" data-cur="coffee">Buy me a coffee <span aria-hidden="true">&rarr;</span></a>
+    </aside>
+
     <nav class="article__nav" data-post-nav aria-label="More entries"></nav>
   </div>
 </main>
@@ -111,7 +124,7 @@
   <div class="wrap">
     <div class="foot__stamp">
       <b>Start with something that works.</b>
-      <span class="lbl"><a href="./">← All blogs</a> &middot; <a href="../">Portfolio</a></span>
+      <span class="lbl"><a href="./">← All blogs</a> &middot; <a href="../">Portfolio</a> &middot; <a class="foot__coffee" href="https://www.buymeacoffee.com/gawdechintamani" target="_blank" rel="noopener">Buy me a coffee</a></span>
     </div>
   </div>
 </footer>
@@ -129,6 +142,8 @@
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-css.min.js" integrity="sha384-0mV13Neu0xhJFylI+HV43C+XiR13bGSeL7D0/7e6hK7sJgvyvK6HVjeQwmvXTstY" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-clike.min.js" integrity="sha384-7LHwxHIDSHTBleLmgDWZbC/IMJsfYfFVOihKhvsrxYW4j47YQcRwZja4ToFE3bA8" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-javascript.min.js" integrity="sha384-D44bgYYKvaiDh4cOGlj1dbSDpSctn2FSUj118HZGmZEShZcO2v//Q5vvhNy206pp" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-typescript.min.js" integrity="sha384-PeOqKNW/piETaCg8rqKFy+Pm6KEk7e36/5YZE5XO/OaFdO+/Aw3O8qZ9qDPKVUgx" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-python.min.js" integrity="sha384-WJdEkJKrbsqw0evQ4GB6mlsKe5cGTxBOw4KAEIa52ZLB7DDpliGkwdme/HMa5n1m" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-java.min.js" integrity="sha384-DioAMZB4yk91W6LuFit5wJDh8c5Ov09f/MBvja94y0PodMqTpTZeBeejqpRUru7D" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-json.min.js" integrity="sha384-RhrmFFMb0ZCHImjFMpR/UE3VEtIVTCtNrtKQqXCzqXZNJala02N3UbVhi+qzw3CY" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-sql.min.js" integrity="sha384-/MKWdycCDliku23mP5sYXbZNuXrzgmQO/jsVxwPFn99dVOaXRyKsqDjarqpueGAp" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -143,7 +158,7 @@
     var need = [["gsap","gsap.min.js"],["ScrollTrigger","ScrollTrigger.min.js"],["SplitText","SplitText.min.js"],["Lenis","lenis.min.js"],["marked","marked.umd.js"],["DOMPurify","purify.min.js"]];
     /* Prism arrives as core plus one file per language; if any of them is
        missing, take the whole committed bundle instead of a half set. */
-    var langs = ['javascript', 'java', 'json', 'sql', 'yaml', 'bash'];
+    var langs = ['javascript', 'typescript', 'python', 'java', 'json', 'sql', 'yaml', 'bash'];
     var ok = !!window.Prism && !!window.Prism.languages;
     for (var l = 0; ok && l < langs.length; l++) ok = !!window.Prism.languages[langs[l]];
     if (!ok) need.push(['__prism', 'prism.min.js']);
