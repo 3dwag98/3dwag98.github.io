@@ -7,6 +7,17 @@
     <language>en</language>
     <atom:link href="https://3dwag98.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>Brilliant but unverifiable — what it takes to put an LLM to work in real science</title>
+      <link>https://3dwag98.github.io/blog/post.html?p=bootloops-claude-shaped-science</link>
+      <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=bootloops-claude-shaped-science</guid>
+      <pubDate>Fri, 02 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Language models solve olympiad maths and still frustrate working scientists. A physicist's answer is BootLoops — 49 packages and 12 protocols any model can drive, aimed only at problems a machine can check, and held to thirty digits at points no fit has seen. Why LLMs disappoint in real science, what BootLoops is, how it turns an agent's claim into a checked result — worked through the project's own documented examples.</description>
+      <category>ai-infrastructure</category>
+      <category>llm</category>
+      <category>agent-harnesses</category>
+      <category>verification</category>
+    </item>
+    <item>
       <title>A model that answers in types — TypeSafe's Jev, from the basics up</title>
       <link>https://3dwag98.github.io/blog/post.html?p=typed-decisions</link>
       <guid isPermaLink="true">https://3dwag98.github.io/blog/post.html?p=typed-decisions</guid>
